@@ -95,8 +95,9 @@ body {
   background: var(--bg); color: var(--ink);
   font-family: var(--font); font-size: var(--fs-md); line-height: 1.6;
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
 }
-button { font-family: var(--font); cursor: pointer; color: inherit; }
+button { font-family: var(--font); cursor: pointer; color: inherit; touch-action: manipulation; }
 input, textarea, select { font-family: var(--font); color: var(--ink); }
 a { color: var(--blue); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -421,6 +422,7 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
   white-space: nowrap; transition: all .2s var(--ease);
 }
 .tool-tab i { font-size: 17px; }
+.tool-tab .tt-short { display: none; }
 .tool-tab:hover { background: var(--surf2); color: var(--ink); }
 .tool-tab.active { background: var(--grad-brand); color: #fff; box-shadow: 0 4px 14px -4px rgba(13,148,136,.5); }
 .tool-panel { display: none; }
@@ -650,7 +652,17 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
   .stage { grid-template-columns: 1fr; }
   .stage-side img { max-height: 280px; object-fit: contain; }
   .modal { border-radius: 22px 22px 0 0; }
+  /* collapse tool-tab labels to short form */
   .tool-tab span { display: none; }
+  .tool-tab .tt-short { display: inline; }
+  /* 16px inputs prevent iOS focus-zoom */
+  .search-box input, .field input, .field select, .field textarea, .set-inp, .ring-edit input { font-size: 16px; }
+  /* comfortable touch targets */
+  .btn { padding: 11px 16px; }
+  .prov-head { padding: 14px 15px; }
+  .npill { padding: 8px 14px; }
+  .page-head h1 { font-size: 23px; }
+  .dropzone { padding: 36px 16px; }
 }
 @media (min-width: 861px) {
   .overlay { align-items: center; padding: 30px; }

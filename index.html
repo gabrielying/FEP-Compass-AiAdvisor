@@ -2,8 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#0a1628">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FEP Compass">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
 <meta name="description" content="FEP Compass — Bank Negara Malaysia Foreign Exchange Policy advisor for banking officers. Notices 1–7, smart document tools and an AI compliance analyst.">
 <title>FEP Compass · BNM Foreign Exchange Policy Advisor</title>
 <!--
@@ -155,9 +162,9 @@
           </header>
 
           <div class="tool-tabs" role="tablist">
-            <button class="tool-tab active" data-tool="scan" role="tab"><i class="ti ti-scan"></i> Document &amp; Image Reader</button>
-            <button class="tool-tab" data-tool="pdf" role="tab"><i class="ti ti-file-type-pdf"></i> PDF Reader &amp; Validator</button>
-            <button class="tool-tab" data-tool="analyst" role="tab"><i class="ti ti-brain"></i> AI Compliance Analyst</button>
+            <button class="tool-tab active" data-tool="scan" role="tab"><i class="ti ti-scan"></i><span>Document &amp; Image Reader</span><span class="tt-short">Scanner</span></button>
+            <button class="tool-tab" data-tool="pdf" role="tab"><i class="ti ti-file-type-pdf"></i><span>PDF Reader &amp; Validator</span><span class="tt-short">PDF</span></button>
+            <button class="tool-tab" data-tool="analyst" role="tab"><i class="ti ti-brain"></i><span>AI Compliance Analyst</span><span class="tt-short">Analyst</span></button>
           </div>
 
           <!-- OCR scanner -->

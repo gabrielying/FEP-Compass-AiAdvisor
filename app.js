@@ -467,10 +467,24 @@ function renderDecls() {
   });
 }
 $('decl-add').addEventListener('click', () => {
-  const t = prompt('Declaration / task description:');
-  if (!t) return;
-  ST.decls.push({ id:Date.now(), t, d:'Added '+new Date().toLocaleDateString('en-MY',{day:'numeric',month:'short',year:'numeric'}), done:false });
-  save('fep_decls', ST.decls); renderDecls();
+  const ul = $('decl-list');
+  if (ul.querySelector('.decl-new')) { ul.querySelector('.decl-new input').focus(); return; }
+  const li = mkEl('li','decl-item decl-new');
+  li.innerHTML = `<input type="text" maxlength="120" placeholder="Describe the declaration / task…"
+      style="flex:1;border:1.5px solid var(--bdr2);border-radius:7px;background:var(--surf);padding:8px 10px;font-size:16px;outline:none">
+    <button class="ghost-btn"><i class="ti ti-check"></i> Save</button>`;
+  const inp = li.querySelector('input');
+  li.querySelector('button').addEventListener('click', () => {
+    const t = inp.value.trim();
+    if (!t) { li.remove(); return; }
+    ST.decls.push({ id:Date.now(), t, d:'Added '+new Date().toLocaleDateString('en-MY',{day:'numeric',month:'short',year:'numeric'}), done:false });
+    save('fep_decls', ST.decls); renderDecls();
+  });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') li.querySelector('button').click();
+    if (e.key === 'Escape') li.remove();
+  });
+  ul.prepend(li); inp.focus();
 });
 function renderDashNotices() {
   const wrap = $('dash-notices'); wrap.innerHTML = '';
@@ -1008,12 +1022,23 @@ function renderSettings() {
   data.querySelector('#reset-limits').addEventListener('click', () => {
     ST.limits = JSON.parse(JSON.stringify(DEFAULT_LIMITS)); save('fep_limits', ST.limits); renderRings(); toast('Limit trackers reset');
   });
-  data.querySelector('#clear-data').addEventListener('click', () => {
-    if (!confirm('Clear all locally stored data (settings, history, trackers)?')) return;
-    localStorage.removeItem('fep_cfg'); localStorage.removeItem('fep_sess');
-    localStorage.removeItem('fep_limits'); localStorage.removeItem('fep_decls');
+  const clearBtn = data.querySelector('#clear-data');
+  clearBtn.addEventListener('click', () => {
+    if (!clearBtn.dataset.armed) {
+      clearBtn.dataset.armed = '1';
+      clearBtn.innerHTML = '<i class="ti ti-alert-triangle"></i> Tap again to erase everything';
+      setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.innerHTML = '<i class="ti ti-trash"></i> Clear all local data'; }, 3500);
+      return;
+    }
+    ['fep_cfg','fep_sess','fep_limits','fep_decls'].forEach(k => localStorage.removeItem(k));
     location.reload();
   });
+}
+
+/* ━━━ PWA — offline service worker (https / localhost only) ━━━ */
+if ('serviceWorker' in navigator &&
+    (location.protocol === 'https:' || ['localhost','127.0.0.1'].includes(location.hostname))) {
+  navigator.serviceWorker.register('sw.js').catch(() => {/* file:// or unsupported — app still works online */});
 }
 
 /* ━━━ INIT ━━━ */
