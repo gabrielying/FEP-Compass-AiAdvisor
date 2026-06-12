@@ -297,7 +297,11 @@ async function callGemini(query, chunks, history=[]) {
     body: JSON.stringify({
       system_instruction:{ parts:[{ text: buildSystemPrompt(chunks) }] },
       contents:[...history.map(m=>({ role:m.role==='assistant'?'model':'user', parts:[{text:m.content}] })), { role:'user', parts:[{text:query}] }],
-      generationConfig:{ temperature:0.05, maxOutputTokens:1024, responseMimeType:'application/json' }
+      generationConfig:{
+        temperature:0.05, maxOutputTokens:4096, responseMimeType:'application/json',
+        // 2.5-flash spends "thinking" tokens from the same budget — disable so the JSON never truncates
+        ...(model.includes('flash') ? { thinkingConfig:{ thinkingBudget:0 } } : {})
+      }
     })
   });
   if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `Gemini API error ${res.status}`); }
@@ -325,25 +329,47 @@ async function callOllama(query, chunks, history=[]) {
 const callAI = (q, chunks, hist) => ST.cfg.provider === 'ollama' ? callOllama(q, chunks, hist) : callGemini(q, chunks, hist);
 const aiConfigured = () => ST.cfg.provider === 'ollama' || !!ST.cfg.apiKey;
 
+/* Repair truncated JSON: close an unterminated string, drop a dangling
+   key/value fragment, then close unbalanced brackets in nesting order. */
+function repairJSON(s) {
+  let inStr = false, escNext = false; const stack = [];
+  for (const ch of s) {
+    if (escNext) { escNext = false; continue; }
+    if (inStr) {
+      if (ch === '\\') escNext = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') inStr = true;
+    else if (ch === '{' || ch === '[') stack.push(ch);
+    else if (ch === '}' || ch === ']') stack.pop();
+  }
+  let out = s;
+  if (inStr) out += '"';
+  out = out
+    .replace(/,\s*"(?:[^"\\]|\\.)*"\s*:?\s*$/, '')      // dangling ,"key" or ,"key":
+    .replace(/(\{\s*)"(?:[^"\\]|\\.)*"\s*:?\s*$/, '$1') // {"key": with no value yet
+    .replace(/[,:]\s*$/, '');                           // bare trailing comma/colon
+  while (stack.length) out += stack.pop() === '{' ? '}' : ']';
+  return out;
+}
 function parseResp(raw) {
   if (!raw) return { ok:false, raw:'' };
   const tryParse = s => { try { const p = JSON.parse(s); if (p && p.verdict) return p; } catch(_){} return null; };
   let p = tryParse(raw.trim());
+  let truncated = false;
   if (!p) {
-    const m = raw.replace(/```json\s*|\s*```/g,'').match(/\{[\s\S]*\}/);
+    const m = raw.replace(/```json\s*|\s*```/g,'').match(/\{[\s\S]*/);
     if (m) {
       p = tryParse(m[0]);
-      if (!p) { // close truncated braces
-        const opens = (m[0].match(/\{/g)||[]).length, closes = (m[0].match(/\}/g)||[]).length;
-        if (opens > closes) p = tryParse(m[0] + '}'.repeat(opens-closes));
-      }
+      if (!p) { p = tryParse(repairJSON(m[0].trim())); truncated = !!p; }
     }
   }
-  if (p) return { ok:true, data:p };
-  // regex salvage
+  if (p) return { ok:true, partial:truncated, data:p };
+  // regex salvage — tolerate a missing closing quote at end-of-string
   const f = {};
   ['verdict','summary','explanation','citation','warning','nextStep'].forEach(k => {
-    f[k] = (raw.match(new RegExp(`"${k}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"`))||[])[1];
+    f[k] = (raw.match(new RegExp(`"${k}"\\s*:\\s*"([^"]*)`))||[])[1];
   });
   if (f.verdict && f.summary) return { ok:true, partial:true, data:{ ...f, explanation: f.explanation||'See raw response.', conditions:[] } };
   return { ok:false, raw };

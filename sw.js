@@ -3,7 +3,7 @@
    CDN assets (fonts, icons, OCR/PDF engines): cached on first use for offline reuse. */
 'use strict';
 
-const CACHE = 'fep-compass-v2';
+const CACHE = 'fep-compass-v3';
 const SHELL = ['./', './index.html', './styles.css', './app.js', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', e => {
