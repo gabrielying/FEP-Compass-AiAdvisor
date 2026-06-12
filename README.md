@@ -1,4 +1,4 @@
-# FEP Compass — BNM Foreign Exchange Policy Ai Advisor (v2.0)
+# FEP Compass — A Malaysia's Foreign Exchange Policy Ai Advisor (v2.0)
 
 A modern, minimalist, education-first web app for **banking officers** (and companies needing AI FEP tooling) covering **Bank Negara Malaysia's Foreign Exchange Policy (FEP) Notices 1–7** (effective 1 October 2025).
 
