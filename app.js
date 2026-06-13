@@ -276,7 +276,7 @@ const GLOSSARY = {
   'LOB': 'Licensed Onshore Bank — a licensed bank, investment bank or Islamic bank under the FSA / IFSA.',
   'AOO': 'Appointed Overseas Office — an overseas office of a LOB\'s banking group approved by the FEP Authority to facilitate Ringgit transactions for Non-Residents.',
   'NRFI': 'Non-Resident Financial Institution — a Non-Resident entity undertaking financial services.',
-  'DRB': 'Domestic Ringgit Borrowing — any Ringgit borrowing obtained by a Resident from another Resident (excluding one housing loan, one vehicle loan, and sundry/employee facilities).',
+  'DRB': 'Domestic Ringgit Borrowing — any Ringgit borrowing obtained by a Resident from another Resident, excluding one (1) housing loan, one (1) vehicle loan, and sundry/employee facilities. IMPORTANT: having MORE THAN one (1) housing loan OR more than one (1) vehicle loan means the Resident is deemed to HAVE DRB (loses the unlimited-investment exemption and becomes subject to the RM1 million / RM50 million annual limits under Notice 3).',
   'FCA': 'Foreign Currency Account maintained with a LOB or NRFI — split into Trade FCA and Investment FCA.',
   'Trade FCA': 'Foreign Currency Account used for trade-related receipts and payments, including export proceeds.',
   'External Account': 'A Ringgit account opened by a Non-Resident with a Financial Institution in Malaysia.',
