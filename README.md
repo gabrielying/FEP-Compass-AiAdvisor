@@ -34,6 +34,7 @@ A modern, minimalist, education-first web app for **banking officers** (and comp
 ## Screen-by-screen walkthrough (wireframe text)
 
 ### 1 · FEP Notices (Educational Hub) — default landing page
+- **Onboarding checklist** — first-run only, a dismissible card with 3 quick-start steps: explore a notice, try "Am I Affected?", and connect an AI provider (with a note that Gemini's free tier has a daily request limit, and Ollama is unlimited/offline).
 - **Global provision search** — substring + BM25 fallback across all 60+ provisions, highlighted matches, click-through to the exact provision.
 - **Notice cards (N1–N7)** — number badge, plain-English description, provision count, and two actions:
   - **Explore** → bottom sheet (mobile) / centered modal (desktop) with accordion provisions; regulatory jargon (Resident, NRFI, DRB…) is auto-linked to tap-for-definition tooltips.
@@ -43,21 +44,22 @@ A modern, minimalist, education-first web app for **banking officers** (and comp
 
 ### 2 · Dashboard
 - **Header** — time-aware greeting + one-line mission statement.
-- **FEP Limit Utilisation** — three SVG progress rings: Individual FCY investment (RM1M/yr, Notice 3), Individual FCY borrowing (RM10M, Notice 2), Entity FCY investment (RM50M/yr group basis, Notice 3). Rings turn amber at 70%, red at 90%. Click a ring → inline editor to update the utilised amount (persisted to `localStorage`).
+- **Profile** (set in Settings) — Individual / Entity / Both. Filters which limit rings appear here, since individuals and entities are subject to different FEP limits.
+- **FEP Limit Utilisation** — up to three SVG progress rings, filtered by Profile: Individual FCY investment (RM1M/yr, Notice 3), Individual FCY borrowing (RM10M, Notice 2), Entity FCY investment (RM50M/yr group basis, Notice 3). Rings turn amber at 70%, red at 90%. Click a ring → inline editor to update the utilised amount (persisted to `localStorage`).
 - **Pending Declarations** — checklist (e.g. "export proceeds 6-month window"); add / complete / remove.
 - **Quick Actions** — 4 deep links: Ask the Advisor, Scan a Document, Compliance Check, Browse Notices.
 - **Notices at a Glance** — 7 mini-tiles, each opening the notice detail sheet.
-- **Recent Activity** — local audit trail (last 50 events) of advisor queries, compliance checks, document scans, notice lookups and limit/declaration changes, with timestamps and a "Clear" action. Stored only in `localStorage` on this device.
+- **Recent Activity** — local audit trail (last 50 events) of advisor queries, compliance checks, document scans, notice lookups and limit/declaration changes, with timestamps. Searchable, filterable by type (once 2+ types are logged), **exportable as CSV**, and a "Clear" action. Stored only in `localStorage` on this device.
 
 ### 3 · Smart Tools (the engine)
 - **Document & Image Reader** — drag-drop or camera upload → on-device OCR (Tesseract.js, lazy-loaded from CDN) with live progress → extracted text with **currencies/amounts highlighted**, entity chips, and "potential FEP touchpoint" chips that map detected keywords to Notices 1–7.
 - **PDF Reader & Validator** — drag-drop a PDF → text extraction (pdf.js, first 10 pages) → same entity detection, plus **validator flags** ("this document references export proceeds, 6 months — review against Notice 7").
 - **AI Compliance Analyst** — structured intake designed for precise RAG retrieval:
   `WHO` (party type) · `WHAT` (transaction type) · `WHERE` (countries) · `WHY` (purpose, 160 chars) · `AMOUNT` (+ currency) · optional context (400 chars).
-  Both readers can **Send to Analyst**, attaching a 900-char document extract as an evidence chip. Output: verdict card — `PERMITTED / NOT PERMITTED / CONDITIONAL / REQUIRES APPROVAL` — with explanation, conditions, warning, **exact FEP Notice citation**, **suggested next step / filing** (e.g. registration or report to the FEP Authority) and the retrieved provisions listed for audit. Without an AI key it degrades gracefully to a pure reference lookup.
+  Both readers can **Send to Analyst**, attaching a 900-char document extract as an evidence chip. Output: verdict card — `PERMITTED / NOT PERMITTED / CONDITIONAL / REQUIRES APPROVAL` — with explanation, conditions, warning, **exact FEP Notice citation**, **suggested next step / filing** (e.g. registration or report to the FEP Authority), the retrieved provisions listed for audit, and a **"Save as PDF"** button (print stylesheet) for compliance files. Without an AI key, or if the AI provider is unreachable, it degrades gracefully to a reference-only lookup of the most relevant provisions.
 
 ### 4 · AI Advisor
-Free-form chat with notice-scope pills (All / N1–N7), sample prompts, Enter-to-send, structured verdict cards, and a session history sheet (last 30 conversations, restorable).
+Free-form chat with notice-scope pills (All / N1–N7), sample prompts, Enter-to-send, structured verdict cards (each with **"Save as PDF"**), and a session history sheet (last 30 conversations, restorable). If the configured AI provider is unreachable, the Advisor falls back to showing the top BM25-retrieved provisions as a reference-only answer instead of just erroring.
 
 ### Interactive flow: readers → analyst
 ```

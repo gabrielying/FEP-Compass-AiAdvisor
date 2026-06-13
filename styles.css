@@ -227,6 +227,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .ring-info .t { font-size: var(--fs-xs); font-weight: 700; color: var(--ink2); line-height: 1.4; }
 .ring-info .v { font-family: var(--mono); font-size: var(--fs-2xs); color: var(--ink3); margin-top: 3px; }
 .ring-info .n { font-size: var(--fs-2xs); color: var(--teal); font-weight: 700; margin-top: 3px; letter-spacing: .04em; }
+.ring-empty { grid-column: 1 / -1; color: var(--ink3); font-size: var(--fs-sm); text-align: center; padding: 18px 0; }
 .ring-edit { margin-top: 6px; display: flex; gap: 6px; }
 .ring-edit input {
   width: 110px; padding: 5px 8px; font-family: var(--mono); font-size: var(--fs-xs);
@@ -258,7 +259,15 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .decl-del:hover { color: var(--red); }
 .decl-empty { color: var(--ink3); font-size: var(--fs-sm); text-align: center; padding: 18px 0; }
 
-.activity-list { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-top: 12px; max-height: 360px; overflow-y: auto; }
+.card-head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.activity-controls { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.activity-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.activity-filters.hidden { display: none; }
+.search-box.sm { padding: 8px 12px; margin-bottom: 0; }
+.search-box.sm input { font-size: var(--fs-sm); }
+
+.activity-list { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-top: 10px; max-height: 360px; overflow-y: auto; }
 .activity-item {
   display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px;
   border: 1px solid var(--bdr); border-radius: var(--radius-sm); background: var(--surf2);
@@ -340,6 +349,20 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 
 .glossary-card { margin-top: 6px; }
 .glossary { display: flex; flex-wrap: wrap; gap: 7px; }
+
+/* ════════ ONBOARDING ════════ */
+.onboarding-card { margin-bottom: 16px; }
+.onboarding-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 10px; }
+.onboarding-step {
+  display: flex; align-items: flex-start; gap: 11px; padding: 14px;
+  border: 1px solid var(--bdr); border-radius: var(--radius); background: var(--surf2);
+  text-align: left; transition: all .18s var(--ease);
+}
+.onboarding-step:hover { border-color: var(--blue-bdr); background: var(--blue-bg); transform: translateY(-2px); box-shadow: var(--shadow); }
+.onboarding-step i { font-size: 22px; color: var(--teal); flex-shrink: 0; margin-top: 2px; }
+.onboarding-step div { display: flex; flex-direction: column; gap: 3px; }
+.onboarding-step strong { font-size: var(--fs-sm); }
+.onboarding-step span { font-size: var(--fs-xs); color: var(--ink2); line-height: 1.5; }
 
 /* term chips & popover */
 .term {
@@ -529,6 +552,23 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 .vcite-text { font-family: var(--mono); font-size: var(--fs-xs); color: var(--blue); line-height: 1.5; word-break: break-word; }
 .vsources { padding: 8px 14px; border-top: 1px solid var(--bdr); display: flex; flex-wrap: wrap; gap: 5px; }
 .vsrc-tag { font-family: var(--mono); font-size: var(--fs-2xs); padding: 2px 8px; border-radius: 5px; background: var(--surf2); border: 1px solid var(--bdr); color: var(--ink3); }
+.vfoot { padding: 8px 14px; border-top: 1px solid var(--bdr); display: flex; justify-content: flex-end; }
+.vprint-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--bdr2); background: var(--surf); color: var(--ink2); font-size: var(--fs-2xs); font-weight: 700; cursor: pointer; transition: var(--transition); }
+.vprint-btn:hover { background: var(--blue-bg); border-color: var(--blue-bdr); color: var(--blue); }
+
+/* ════════ PRINT / SAVE AS PDF (verdict cards) ════════ */
+#print-area { display: none; }
+@media print {
+  body.printing > *:not(#print-area) { display: none !important; }
+  body.printing #print-area { display: block; max-width: 800px; margin: 0 auto; padding: 24px; color: #000; }
+  #print-area .print-head { margin-bottom: 18px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+  #print-area .print-head h1 { font-size: 16px; margin: 0 0 4px; }
+  #print-area .print-head p { font-size: 10px; color: #444; margin: 0; }
+  #print-area .vcard { box-shadow: none; border: 1px solid #999; color: #000; background: #fff; }
+  #print-area .vbody { color: #000; }
+  #print-area .vsrc-tag, #print-area .vcite { background: #f3f3f3; color: #000; border-color: #999; }
+  #print-area .vfoot { display: none; }
+}
 
 .msg-raw { font-size: var(--fs-sm); line-height: 1.65; padding: 13px; background: var(--surf2); border-radius: var(--radius-sm); border: 1px solid var(--bdr); color: var(--ink2); white-space: pre-wrap; word-break: break-word; }
 .msg-raw-label { font-size: 9.5px; font-weight: 700; letter-spacing: .1em; color: var(--ink3); font-family: var(--mono); text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
@@ -603,6 +643,7 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 
 /* ════════ SETTINGS ════════ */
 .provider-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.profile-opts { grid-template-columns: repeat(3, 1fr); }
 .popt { padding: 14px; border: 1.5px solid var(--bdr); border-radius: var(--radius); background: var(--surf); cursor: pointer; text-align: left; transition: all .18s var(--ease); }
 .popt:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
 .popt.on { border-color: var(--teal); background: var(--green-bg); }
@@ -671,6 +712,7 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
   .tool-tab .tt-short { display: inline; }
   /* 16px inputs prevent iOS focus-zoom */
   .search-box input, .field input, .field select, .field textarea, .set-inp, .ring-edit input { font-size: 16px; }
+  .profile-opts { grid-template-columns: 1fr; }
   /* comfortable touch targets */
   .btn { padding: 11px 16px; }
   .prov-head { padding: 14px 15px; }

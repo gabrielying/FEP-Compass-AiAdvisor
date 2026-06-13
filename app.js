@@ -206,12 +206,14 @@ function retrieve(query, noticeFilter='all', k=5) {
 }
 
 /* ━━━ STATE ━━━ */
-const DEFAULT_CFG = { provider:'gemini', apiKey:'', model:'gemini-2.5-flash', ollamaUrl:'http://localhost:11434', ollamaModel:'qwen2.5:7b' };
+const DEFAULT_CFG = { provider:'gemini', apiKey:'', model:'gemini-2.5-flash', ollamaUrl:'http://localhost:11434', ollamaModel:'qwen2.5:7b', profile:'both' };
 const DEFAULT_LIMITS = [
   { id:'n3i', label:'Individual FCY investment', notice:'Notice 3 · with DRB', limit:1000000, used:0 },
   { id:'n2i', label:'Individual FCY borrowing', notice:'Notice 2 · Part A', limit:10000000, used:0 },
   { id:'n3e', label:'Entity FCY investment', notice:'Notice 3 · group basis', limit:50000000, used:0 },
 ];
+/* which profile each limit tracker belongs to — drives the Dashboard's Individual/Entity/Both filter */
+const LIMIT_PROFILE = { n3i:'individual', n2i:'individual', n3e:'entity' };
 const DEFAULT_DECLS = [
   { id:1, t:'Export proceeds — Q1 shipment approaching 6-month window', d:'Notice 7 · due 30 Jun 2026', done:false },
   { id:2, t:'Dynamic hedging quarterly position update', d:'Notice 1 · FEP Authority portal', done:false },
@@ -224,6 +226,7 @@ const ST = {
   decls: JSON.parse(localStorage.getItem('fep_decls')||'null') || DEFAULT_DECLS,
   sessions: JSON.parse(localStorage.getItem('fep_sess')||'[]'),
   activity: JSON.parse(localStorage.getItem('fep_activity')||'[]'),
+  activityFilter:'all', activitySearch:'',
   msgs: [], loading:false, advisorFilter:'all',
   toolTab:'scan', analystImport:null, modalNotice:null,
 };
@@ -250,22 +253,65 @@ const ACTIVITY_ICONS = {
   advisor:'ti-message-dots', analyst:'ti-checkup-list', scan:'ti-scan', pdf:'ti-file-type-pdf',
   limit:'ti-gauge', declaration:'ti-clipboard-check', notice:'ti-book-2', check:'ti-help-hexagon',
 };
+const ACTIVITY_LABELS = {
+  advisor:'Advisor', analyst:'Analyst', scan:'Image scan', pdf:'PDF',
+  limit:'Limits', declaration:'Declarations', notice:'Notices', check:'Am I Affected?',
+};
 function logActivity(type, text) {
   ST.activity.unshift({ id: Date.now()+'_'+Math.random().toString(36).slice(2), ts: Date.now(), type, text });
   if (ST.activity.length > MAX_ACTIVITY) ST.activity = ST.activity.slice(0, MAX_ACTIVITY);
   save('fep_activity', ST.activity);
   if (ST.tab === 'dashboard') renderActivity();
 }
+function renderActivityFilters() {
+  const bar = $('activity-filters'); if (!bar) return;
+  const types = [...new Set(ST.activity.map(a => a.type))];
+  bar.innerHTML = '';
+  if (types.length < 2) { bar.classList.add('hidden'); return; }
+  bar.classList.remove('hidden');
+  const mkPill = (id, label) => {
+    const b = mkEl('button', 'npill'+(ST.activityFilter===id?' on':''), esc(label));
+    b.addEventListener('click', () => { ST.activityFilter = id; renderActivity(); });
+    return b;
+  };
+  bar.appendChild(mkPill('all','All'));
+  types.forEach(t => bar.appendChild(mkPill(t, ACTIVITY_LABELS[t] || t)));
+}
 function renderActivity() {
   const ul = $('activity-list'); if (!ul) return;
+  renderActivityFilters();
   ul.innerHTML = '';
-  if (!ST.activity.length) { ul.appendChild(mkEl('li','activity-empty','No activity recorded yet — actions across the app will appear here.')); return; }
-  ST.activity.forEach(a => {
+  let items = ST.activity;
+  if (ST.activityFilter !== 'all') items = items.filter(a => a.type === ST.activityFilter);
+  const q = ST.activitySearch.trim().toLowerCase();
+  if (q) items = items.filter(a => a.text.toLowerCase().includes(q));
+  if (!items.length) {
+    const msg = ST.activity.length ? 'No activity matches your search or filter.' : 'No activity recorded yet — actions across the app will appear here.';
+    ul.appendChild(mkEl('li','activity-empty', msg));
+    return;
+  }
+  items.forEach(a => {
     const li = mkEl('li','activity-item');
     li.innerHTML = `<i class="ti ${ACTIVITY_ICONS[a.type] || 'ti-circle'}"></i>
       <div class="activity-body"><div class="activity-text">${esc(a.text)}</div><div class="activity-ts">${new Date(a.ts).toLocaleString('en-MY')}</div></div>`;
     ul.appendChild(li);
   });
+}
+function exportActivity() {
+  if (!ST.activity.length) return toast('No activity to export');
+  const header = 'Timestamp,Type,Description\n';
+  const rows = ST.activity.map(a => {
+    const ts = new Date(a.ts).toISOString();
+    const text = '"' + a.text.replace(/"/g, '""') + '"';
+    return `${ts},${a.type},${text}`;
+  }).join('\n');
+  const blob = new Blob([header + rows], { type:'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url; link.download = `fep-compass-activity-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(link); link.click(); link.remove();
+  URL.revokeObjectURL(url);
+  toast('Activity log exported');
 }
 
 /* wrap glossary terms in text with clickable chips */
@@ -439,8 +485,27 @@ function verdictCard(data, chunks, isPartial) {
     chunks.forEach(c => { const k = `${c.noticeName} ${c.ref}`; if (!seen.has(k)) { seen.add(k); srcs.appendChild(mkEl('span','vsrc-tag',esc(k))); } });
     card.appendChild(srcs);
   }
+  const foot = mkEl('div','vfoot');
+  const printBtn = mkEl('button','vprint-btn','<i class="ti ti-printer"></i> Save as PDF');
+  printBtn.addEventListener('click', () => printVerdict(card));
+  foot.appendChild(printBtn);
+  card.appendChild(foot);
   return card;
 }
+/* clone a verdict card into the dedicated print area and trigger the browser's print/Save-as-PDF dialog */
+function printVerdict(card) {
+  const area = $('print-area');
+  const clone = card.cloneNode(true);
+  clone.querySelectorAll('.vfoot').forEach(el => el.remove());
+  area.innerHTML = `<div class="print-head">
+    <h1>FEP Compass — Compliance Verdict</h1>
+    <p>Generated ${esc(new Date().toLocaleString('en-MY'))} · Educational guidance only — not legal advice. Verify complex cases with the FEP Authority.</p>
+  </div>`;
+  area.appendChild(clone);
+  document.body.classList.add('printing');
+  window.print();
+}
+window.addEventListener('afterprint', () => document.body.classList.remove('printing'));
 function rawCard(raw) {
   const w = mkEl('div','');
   w.appendChild(mkEl('div','msg-raw-label','<i class="ti ti-alert-circle"></i>Raw AI response — could not parse a structured verdict'));
@@ -456,6 +521,16 @@ function provisionList(chunks, title='Most relevant provisions (reference lookup
        <div class="rtitle">${esc(c.title)}</div><div class="rexcerpt">${esc(c.body)}</div>`);
     w.appendChild(card);
   });
+  return w;
+}
+/* shown when an AI call fails — degrade to a reference-only lookup instead of a bare error */
+function aiFallbackBlock(err, chunks) {
+  const w = mkEl('div','');
+  w.appendChild(mkEl('div','error-msg','<i class="ti ti-wifi-off"></i> AI unavailable: ' + esc(err.message)));
+  if (chunks?.length) {
+    w.appendChild(mkEl('div','vwarn', 'Showing the most relevant FEP provisions below for reference — review manually or retry once the AI provider is reachable.'));
+    w.appendChild(provisionList(chunks, 'Reference results (AI unavailable)'));
+  }
   return w;
 }
 
@@ -484,7 +559,10 @@ function ringSVG(pct, color) {
 }
 function renderRings() {
   const wrap = $('rings'); wrap.innerHTML = '';
-  ST.limits.forEach(L => {
+  const profile = ST.cfg.profile || 'both';
+  const limits = profile === 'both' ? ST.limits : ST.limits.filter(L => LIMIT_PROFILE[L.id] === profile);
+  if (!limits.length) { wrap.appendChild(mkEl('div','ring-empty','No limit trackers for this profile.')); return; }
+  limits.forEach(L => {
     const pct = L.used / L.limit;
     const color = pct >= .9 ? 'var(--red)' : pct >= .7 ? 'var(--amber)' : 'var(--teal)';
     const card = mkEl('div','ring-card');
@@ -570,6 +648,10 @@ function renderDashboard() {
 }
 $('activity-clear').addEventListener('click', () => {
   ST.activity = []; save('fep_activity', ST.activity); renderActivity(); toast('Activity log cleared');
+});
+$('activity-export').addEventListener('click', exportActivity);
+$('activity-search').addEventListener('input', e => {
+  ST.activitySearch = e.target.value; renderActivity();
 });
 
 /* ━━━ NOTICES HUB ━━━ */
@@ -922,8 +1004,8 @@ $('analyst-form').addEventListener('submit', async e => {
     logActivity('analyst', `Compliance check: ${who} — ${what} → ${p.ok ? (VCFG[p.data.verdict]?.label || p.data.verdict) : 'unparsed response'}`);
   } catch (err) {
     load.remove();
-    out.appendChild(mkEl('div','error-msg', esc(err.message)));
-    out.appendChild(provisionList(chunks));
+    out.appendChild(aiFallbackBlock(err, chunks));
+    logActivity('analyst', `Compliance check: ${who} — ${what} → AI unavailable, showed reference provisions`);
   } finally {
     $('analyst-run').disabled = false;
     out.scrollIntoView({ behavior:'smooth', block:'nearest' });
@@ -975,8 +1057,8 @@ async function sendChat() {
   const load = mkEl('div','loading','<span class="dot"></span><span class="dot"></span><span class="dot"></span>');
   m.appendChild(load); m.scrollTop = m.scrollHeight;
   ST.loading = true;
+  const chunks = retrieve(q, ST.advisorFilter, 5);
   try {
-    const chunks = retrieve(q, ST.advisorFilter, 5);
     const raw = await callAI(q, chunks, ST.msgs.slice(0,-1));
     load.remove();
     const wrap = mkEl('div','msg-ai');
@@ -993,7 +1075,10 @@ async function sendChat() {
     save('fep_sess', ST.sessions);
   } catch (err) {
     load.remove();
-    m.appendChild(mkEl('div','error-msg', esc(err.message)));
+    const wrap = mkEl('div','msg-ai');
+    wrap.appendChild(aiFallbackBlock(err, chunks));
+    m.appendChild(wrap);
+    logActivity('advisor', `Advisor query: "${q.slice(0,70)}${q.length>70?'…':''}" → AI unavailable, showed reference provisions`);
   } finally {
     ST.loading = false;
     m.scrollTop = m.scrollHeight;
@@ -1043,7 +1128,24 @@ const GEMINI_MODELS = [
 function renderSettings() {
   const el = $('settings-content'); el.innerHTML = '';
   const c = ST.cfg;
-  const sec = mkEl('div','card');
+
+  const profileCard = mkEl('div','card');
+  profileCard.innerHTML = `<div class="card-head"><h2><i class="ti ti-users"></i> Profile</h2></div>
+  <p class="card-hint" style="margin-bottom:12px">Choose which FEP limit trackers appear on your Dashboard — this does not change AI Advisor or Compliance Analyst answers.</p>
+  <div class="provider-opts profile-opts">
+    <button class="popt ${c.profile==='individual'?'on':''}" data-pr="individual"><span class="popt-id">Individual</span><span class="popt-note">Personal FCY limits — Notices 2 &amp; 3</span></button>
+    <button class="popt ${c.profile==='entity'?'on':''}" data-pr="entity"><span class="popt-id">Entity</span><span class="popt-note">Company / group FCY limits — Notice 3</span></button>
+    <button class="popt ${c.profile==='both'?'on':''}" data-pr="both"><span class="popt-id">Both</span><span class="popt-note">Show all limit trackers</span></button>
+  </div>`;
+  el.appendChild(profileCard);
+  profileCard.querySelectorAll('.popt').forEach(b => b.addEventListener('click', () => {
+    c.profile = b.dataset.pr; save('fep_cfg', c);
+    profileCard.querySelectorAll('.popt').forEach(x => x.classList.toggle('on', x.dataset.pr === c.profile));
+    renderRings();
+    toast(`Profile set to ${b.querySelector('.popt-id').textContent}`);
+  }));
+
+  const sec = mkEl('div','card'); sec.style.marginTop = '16px';
   sec.innerHTML = `<div class="card-head"><h2><i class="ti ti-plug-connected"></i> AI Provider</h2></div>
   <div class="provider-opts">
     <button class="popt ${c.provider==='gemini'?'on':''}" data-p="gemini"><span class="popt-id">Gemini</span><span class="popt-note">Cloud · free API key from Google AI Studio</span></button>
@@ -1120,9 +1222,29 @@ function renderSettings() {
       setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.innerHTML = '<i class="ti ti-trash"></i> Clear all local data'; }, 3500);
       return;
     }
-    ['fep_cfg','fep_sess','fep_limits','fep_decls'].forEach(k => localStorage.removeItem(k));
+    ['fep_cfg','fep_sess','fep_limits','fep_decls','fep_activity','fep_onboarded'].forEach(k => localStorage.removeItem(k));
     location.reload();
   });
+}
+
+/* ━━━ ONBOARDING (first-run walkthrough) ━━━ */
+const ONBOARDING_KEY = 'fep_onboarded';
+function initOnboarding() {
+  if (localStorage.getItem(ONBOARDING_KEY)) return;
+  const card = $('onboarding-card');
+  card.classList.remove('hidden');
+  card.querySelectorAll('.onboarding-step').forEach(b => b.addEventListener('click', () => {
+    const step = b.dataset.step;
+    if (step === 'explore') openNotice(1);
+    else if (step === 'check') openQuickCheck(1);
+    else if (step === 'settings') switchTab('settings');
+    dismissOnboarding();
+  }));
+  $('onboarding-dismiss').addEventListener('click', dismissOnboarding);
+}
+function dismissOnboarding() {
+  localStorage.setItem(ONBOARDING_KEY, '1');
+  $('onboarding-card').classList.add('hidden');
 }
 
 /* ━━━ PWA — offline service worker (https / localhost only) ━━━ */
@@ -1140,3 +1262,4 @@ renderAdvisorPills();
 renderAdvisorEmpty();
 renderSettings();
 buildBM25();
+initOnboarding();
