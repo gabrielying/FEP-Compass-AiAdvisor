@@ -410,6 +410,11 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 .modal-foot { display: flex; gap: 9px; padding: 14px 22px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--bdr); flex-wrap: wrap; }
 .modal-foot .btn { flex: 1; }
 
+/* notice modal Provisions/FAQs tabs */
+.nm-tabs { display: flex; gap: 6px; margin-bottom: 6px; }
+.nm-tabs .npill { flex: 1; text-align: center; }
+.nm-panel.hidden { display: none; }
+
 /* accordion provisions */
 .prov {
   border: 1px solid var(--bdr); border-radius: var(--radius); margin-bottom: 9px;

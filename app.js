@@ -107,12 +107,36 @@ const NOTICES = {
       {ref:'Part C, Para 5',title:'Reporting obligation — proceeds not received within 24 months',body:'Where export proceeds are not received within 24 months from the date of shipment, the Resident exporter shall notify the FEP Authority on the outstanding proceeds within TWENTY-ONE (21) DAYS after the end of each calendar year via https://bnm.my/fep.'},
       {ref:'Appendix B',title:'Approved offsetting and writing-off arrangements for export proceeds',body:'A Resident exporter may receive less than full value where it enters into: (a) offsetting arrangement with Non-Resident to offset export proceeds with imports of goods/services by exporter, warranty claims, dividend payments, other Current Account Transactions, or repayment of FCY Borrowing under Notice 2; or (b) writing-off arrangement where Non-Resident buyer is in liquidation, or proceeds cannot be received after at least 24 months from shipment despite following up.'},
     ],
-    kw:['export','export proceeds','receipt','payment','shipment','6 months','24 months','RM250 million','reporting','exporter','deduction','freight','insurance','commission','Trade FCA','offsetting','write-off','consignment','border trade','gift','sample','notify BNM','repatriate export'] },
+    kw:['export','export proceeds','receipt','payment','shipment','6 months','24 months','RM250 million','reporting','exporter','deduction','freight','insurance','commission','Trade FCA','offsetting','write-off','consignment','border trade','gift','sample','notify BNM','repatriate export'],
+    faqs: [
+      {ref:'FAQ Q1',title:'What is the scope of "export of goods"?',body:'Export of goods covers: (a) any movement or transfer of goods by land, sea or air from Malaysia to any territory outside Malaysia; or (b) any transfer of ownership in goods originated from Malaysia by a Resident to a Non-Resident abroad, or to a Labuan entity which the FEP Authority has declared a Non-Resident — even where the goods are shipped to another Resident or remain onshore (e.g. in a Non-Resident\'s bonded warehouse).'},
+      {ref:'FAQ Q2',title:'Can a Resident exporter retain FC export proceeds overseas?',body:'No. The Resident exporter must repatriate into Malaysia the full value of export of goods proceeds, either in Ringgit or Foreign Currency (FC), within 6 months from the date of shipment. The proceeds can be retained in a Ringgit account or Trade FCA maintained with onshore banks.'},
+      {ref:'FAQ Q3',title:'Does repatriation apply to export of services or merchanting trade?',body:'No, the repatriation requirement applies to export of goods only. It does not apply to FC proceeds from export of services or merchanting trade (selling goods to a Non-Resident where the goods are shipped between two overseas locations without entering or leaving Malaysia).'},
+      {ref:'FAQ Q4',title:'Are toll manufacturing proceeds treated as export of goods?',body:'Yes. Export proceeds from toll manufacturing performed by a Resident for a Non-Resident (where the Resident receives semi-finished goods from the Non-Resident for further processing and onward selling back to the Non-Resident) are deemed export of goods and subject to the requirements stipulated in Notice 7.'},
+      {ref:'FAQ Q5',title:'Is there a timeline to repatriate export proceeds?',body:'Yes. Export proceeds shall be repatriated immediately upon receipt of payment, which must be within 6 months from the date of shipment — so credit terms given to Non-Resident clients cannot exceed 6 months from the shipment date. This timeline can be extended up to 24 months for permitted reasons (see FAQ Q6) without prior approval from the FEP Authority. If proceeds remain outstanding after 24 months from shipment, the Resident exporter must notify the FEP Authority within 21 days after the end of each calendar year via https://bnm.my/fep.'},
+      {ref:'FAQ Q6',title:'What are the permitted reasons for the 24-month repatriation extension?',body:'(a) The Resident exporter has no control over the delay in receiving proceeds, including: buyer in financial difficulties; buyer cancels, delays, disputes or does not respond to payment requests; FX restrictions in the buyer\'s country; quality and/or quantity claims; or incidence of fraud. (b) Credit terms of up to 24 months given by the Resident exporter for: consignment sale; or goods that involve testing and commissioning.'},
+      {ref:'FAQ Q7',title:'Does this apply to individuals, sole proprietorships and partnerships?',body:'Yes, the export of goods requirements apply to all Residents including individuals, sole proprietorships and general partnerships — other than export of goods by a Resident individual for personal consumption.'},
+      {ref:'FAQ Q8',title:'How is the 6-month repatriation period computed?',body:'It is calculated from the date of shipment. Example: invoice dated 5 Feb, shipment dated 5 Mar — if payment is received by 4 Sept (within 6 months of shipment), no approval from the FEP Authority is required. If payment is instead received on 5 Sept (after 6 months) and the delay is not due to a permitted reason, approval from the FEP Authority is required and the application must be submitted before the 6-month period expires.'},
+      {ref:'FAQ Q9',title:'Can export proceeds be retained in FC after repatriation?',body:'Yes. A Resident exporter can freely retain any amount of export proceeds in FC in its Trade FCA maintained with a licensed onshore bank, or convert it to Ringgit according to its FC and Ringgit cash-flow needs.'},
+      {ref:'FAQ Q10',title:'Is there a time limit on retaining FC proceeds in Trade FCA?',body:'No, there is no time limit on the retention of export proceeds in a Trade FCA.'},
+      {ref:'FAQ Q11',title:'What offsetting and writing-off arrangements are approved?',body:'Export proceeds can be offset against the following FC obligations owed to a Non-Resident: (a) import of goods or services; (b) warranty claims; (c) dividend payments; (d) other Current Account Transactions (e.g. management fees); or (e) repayment of FC Borrowing — including global offsetting arrangements undertaken through the Resident exporter\'s Non-Resident treasury management centre (TMC). Export proceeds can also be written off where: (a) the Non-Resident buyer is in liquidation; or (b) the proceeds cannot be received from the Non-Resident buyer at least 24 months from the date of shipment despite following up.'},
+      {ref:'FAQ Q12',title:'Can proceeds be offset against anticipated future FC obligations?',body:'No. The offsetting flexibility only applies to incurred FC obligations based on a Firm Commitment. Otherwise, the Resident exporter must repatriate the export proceeds to Malaysia in full value.'},
+      {ref:'FAQ Q13',title:'Are supporting documents needed for offsetting?',body:'Yes. Documents are required to substantiate that the export proceeds are being offset only against permitted reasons, subject to the licensed onshore bank\'s due diligence process.'},
+      {ref:'FAQ Q14',title:'Can proceeds be offset against overseas investments or direct commodity hedging with a Non-Resident?',body:'No. A Resident exporter is not allowed to offset export proceeds against its investment abroad or against a commodity hedging contract entered directly with a Non-Resident counterparty.'},
+      {ref:'FAQ Q15',title:'Can a Resident exporter open multiple Trade FCAs?',body:'Yes, a Resident exporter can open multiple Trade FCAs with onshore banks, subject to each onshore bank\'s own due diligence process.'},
+      {ref:'FAQ Q16',title:'What can the retained FC funds be used for?',body:'Retained FC funds can be used, among others, to meet FC obligations such as import payments and FC Borrowing repayments. Using export proceeds for investment in FC assets is subject to the investment in FC asset limit stipulated in Notice 3.'},
+      {ref:'FAQ Q17',title:'Can a Resident without export proceeds convert Ringgit to FC for import or borrowing obligations?',body:'Yes, conversion of Ringgit into FC to pay import and Borrowing obligations is allowed.'},
+      {ref:'FAQ Q18',title:'Can funds move between Trade FCA and Investment FCA?',body:'Yes, transferring funds from a Trade FCA to an Investment FCA is allowed, subject to the requirements of Notice 3. There is no restriction on transferring funds from an Investment FCA to a Trade FCA, or between accounts of the same type (Trade FCA to Trade FCA, or Investment FCA to Investment FCA) of the same account holder.'},
+      {ref:'FAQ Q19',title:'Must a Resident exporter submit reports on exports of goods?',body:'A Resident exporter that meets the requirement in Part C of Notice 7 (e.g. annual gross export exceeding RM250 million) shall submit a report on Export of Goods as and when required by the FEP Authority. If a Resident exporter is required to submit such a report, the requirement will be communicated via a letter from the FEP Authority.'},
+      {ref:'FAQ Q20',title:'Can approval applications and notifications be combined?',body:'No. Applications for approval and notifications cannot be combined and must be submitted separately.'},
+    ] },
 };
 
 const CHUNKS = [];
-Object.values(NOTICES).forEach(n => n.secs.forEach(s =>
-  CHUNKS.push({ noticeId:n.id, noticeName:n.short, noticeTitle:n.title, ref:s.ref, title:s.title, body:s.body })));
+Object.values(NOTICES).forEach(n => {
+  n.secs.forEach(s => CHUNKS.push({ noticeId:n.id, noticeName:n.short, noticeTitle:n.title, ref:s.ref, title:s.title, body:s.body }));
+  (n.faqs||[]).forEach(s => CHUNKS.push({ noticeId:n.id, noticeName:n.short, noticeTitle:n.title, ref:s.ref, title:s.title, body:s.body }));
+});
 
 /* ━━━ GLOSSARY ━━━ */
 const GLOSSARY = {
@@ -700,14 +724,9 @@ $('notices-q').addEventListener('input', renderNoticeSearch);
 $('notices-clear').addEventListener('click', () => { $('notices-q').value=''; renderNoticeSearch(); });
 
 /* notice detail modal */
-function openNotice(id, focusRef) {
-  const n = NOTICES[id]; if (!n) return;
-  ST.modalNotice = id;
-  $('nm-tag').textContent = `NOTICE ${n.id} · ${n.secs.length} PROVISIONS`;
-  $('nm-name').textContent = n.title;
-  const body = $('nm-body'); body.innerHTML = '';
-  body.appendChild(mkEl('div','sec-hdr','Tap any provision to expand · dotted terms have definitions'));
-  n.secs.forEach(s => {
+/* render an accordion of {ref,title,body} entries (provisions or FAQs) into a container */
+function renderAccordion(list, container, focusRef) {
+  list.forEach(s => {
     const prov = mkEl('div','prov');
     const head = mkEl('button','prov-head',
       `<span class="prov-ref">${esc(s.ref)}</span><span class="prov-title">${esc(s.title)}</span><i class="ti ti-chevron-down prov-chev"></i>`);
@@ -718,9 +737,49 @@ function openNotice(id, focusRef) {
       bwrap.style.maxHeight = open ? bwrap.scrollHeight + 'px' : '0';
     });
     prov.appendChild(head); prov.appendChild(bwrap);
-    body.appendChild(prov);
+    container.appendChild(prov);
     if (focusRef && s.ref === focusRef) setTimeout(() => { head.click(); prov.scrollIntoView({behavior:'smooth', block:'center'}); }, 250);
   });
+}
+function openNotice(id, focusRef) {
+  const n = NOTICES[id]; if (!n) return;
+  ST.modalNotice = id;
+  const hasFaqs = n.faqs?.length > 0;
+  $('nm-tag').textContent = `NOTICE ${n.id} · ${n.secs.length} PROVISIONS${hasFaqs ? ' · ' + n.faqs.length + ' FAQS' : ''}`;
+  $('nm-name').textContent = n.title;
+  const body = $('nm-body'); body.innerHTML = '';
+
+  if (hasFaqs) {
+    const tabs = mkEl('div','nm-tabs');
+    const provBtn = mkEl('button','npill on', `Provisions (${n.secs.length})`);
+    const faqBtn = mkEl('button','npill', `FAQs (${n.faqs.length})`);
+    tabs.appendChild(provBtn); tabs.appendChild(faqBtn);
+    body.appendChild(tabs);
+
+    const provWrap = mkEl('div','nm-panel');
+    provWrap.appendChild(mkEl('div','sec-hdr','Tap any provision to expand · dotted terms have definitions'));
+    renderAccordion(n.secs, provWrap, focusRef);
+
+    const faqWrap = mkEl('div','nm-panel hidden');
+    faqWrap.appendChild(mkEl('div','sec-hdr','Frequently asked questions — tap to expand'));
+    renderAccordion(n.faqs, faqWrap, focusRef);
+
+    body.appendChild(provWrap); body.appendChild(faqWrap);
+
+    const showTab = (tab) => {
+      provWrap.classList.toggle('hidden', tab !== 'prov');
+      faqWrap.classList.toggle('hidden', tab !== 'faq');
+      provBtn.classList.toggle('on', tab === 'prov');
+      faqBtn.classList.toggle('on', tab === 'faq');
+    };
+    provBtn.addEventListener('click', () => showTab('prov'));
+    faqBtn.addEventListener('click', () => showTab('faq'));
+    if (focusRef && n.faqs.some(f => f.ref === focusRef)) showTab('faq');
+  } else {
+    body.appendChild(mkEl('div','sec-hdr','Tap any provision to expand · dotted terms have definitions'));
+    renderAccordion(n.secs, body, focusRef);
+  }
+
   openOverlay('notice-overlay');
   logActivity('notice', `Viewed Notice ${n.short} — ${n.title}`);
 }
