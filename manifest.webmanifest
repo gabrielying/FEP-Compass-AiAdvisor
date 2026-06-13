@@ -1,7 +1,7 @@
 {
-  "name": "FEP Compass — BNM FX Policy Advisor",
+  "name": "FEP Compass — Malaysia's FX Policy Advisor",
   "short_name": "FEP Compass",
-  "description": "Bank Negara Malaysia Foreign Exchange Policy (Notices 1-7) educational hub, smart document tools and AI compliance analyst.",
+  "description": "Malaysia's Foreign Exchange Policy (FEP Notices 1-7) educational hub, smart document tools and AI compliance analyst.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

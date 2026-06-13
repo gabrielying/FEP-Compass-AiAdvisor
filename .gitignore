@@ -1,0 +1,12 @@
+# Environment variables / secrets — never commit these
+.env
+.env.*
+*.key
+*.pem
+
+# Editor / OS cruft
+.DS_Store
+*.log
+
+# Local dev artifacts
+node_modules/

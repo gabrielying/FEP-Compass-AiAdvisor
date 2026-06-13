@@ -4,9 +4,9 @@
    ════════════════════════════════════════════════════════════════════ */
 'use strict';
 
-/* ━━━ KNOWLEDGE BASE — BNM FEP NOTICES 1–7 (effective 1 Oct 2025) ━━━ */
+/* ━━━ KNOWLEDGE BASE — MALAYSIA FEP NOTICES 1–7 (effective 1 Oct 2025) ━━━ */
 
-const BNM_NOTICES_URL = 'https://www.bnm.gov.my/fep/policies/notices';
+const FEP_OFFICIAL_URL = 'https://www.bnm.gov.my/fep/policies/notices';
 
 const NOTICES = {
   1: { id:1, short:'N1', icon:'ti-coin', title:'Dealings in Currency, Gold and Other Precious Metals',
@@ -15,11 +15,11 @@ const NOTICES = {
       {ref:'Part A, Para 1(1)',title:'Resident — buying/selling FCY vs Ringgit',body:'A Resident is allowed to buy or sell Foreign Currency against Ringgit for its own account on Spot Basis with a LOB, or on Forward Basis with a LOB on Firm Commitment or Anticipatory basis. The Forward Basis transaction shall be terminated when the Firm Commitment ceases to exist or the anticipated transaction does not materialise.'},
       {ref:'Part A, Para 5',title:'Resident — buying/selling FCY vs another FCY',body:'A Resident is allowed to buy or sell Foreign Currency against another Foreign Currency on Spot Basis or Forward Basis with a LOB.'},
       {ref:'Part A, Para 3',title:'Resident Entity — transacting on behalf of Group entities',body:'A Resident Entity is allowed to buy or sell Foreign Currency against Ringgit on behalf of an Entity within its Group with a LOB, provided the Principal is not a Financial Institution or NRFI, and the Principal complies with applicable paragraphs based on Resident or Non-Resident status.'},
-      {ref:'Part A, Para 2',title:'Resident Institutional Investor — Dynamic Hedging Framework',body:'A Resident Institutional Investor registered with BNM under the Dynamic Hedging Framework is allowed to enter into plain vanilla forward contracts to sell FCY against Ringgit up to 100% of its FCY-denominated securities and temporary FCY deposits, without documentary evidence. One-off registration required via BNM website https://bnm.my/fep.'},
+      {ref:'Part A, Para 2',title:'Resident Institutional Investor — Dynamic Hedging Framework',body:'A Resident Institutional Investor registered with the FEP Authority under the Dynamic Hedging Framework is allowed to enter into plain vanilla forward contracts to sell FCY against Ringgit up to 100% of its FCY-denominated securities and temporary FCY deposits, without documentary evidence. One-off registration required via the FEP Authority\'s portal at https://bnm.my/fep.'},
       {ref:'Part B, Para 6(1)',title:'Non-Resident — buying/selling FCY vs Ringgit',body:'A Non-Resident is allowed to buy or sell Foreign Currency against Ringgit on Spot Basis with a LOB or AOO; or on Forward Basis with a LOB or AOO for Current Account Transactions (Firm Commitment or Anticipatory basis) or Financial Account Transactions (Firm Commitment basis only). Forward terminates when Firm Commitment ceases or anticipated transaction does not materialise.'},
       {ref:'Part B, Para 12',title:'Non-Resident — Forward Basis restrictions and exclusions',body:'For Non-Residents, Forward Basis EXCLUDES: (i) settlement of Ringgit negotiable instrument of deposits; (ii) transactions involving an External Account (except Ringgit deposits up to 3 months from Ringgit Asset sale prior to forward maturity); or (iii) settlement of OTC derivatives tantamount to Ringgit borrowing/lending between Resident and Non-Resident.'},
       {ref:'Part B, Para 13',title:'Non-Resident — buying/selling FCY vs another FCY',body:'A Non-Resident is allowed to buy or sell Foreign Currency against another Foreign Currency on Spot Basis or Forward Basis with a LOB.'},
-      {ref:'Part B, Para 7',title:'Non-Resident Institutional Investor — Dynamic Hedging',body:'A Non-Resident Institutional Investor registered with BNM may buy FCY against Ringgit up to 100% or sell FCY against Ringgit up to 25% of its Ringgit-denominated asset exposure (Ringgit securities on RENTAS/Bursa Malaysia). Registration required via https://bnm.my/fep.'},
+      {ref:'Part B, Para 7',title:'Non-Resident Institutional Investor — Dynamic Hedging',body:'A Non-Resident Institutional Investor registered with the FEP Authority may buy FCY against Ringgit up to 100% or sell FCY against Ringgit up to 25% of its Ringgit-denominated asset exposure (Ringgit securities on RENTAS/Bursa Malaysia). Registration required via https://bnm.my/fep.'},
       {ref:'Part C, Para 14',title:'Licensed Money Changer — dealings',body:'A Resident or Non-Resident is allowed to buy or sell Foreign Currency against Ringgit or against another Foreign Currency on Spot Basis with a Licensed Money Changer.'},
       {ref:'Part D, Para 16',title:'Gold and Precious Metals',body:'A person is allowed to buy, sell, exchange, borrow, lend, retain or use gold or other precious metals (subject to FSA/IFSA). Export of gold or other precious metals is subject to compliance with Notice 7.'},
     ],
@@ -39,7 +39,7 @@ const NOTICES = {
       {ref:'Part D, Para 14',title:'Non-Resident (excl NRFI) — Ringgit borrowing from Resident for Real Sector Activity',body:'A Non-Resident (excluding a NRFI) is allowed to borrow in Ringgit in any amount from: (a) a Resident to finance Real Sector Activity in Malaysia; or (b) a Resident stockbroker for margin financing on Bursa Malaysia.'},
       {ref:'Part D, Para 16',title:'Non-Resident — Ringgit borrowing from LOB',body:'A Non-Resident is allowed to borrow in Ringgit from a LOB: (a) in any amount for trade financing for settlement of trade in goods/services with a Resident; (b) up to overdraft amount (max 2 business days, no roll-over) to avoid Bursa/RENTAS settlement failure; or (c) up to RM10 million via repurchase or sale buy-back agreement.'},
       {ref:'Part D, Para 17',title:'Non-Resident — FCY borrowing',body:'A Non-Resident is allowed to borrow in Foreign Currency: (a) in any amount from a LOB, Resident Immediate Family Member, or Non-Resident in Malaysia; or (b) up to the limit in Parts A and B of Notice 3 from another Resident.'},
-      {ref:'Part F, Para 19',title:'Lending — general permission',body:'A person is allowed to lend in Ringgit or Foreign Currency to a Resident or Non-Resident for any corresponding Borrowing approved in this Notice or otherwise approved in writing by BNM.'},
+      {ref:'Part F, Para 19',title:'Lending — general permission',body:'A person is allowed to lend in Ringgit or Foreign Currency to a Resident or Non-Resident for any corresponding Borrowing approved in this Notice or otherwise approved in writing by the FEP Authority.'},
       {ref:'Part G, Para 20',title:'LOB — Financial Guarantee (any amount)',body:'A LOB is allowed to: (a) obtain a Financial Guarantee in any amount in Ringgit or FCY for its own account; and (b) give a Financial Guarantee in any amount in Ringgit or FCY on behalf of its banking group or client.'},
       {ref:'Part G, Para 21',title:'Resident guarantor — securing Resident borrowing (any amount)',body:'A Resident guarantor is allowed to give a Financial Guarantee in any amount in Ringgit or FCY to secure any Borrowing obtained by a Resident in Ringgit or FCY as approved in this Notice.'},
       {ref:'Part G, Para 22',title:'Non-bank Resident guarantor — securing Non-Resident borrowing (conditions apply)',body:'A non-bank Resident guarantor may give a Financial Guarantee in any amount to secure a Non-Resident\'s Borrowing, EXCEPT: (a) if the underlying Borrowing is ultimately utilised by the Resident guarantor — deemed as Borrowing by the Resident guarantor, subject to Notice 2 limits; or (b) if Resident has arranged to repay the FCY Borrowing other than under a call-upon in event of default — deemed as investment in FCY Asset, subject to Notice 3 limits.'},
@@ -61,7 +61,7 @@ const NOTICES = {
   4: { id:4, short:'N4', icon:'ti-arrows-exchange', title:'Payment and Receipt',
     desc:'Permitted Ringgit and foreign-currency payments between Residents and Non-Residents, repatriation, and FCA / External Accounts.',
     secs: [
-      {ref:'Part A, Para 1',title:'Payment for approved transaction — general rule',body:'A person is allowed to make or receive a payment arising from any transaction approved in writing by BNM under the FEP Notices or otherwise approved by BNM.'},
+      {ref:'Part A, Para 1',title:'Payment for approved transaction — general rule',body:'A person is allowed to make or receive a payment arising from any transaction approved in writing by the FEP Authority under the FEP Notices or otherwise approved by the FEP Authority.'},
       {ref:'Part B, Para 2',title:'Non-Resident — Ringgit payment in Malaysia (permitted purposes)',body:'A Non-Resident is allowed to make or receive payment in Ringgit in Malaysia to/from a Resident or Non-Resident for: (a) any purpose between Immediate Family Members; (b) income earned or expense incurred in Malaysia; or (c) settlement of trade in goods/services, a Ringgit Asset, or commodity murabahah transaction.'},
       {ref:'Part B, Para 3',title:'Non-Resident — Ringgit payment (court judgement, reinsurance)',body:'A Non-Resident is allowed to make/receive Ringgit payment to/from a Resident for: (a) court judgement where underlying transaction complies with FEP Notices; or (b) reinsurance for domestic insurance or retakaful for domestic takaful business.'},
       {ref:'Part C, Para 4',title:'Resident — FCY payment between Residents (permitted purposes)',body:'A Resident may make/receive FCY payment to/from another Resident for: (a) any purpose between Immediate Family Members; (b) education, employment or migration outside Malaysia; (c) transaction with a LOB, licensed international takaful operator; (d) settlement of FCY derivatives on Specified Exchange, commodity murabahah transactions, miscellaneous expenses abroad between Residents, or domestic trade within Global Supply Chain operations in Malaysia (subject to specific conditions).'},
@@ -92,19 +92,19 @@ const NOTICES = {
       {ref:'Gazette Notice',title:'Traveller importing Ringgit into Malaysia',body:'A traveller entering Malaysia is allowed to bring in Ringgit currency notes. Import of Ringgit above RM10,000 must be declared to customs upon arrival. Amounts above the declarable threshold brought in without declaration are not permitted.'},
       {ref:'Gazette Notice',title:'Traveller exporting Ringgit out of Malaysia',body:'A traveller leaving Malaysia is allowed to bring out Ringgit currency notes up to RM1,000 per trip only. Export of Ringgit ABOVE RM1,000 is NOT PERMITTED under any circumstances.'},
       {ref:'Gazette Notice',title:'Traveller importing or exporting Foreign Currency',body:'A traveller may bring in or take out Foreign Currency notes. Amounts exceeding RM30,000 equivalent in Foreign Currency must be declared to the Royal Malaysian Customs Department. There is no upper limit on FCY import/export but declaration is mandatory above RM30,000 equivalent. Failure to declare is a violation.'},
-      {ref:'Gazette Notice',title:'Non-traveller import/export of currency',body:'Entities (e.g. courier, postal services) importing or exporting currency must comply with Gazette Notice conditions or obtain specific BNM approval. Bulk cash movements by financial institutions follow separate LOB guidelines.'},
+      {ref:'Gazette Notice',title:'Non-traveller import/export of currency',body:'Entities (e.g. courier, postal services) importing or exporting currency must comply with Gazette Notice conditions or obtain specific FEP Authority approval. Bulk cash movements by financial institutions follow separate LOB guidelines.'},
     ],
     kw:['import','export','traveller','cash','currency notes','ringgit','carry','bring','border','customs','RM10,000','RM1,000','RM30,000','declaration','declare','physical currency','notes','coins','bulk cash','smuggle'] },
   7: { id:7, short:'N7', icon:'ti-ship', title:'Export of Goods',
-    desc:'Export proceeds rules — full value, the 6-month receipt window, approved deductions, offsetting and BNM reporting duties.',
+    desc:'Export proceeds rules — full value, the 6-month receipt window, approved deductions, offsetting and FEP Authority reporting duties.',
     secs: [
       {ref:'Part A, Para 1(a)',title:'Resident exporter — receipt of export proceeds (currency and account)',body:'A Resident exporter SHALL receive the proceeds of its Export of Goods in Malaysia: in Ringgit or Foreign Currency, placed in a Ringgit account or Trade FCA maintained with a LOB.'},
       {ref:'Part A, Para 1(b)',title:'Resident exporter — receipt in FULL VALUE (approved deductions allowed)',body:'Export proceeds must be received in FULL VALUE excluding: (i) approved deductions (Appendix A): agency commission, advertising/promotion, freight, insurance/takaful, administrative error, exporter discount, quality/quantity claim, short-shipment, shut-out, fraud write-off, value-added-only goods, buyer liquidation; and (ii) approved offsetting/writing-off per Appendix B.'},
       {ref:'Part A, Para 1(c)',title:'Export proceeds timeline — 6 months standard; 24 months for approved circumstances',body:'Export proceeds must be received within the export contract payment date, NOT EXCEEDING SIX (6) MONTHS from date of shipment. EXCEPTION (Appendix C): proceeds may be received up to TWENTY-FOUR (24) MONTHS from shipment where: buyer is in financial difficulties; buyer cancels/disputes/delays/does not respond; FCY restrictions in buyer\'s country; quality/quantity claims; fraud; or credit terms up to 24 months for consignment sales or goods requiring testing and commissioning.'},
       {ref:'Part A, Para 2',title:'Exemption — export proceeds receipt obligation does NOT apply',body:'The receipt obligation does NOT apply (Appendix D) where goods exported under: (a) a border trade agreement between Malaysian Government and foreign government; or (b) goods not for sale: gifts, donations, personal effects, business samples; goods for processing/testing/repair/exhibition/exchange that will be reimported; or goods belonging to Non-Resident exported after exhibition or lease/rental expiry.'},
       {ref:'Part B, Para 3',title:'Non-Resident — permissible sources for Ringgit payment of export proceeds',body:'Where a Non-Resident settles for Export of Goods in Ringgit in Malaysia, Ringgit shall be sourced from: (a) buying Ringgit against FCY per Notice 1 Part B; (b) External Account of the Non-Resident; (c) External Account of NRFI acting on behalf of Non-Resident; or (d) Ringgit trade financing from LOB per Notice 2 Part D.'},
-      {ref:'Part C, Para 4',title:'Reporting obligation — large exporters with annual gross Export >RM250M',body:'Where a Resident exporter\'s annual gross Export of Goods exceeds RM250 million equivalent in the preceding year, the Resident exporter shall submit a report to BNM via https://bnm.my/fep as and when required by BNM.'},
-      {ref:'Part C, Para 5',title:'Reporting obligation — proceeds not received within 24 months',body:'Where export proceeds are not received within 24 months from the date of shipment, the Resident exporter shall notify BNM on the outstanding proceeds within TWENTY-ONE (21) DAYS after the end of each calendar year via https://bnm.my/fep.'},
+      {ref:'Part C, Para 4',title:'Reporting obligation — large exporters with annual gross Export >RM250M',body:'Where a Resident exporter\'s annual gross Export of Goods exceeds RM250 million equivalent in the preceding year, the Resident exporter shall submit a report to the FEP Authority via https://bnm.my/fep as and when required.'},
+      {ref:'Part C, Para 5',title:'Reporting obligation — proceeds not received within 24 months',body:'Where export proceeds are not received within 24 months from the date of shipment, the Resident exporter shall notify the FEP Authority on the outstanding proceeds within TWENTY-ONE (21) DAYS after the end of each calendar year via https://bnm.my/fep.'},
       {ref:'Appendix B',title:'Approved offsetting and writing-off arrangements for export proceeds',body:'A Resident exporter may receive less than full value where it enters into: (a) offsetting arrangement with Non-Resident to offset export proceeds with imports of goods/services by exporter, warranty claims, dividend payments, other Current Account Transactions, or repayment of FCY Borrowing under Notice 2; or (b) writing-off arrangement where Non-Resident buyer is in liquidation, or proceeds cannot be received after at least 24 months from shipment despite following up.'},
     ],
     kw:['export','export proceeds','receipt','payment','shipment','6 months','24 months','RM250 million','reporting','exporter','deduction','freight','insurance','commission','Trade FCA','offsetting','write-off','consignment','border trade','gift','sample','notify BNM','repatriate export'] },
@@ -119,7 +119,7 @@ const GLOSSARY = {
   'Resident': 'A Malaysian citizen (excluding citizens with permanent residence abroad who reside abroad), a body incorporated in Malaysia, or the Malaysian Government.',
   'Non-Resident': 'Any person other than a Resident — including overseas branches of Malaysian companies and Malaysians with foreign PR residing abroad.',
   'LOB': 'Licensed Onshore Bank — a licensed bank, investment bank or Islamic bank under the FSA / IFSA.',
-  'AOO': 'Appointed Overseas Office — an overseas office of a LOB\'s banking group approved by BNM to facilitate Ringgit transactions for Non-Residents.',
+  'AOO': 'Appointed Overseas Office — an overseas office of a LOB\'s banking group approved by the FEP Authority to facilitate Ringgit transactions for Non-Residents.',
   'NRFI': 'Non-Resident Financial Institution — a Non-Resident entity undertaking financial services.',
   'DRB': 'Domestic Ringgit Borrowing — any Ringgit borrowing obtained by a Resident from another Resident (excluding one housing loan, one vehicle loan, and sundry/employee facilities).',
   'FCA': 'Foreign Currency Account maintained with a LOB or NRFI — split into Trade FCA and Investment FCA.',
@@ -151,7 +151,7 @@ const QUICKCHECK = {
   3: { start:'a', nodes:{
       a:{ q:'Is a Resident investing in a foreign-currency asset (shares, property, deposits, funds abroad)?', yes:'b', no:{ type:'ok', t:'Likely not affected', d:'Notice 3 only governs Resident investment in Foreign Currency Assets. Non-Resident investment into Malaysia is generally a Notice 4 (payments) matter.' } },
       b:{ q:'Does the investor have any Domestic Ringgit Borrowing (e.g. business loans; excluding one housing & one vehicle loan)?', yes:'c', no:{ type:'ok', t:'Affected, but unlimited', d:'A Resident without Domestic Ringgit Borrowing may invest any amount in FCY assets, onshore or offshore (N3 Paras 1 & 3).' } },
-      c:{ q:'Will the investment be funded by converting Ringgit (or Trade FCA / swapping Ringgit assets)?', yes:{ type:'warn', t:'Affected — annual conversion limits', d:'With DRB, conversion-funded investment is capped per calendar year: RM1 million equivalent for individuals, RM50 million equivalent for entities on a group basis (N3 Paras 2 & 4). Exceeding the cap needs BNM approval — track it on your Dashboard.' }, no:{ type:'ok', t:'Affected, but generally permitted', d:'Investment funded from FCY earned abroad (except export proceeds) or approved FCY borrowing is allowed in any amount (N3 Paras 2(a) & 4(a)).' } },
+      c:{ q:'Will the investment be funded by converting Ringgit (or Trade FCA / swapping Ringgit assets)?', yes:{ type:'warn', t:'Affected — annual conversion limits', d:'With DRB, conversion-funded investment is capped per calendar year: RM1 million equivalent for individuals, RM50 million equivalent for entities on a group basis (N3 Paras 2 & 4). Exceeding the cap needs FEP Authority approval — track it on your Dashboard.' }, no:{ type:'ok', t:'Affected, but generally permitted', d:'Investment funded from FCY earned abroad (except export proceeds) or approved FCY borrowing is allowed in any amount (N3 Paras 2(a) & 4(a)).' } },
   }},
   4: { start:'a', nodes:{
       a:{ q:'Is a payment being made or received between a Resident and a Non-Resident (or in foreign currency between Residents)?', yes:'b', no:{ type:'ok', t:'Likely not affected', d:'Ringgit payments between Residents in Malaysia are not restricted by Notice 4.' } },
@@ -168,8 +168,8 @@ const QUICKCHECK = {
   }},
   7: { start:'a', nodes:{
       a:{ q:'Is a Malaysian (Resident) business exporting goods out of Malaysia?', yes:'b', no:{ type:'ok', t:'Likely not affected', d:'Notice 7 applies to Resident exporters of goods. Services exports and Non-Resident shipments are outside its scope.' } },
-      b:{ q:'Will payment be received within 6 months of shipment, in full value, into a Ringgit account or Trade FCA in Malaysia?', yes:'c', no:{ type:'warn', t:'Affected — timing/value rules engaged', d:'Proceeds beyond 6 months are only allowed in approved circumstances (up to 24 months — buyer difficulties, disputes, consignment, testing). Proceeds still outstanding after 24 months must be reported to BNM within 21 days after year-end (N7 Paras 1(c) & 5).' } },
-      c:{ q:'Did annual gross exports exceed RM250 million equivalent last year?', yes:{ type:'info', t:'Affected — reporting obligation', d:'Large exporters (>RM250M/year) must submit reports to BNM via bnm.my/fep as and when required (N7 Para 4). Day-to-day receipts look compliant.' }, no:{ type:'ok', t:'Affected, and compliant pattern', d:'Receiving full value within 6 months into a Ringgit account or Trade FCA with a LOB matches the standard Notice 7 obligations. Keep records of any deductions (Appendix A).' } },
+      b:{ q:'Will payment be received within 6 months of shipment, in full value, into a Ringgit account or Trade FCA in Malaysia?', yes:'c', no:{ type:'warn', t:'Affected — timing/value rules engaged', d:'Proceeds beyond 6 months are only allowed in approved circumstances (up to 24 months — buyer difficulties, disputes, consignment, testing). Proceeds still outstanding after 24 months must be reported to the FEP Authority within 21 days after year-end (N7 Paras 1(c) & 5).' } },
+      c:{ q:'Did annual gross exports exceed RM250 million equivalent last year?', yes:{ type:'info', t:'Affected — reporting obligation', d:'Large exporters (>RM250M/year) must submit reports to the FEP Authority via bnm.my/fep as and when required (N7 Para 4). Day-to-day receipts look compliant.' }, no:{ type:'ok', t:'Affected, and compliant pattern', d:'Receiving full value within 6 months into a Ringgit account or Trade FCA with a LOB matches the standard Notice 7 obligations. Keep records of any deductions (Appendix A).' } },
   }},
 };
 
@@ -214,15 +214,16 @@ const DEFAULT_LIMITS = [
 ];
 const DEFAULT_DECLS = [
   { id:1, t:'Export proceeds — Q1 shipment approaching 6-month window', d:'Notice 7 · due 30 Jun 2026', done:false },
-  { id:2, t:'Dynamic hedging quarterly position update', d:'Notice 1 · bnm.my/fep', done:false },
+  { id:2, t:'Dynamic hedging quarterly position update', d:'Notice 1 · FEP Authority portal', done:false },
 ];
 
 const ST = {
-  tab:'dashboard',
+  tab:'notices',
   cfg: { ...DEFAULT_CFG, ...JSON.parse(localStorage.getItem('fep_cfg')||'{}') },
   limits: JSON.parse(localStorage.getItem('fep_limits')||'null') || DEFAULT_LIMITS,
   decls: JSON.parse(localStorage.getItem('fep_decls')||'null') || DEFAULT_DECLS,
   sessions: JSON.parse(localStorage.getItem('fep_sess')||'[]'),
+  activity: JSON.parse(localStorage.getItem('fep_activity')||'[]'),
   msgs: [], loading:false, advisorFilter:'all',
   toolTab:'scan', analystImport:null, modalNotice:null,
 };
@@ -243,6 +244,30 @@ function toast(msg) {
   clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.add('hidden'), 2600);
 }
 
+/* ━━━ ACTIVITY / AUDIT LOG ━━━ */
+const MAX_ACTIVITY = 50;
+const ACTIVITY_ICONS = {
+  advisor:'ti-message-dots', analyst:'ti-checkup-list', scan:'ti-scan', pdf:'ti-file-type-pdf',
+  limit:'ti-gauge', declaration:'ti-clipboard-check', notice:'ti-book-2', check:'ti-help-hexagon',
+};
+function logActivity(type, text) {
+  ST.activity.unshift({ id: Date.now()+'_'+Math.random().toString(36).slice(2), ts: Date.now(), type, text });
+  if (ST.activity.length > MAX_ACTIVITY) ST.activity = ST.activity.slice(0, MAX_ACTIVITY);
+  save('fep_activity', ST.activity);
+  if (ST.tab === 'dashboard') renderActivity();
+}
+function renderActivity() {
+  const ul = $('activity-list'); if (!ul) return;
+  ul.innerHTML = '';
+  if (!ST.activity.length) { ul.appendChild(mkEl('li','activity-empty','No activity recorded yet — actions across the app will appear here.')); return; }
+  ST.activity.forEach(a => {
+    const li = mkEl('li','activity-item');
+    li.innerHTML = `<i class="ti ${ACTIVITY_ICONS[a.type] || 'ti-circle'}"></i>
+      <div class="activity-body"><div class="activity-text">${esc(a.text)}</div><div class="activity-ts">${new Date(a.ts).toLocaleString('en-MY')}</div></div>`;
+    ul.appendChild(li);
+  });
+}
+
 /* wrap glossary terms in text with clickable chips */
 function linkTerms(html) {
   const terms = Object.keys(GLOSSARY).sort((a,b)=>b.length-a.length);
@@ -256,7 +281,7 @@ function baseDefinitions() {
 }
 function buildSystemPrompt(chunks, extra='') {
   const kb = chunks.map(c => `[${c.noticeName} — ${c.ref}] ${c.title}\n${c.body}`).join('\n\n');
-  return `You are an expert BNM (Bank Negara Malaysia) Foreign Exchange Policy (FEP) compliance analyst assisting Malaysian banking officers. FEP Notices effective: 1 October 2025.
+  return `You are an expert compliance analyst for Malaysia's Foreign Exchange Policy (FEP), assisting Malaysian banking officers. You apply the FEP Notices administered by the national FEP Authority. FEP Notices effective: 1 October 2025.
 
 KEY DEFINITIONS:
 ${baseDefinitions()}
@@ -272,21 +297,21 @@ INSTRUCTIONS: Respond ONLY in valid JSON with this exact structure — no text b
   "citation": "FEP Notice X, [Ref] — Section Title",
   "conditions": ["condition if CONDITIONAL, else empty array"],
   "warning": "Important caveat or null",
-  "nextStep": "The exact next action: which BNM submission/registration/report applies (via https://bnm.my/fep) or 'No filing required' "
+  "nextStep": "The exact next action: which FEP Authority submission/registration/report applies (via https://bnm.my/fep) or 'No filing required' "
 }
 
 VERDICT DEFINITIONS:
 PERMITTED = explicitly allowed without restriction
 NOT_PERMITTED = explicitly prohibited
 CONDITIONAL = allowed only under specific conditions (list them)
-REQUIRES_APPROVAL = needs prior BNM written approval
+REQUIRES_APPROVAL = needs prior written approval from the FEP Authority
 
 RULES:
 1. Base your answer ONLY on the retrieved knowledge base above
 2. Always cite the specific FEP Notice and paragraph reference
 3. State assumptions if the question is ambiguous
 4. If not covered in the knowledge base, say so — never fabricate
-5. For complex cases, recommend the BNM FEP portal: ${BNM_NOTICES_URL}
+5. For complex cases, recommend the official FEP regulatory portal: ${FEP_OFFICIAL_URL}
 6. Return ONLY valid JSON. No markdown, no code fences, no preamble.`;
 }
 
@@ -328,6 +353,16 @@ async function callOllama(query, chunks, history=[]) {
 
 const callAI = (q, chunks, hist) => ST.cfg.provider === 'ollama' ? callOllama(q, chunks, hist) : callGemini(q, chunks, hist);
 const aiConfigured = () => ST.cfg.provider === 'ollama' || !!ST.cfg.apiKey;
+
+/* lightweight client-side throttle — guards against accidental rapid-fire AI requests */
+const AI_COOLDOWN_MS = 2500;
+let lastAiCallAt = 0;
+function aiCooldownOk() {
+  const now = Date.now();
+  if (now - lastAiCallAt < AI_COOLDOWN_MS) { toast('Please wait a moment before sending another request'); return false; }
+  lastAiCallAt = now;
+  return true;
+}
 
 /* Repair truncated JSON: close an unterminated string, drop a dangling
    key/value fragment, then close unbalanced brackets in nesting order. */
@@ -398,7 +433,7 @@ function verdictCard(data, chunks, isPartial) {
   if (isPartial)
     body.innerHTML += `<div class="vwarn" style="margin-top:8px">Response partially parsed — some fields may be incomplete.</div>`;
   card.appendChild(body);
-  if (data.citation) card.appendChild(mkEl('div','vcite',`<div class="vlabel">BNM Citation</div><div class="vcite-text">${esc(data.citation)}</div>`));
+  if (data.citation) card.appendChild(mkEl('div','vcite',`<div class="vlabel">FEP Citation</div><div class="vcite-text">${esc(data.citation)}</div>`));
   if (chunks?.length) {
     const srcs = mkEl('div','vsources'); const seen = new Set();
     chunks.forEach(c => { const k = `${c.noticeName} ${c.ref}`; if (!seen.has(k)) { seen.add(k); srcs.appendChild(mkEl('span','vsrc-tag',esc(k))); } });
@@ -471,6 +506,7 @@ function renderRings() {
         const v = Math.max(0, Number(inp.value)||0);
         L.used = v; save('fep_limits', ST.limits); renderRings();
         toast(`${L.label} updated — ${Math.round(v/L.limit*100)}% utilised`);
+        logActivity('limit', `Updated ${L.label} to ${fmtRM(v)} (${Math.round(v/L.limit*100)}% of ${fmtRM(L.limit)})`);
       };
       ok.addEventListener('click', e => { e.stopPropagation(); commit(); });
       inp.addEventListener('keydown', e => { if (e.key==='Enter') commit(); });
@@ -487,8 +523,14 @@ function renderDecls() {
     li.innerHTML = `<button class="decl-check"><i class="ti ti-check"></i></button>
       <div><div class="decl-t">${esc(d.t)}</div><div class="decl-d">${esc(d.d)}</div></div>
       <button class="decl-del" title="Remove"><i class="ti ti-trash"></i></button>`;
-    li.querySelector('.decl-check').addEventListener('click', () => { d.done = !d.done; save('fep_decls', ST.decls); renderDecls(); });
-    li.querySelector('.decl-del').addEventListener('click', () => { ST.decls = ST.decls.filter(x=>x.id!==d.id); save('fep_decls', ST.decls); renderDecls(); });
+    li.querySelector('.decl-check').addEventListener('click', () => {
+      d.done = !d.done; save('fep_decls', ST.decls); renderDecls();
+      logActivity('declaration', `${d.done?'Completed':'Reopened'} declaration: "${d.t}"`);
+    });
+    li.querySelector('.decl-del').addEventListener('click', () => {
+      ST.decls = ST.decls.filter(x=>x.id!==d.id); save('fep_decls', ST.decls); renderDecls();
+      logActivity('declaration', `Removed declaration: "${d.t}"`);
+    });
     ul.appendChild(li);
   });
 }
@@ -505,6 +547,7 @@ $('decl-add').addEventListener('click', () => {
     if (!t) { li.remove(); return; }
     ST.decls.push({ id:Date.now(), t, d:'Added '+new Date().toLocaleDateString('en-MY',{day:'numeric',month:'short',year:'numeric'}), done:false });
     save('fep_decls', ST.decls); renderDecls();
+    logActivity('declaration', `Added declaration: "${t}"`);
   });
   inp.addEventListener('keydown', e => {
     if (e.key === 'Enter') li.querySelector('button').click();
@@ -523,8 +566,11 @@ function renderDashNotices() {
 function renderDashboard() {
   const h = new Date().getHours();
   $('greeting').textContent = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-  renderRings(); renderDecls();
+  renderRings(); renderDecls(); renderActivity();
 }
+$('activity-clear').addEventListener('click', () => {
+  ST.activity = []; save('fep_activity', ST.activity); renderActivity(); toast('Activity log cleared');
+});
 
 /* ━━━ NOTICES HUB ━━━ */
 function renderNoticeCards() {
@@ -538,7 +584,6 @@ function renderNoticeCards() {
       <div class="nc-actions">
         <button class="btn primary act-explore"><i class="ti ti-book-2"></i> Explore</button>
         <button class="btn act-check"><i class="ti ti-help-hexagon"></i> Am I Affected?</button>
-        <a class="btn" href="${BNM_NOTICES_URL}" target="_blank" rel="noopener"><i class="ti ti-external-link"></i> Full Notice</a>
       </div>`;
     card.querySelector('.act-explore').addEventListener('click', () => openNotice(n.id));
     card.querySelector('.act-check').addEventListener('click', () => openQuickCheck(n.id));
@@ -578,7 +623,6 @@ function openNotice(id, focusRef) {
   ST.modalNotice = id;
   $('nm-tag').textContent = `NOTICE ${n.id} · ${n.secs.length} PROVISIONS`;
   $('nm-name').textContent = n.title;
-  $('nm-fulltext').href = BNM_NOTICES_URL;
   const body = $('nm-body'); body.innerHTML = '';
   body.appendChild(mkEl('div','sec-hdr','Tap any provision to expand · dotted terms have definitions'));
   n.secs.forEach(s => {
@@ -596,6 +640,7 @@ function openNotice(id, focusRef) {
     if (focusRef && s.ref === focusRef) setTimeout(() => { head.click(); prov.scrollIntoView({behavior:'smooth', block:'center'}); }, 250);
   });
   openOverlay('notice-overlay');
+  logActivity('notice', `Viewed Notice ${n.short} — ${n.title}`);
 }
 $('nm-ask').addEventListener('click', () => {
   closeOverlays();
@@ -630,6 +675,7 @@ function openQuickCheck(id) {
     const body = $('qc-body'); body.innerHTML = '';
     const icon = res.type==='ok' ? 'ti-circle-check' : res.type==='warn' ? 'ti-alert-triangle' : 'ti-info-circle';
     body.appendChild(mkEl('div',`qc-result ${res.type}`,`<strong><i class="ti ${icon}" style="vertical-align:-2px"></i> ${esc(res.t)}</strong>${esc(res.d)}`));
+    logActivity('check', `"Am I Affected?" (Notice ${n.short}) → ${res.t}`);
     const row = mkEl('div','qc-restart qc-opts');
     const again = mkEl('button','btn','<i class="ti ti-rotate"></i> Start over');
     again.addEventListener('click', () => { step=1; render(qc.start); });
@@ -748,8 +794,12 @@ function renderImportChip() {
 
 /* ━━━ TOOL 1 — OCR scanner ━━━ */
 let scanState = { file:null, text:'' };
+const MAX_IMAGE_BYTES = 12 * 1024 * 1024;  // 12 MB
+const MAX_PDF_BYTES = 20 * 1024 * 1024;    // 20 MB
+
 wireDropzone('scan-drop','scan-file', f => {
   if (!f.type.startsWith('image/')) return toast('Please choose an image file');
+  if (f.size > MAX_IMAGE_BYTES) return toast('Image is too large — max 12 MB');
   scanState = { file:f, text:'' };
   $('scan-preview').src = URL.createObjectURL(f);
   $('scan-drop').classList.add('hidden');
@@ -778,6 +828,7 @@ $('scan-run').addEventListener('click', async () => {
     entityBlock(ents, $('scan-entities'));
     $('scan-send').classList.remove('hidden');
     $('scan-send').onclick = () => sendToAnalyst('Scanned image', scanState.text, ents);
+    logActivity('scan', `Scanned image — ${ents.amounts.length} amount(s) detected${ents.noticeHits.length ? ', touches ' + ents.noticeHits.map(x=>x.n.short).join(', ') : ''}`);
   } catch (err) {
     $('scan-text').textContent = 'OCR failed: ' + err.message + ' (check your internet connection — the OCR engine loads from CDN).';
   } finally {
@@ -788,6 +839,7 @@ $('scan-run').addEventListener('click', async () => {
 /* ━━━ TOOL 2 — PDF reader & validator ━━━ */
 wireDropzone('pdf-drop','pdf-file', async f => {
   if (f.type !== 'application/pdf') return toast('Please choose a PDF file');
+  if (f.size > MAX_PDF_BYTES) return toast('PDF is too large — max 20 MB');
   $('pdf-drop').classList.add('hidden'); $('pdf-stage').classList.remove('hidden');
   $('pdf-meta').innerHTML = `<strong>${esc(f.name)}</strong><br>Reading…`;
   $('pdf-text').textContent = '—'; $('pdf-entities').innerHTML = ''; $('pdf-flags').innerHTML = '';
@@ -815,6 +867,7 @@ wireDropzone('pdf-drop','pdf-file', async f => {
     }
     $('pdf-send').classList.remove('hidden');
     $('pdf-send').onclick = () => sendToAnalyst('PDF “'+f.name+'”', text, ents);
+    logActivity('pdf', `Scanned PDF "${f.name}" — ${ents.amounts.length} amount(s) detected${ents.noticeHits.length ? ', touches ' + ents.noticeHits.map(x=>x.n.short).join(', ') : ''}`);
   } catch (err) {
     $('pdf-meta').innerHTML = `<strong>${esc(f.name)}</strong><br><span style="color:var(--red)">Failed: ${esc(err.message)}</span>`;
   }
@@ -827,9 +880,16 @@ $('pdf-reset').addEventListener('click', () => {
 $('analyst-form').addEventListener('submit', async e => {
   e.preventDefault();
   const who = $('af-who').value, what = $('af-what').value;
-  const where = $('af-where').value.trim(), why = $('af-why').value.trim();
-  const ccy = $('af-ccy').value, amt = $('af-amt').value, ctx = $('af-ctx').value.trim();
+  const where = $('af-where').value.trim().slice(0, 80), why = $('af-why').value.trim().slice(0, 160);
+  const ccy = $('af-ccy').value, ctx = $('af-ctx').value.trim().slice(0, 400);
   if (!who || !what) return toast('Please select who is transacting and the transaction type');
+
+  let amt = $('af-amt').value;
+  if (amt) {
+    const n = Number(amt);
+    if (!Number.isFinite(n) || n < 0) return toast('Please enter a valid, non-negative amount');
+    amt = Math.min(n, 1e15);
+  }
 
   const parts = [`WHO: ${who}`, `WHAT: ${what}`];
   if (where) parts.push(`WHERE: ${where}`);
@@ -848,6 +908,7 @@ $('analyst-form').addEventListener('submit', async e => {
     out.appendChild(provisionList(chunks));
     return;
   }
+  if (!aiCooldownOk()) return;
   const load = mkEl('div','loading','<span class="dot"></span><span class="dot"></span><span class="dot"></span>');
   out.appendChild(load);
   $('analyst-run').disabled = true;
@@ -858,6 +919,7 @@ $('analyst-form').addEventListener('submit', async e => {
     if (p.ok) out.appendChild(verdictCard(p.data, chunks, p.partial));
     else out.appendChild(rawCard(p.raw));
     out.appendChild(provisionList(chunks, 'Provisions used for this check'));
+    logActivity('analyst', `Compliance check: ${who} — ${what} → ${p.ok ? (VCFG[p.data.verdict]?.label || p.data.verdict) : 'unparsed response'}`);
   } catch (err) {
     load.remove();
     out.appendChild(mkEl('div','error-msg', esc(err.message)));
@@ -888,7 +950,7 @@ function renderAdvisorEmpty() {
   const m = $('msgs'); m.innerHTML = '';
   const empty = mkEl('div','empty-center',
     `<i class="ti ti-message-chatbot"></i><h3>Ask the FEP Advisor</h3>
-     <p>Describe the transaction — <strong>who</strong> is transacting, <strong>what</strong> they're doing, <strong>where</strong>, <strong>why</strong> and the <strong>amount</strong>. You'll get a structured verdict with BNM citations.</p>`);
+     <p>Describe the transaction — <strong>who</strong> is transacting, <strong>what</strong> they're doing, <strong>where</strong>, <strong>why</strong> and the <strong>amount</strong>. You'll get a structured verdict with FEP citations.</p>`);
   const s = mkEl('div','samples');
   SAMPLES.forEach(q => {
     const b = mkEl('button','sample', esc(q));
@@ -901,9 +963,10 @@ function renderAdvisorEmpty() {
 function pushUserMsg(text) { $('msgs').appendChild(mkEl('div','msg-user', esc(text))); }
 async function sendChat() {
   const inp = $('chat-inp');
-  const q = inp.value.trim();
+  const q = inp.value.trim().slice(0, 600);
   if (!q || ST.loading) return;
   if (!aiConfigured()) { toast('Configure an AI provider in Settings first'); switchTab('settings'); return; }
+  if (!aiCooldownOk()) return;
   if (!ST.msgs.length) $('msgs').innerHTML = '';
   inp.value = ''; $('send-btn').disabled = true;
   pushUserMsg(q);
@@ -921,6 +984,7 @@ async function sendChat() {
     if (p.ok) { wrap.appendChild(verdictCard(p.data, chunks, p.partial)); ST.msgs.push({ role:'assistant', content: JSON.stringify(p.data) }); }
     else { wrap.appendChild(rawCard(p.raw)); ST.msgs.push({ role:'assistant', content: raw }); }
     m.appendChild(wrap);
+    logActivity('advisor', `Advisor query: "${q.slice(0,70)}${q.length>70?'…':''}" → ${p.ok ? (VCFG[p.data.verdict]?.label || p.data.verdict) : 'unparsed response'}`);
     // persist session
     const sess = ST.sessions.find(s => s.id === ST.sessId);
     if (sess) { sess.msgs = ST.msgs; sess.q = ST.msgs[0].content; }
@@ -1000,7 +1064,7 @@ function renderSettings() {
   const data = mkEl('div','card'); data.style.marginTop = '16px';
   data.innerHTML = `<div class="card-head"><h2><i class="ti ti-database"></i> Data &amp; About</h2></div>
     <p class="hint" style="margin-bottom:12px">FEP Compass v2.0 · Notices N1–N7 effective 1 Oct 2025 · Educational guidance only, not legal advice.
-    Official source: <a href="${BNM_NOTICES_URL}" target="_blank" rel="noopener">bnm.gov.my/fep/policies/notices</a></p>
+    Official source: <a href="${FEP_OFFICIAL_URL}" target="_blank" rel="noopener">bnm.gov.my/fep/policies/notices</a></p>
     <div class="btn-row" style="margin-top:0">
       <button class="btn" id="reset-limits"><i class="ti ti-rotate"></i> Reset limit trackers</button>
       <button class="btn" id="clear-data" style="color:var(--red);border-color:var(--red-bdr)"><i class="ti ti-trash"></i> Clear all local data</button>
