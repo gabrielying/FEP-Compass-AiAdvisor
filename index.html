@@ -11,8 +11,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
-<meta name="description" content="FEP Compass — Bank Negara Malaysia Foreign Exchange Policy advisor for banking officers. Notices 1–7, smart document tools and an AI compliance analyst.">
-<title>FEP Compass · BNM Foreign Exchange Policy Advisor</title>
+<meta name="description" content="FEP Compass — Malaysia's Foreign Exchange Policy (FEP) advisor for banking officers. Notices 1–7, smart document tools and an AI compliance analyst.">
+<title>FEP Compass · Malaysia's Foreign Exchange Policy Advisor</title>
 <!--
   FEP COMPASS — v2.0  (revamp of AI FEP Advisor v1.9)
   ────────────────────────────────────────────────────
@@ -21,9 +21,10 @@
     B) Ollama  — local & offline:  ollama pull qwen2.5:7b
 
   FEP NOTICES: N1–N7 (effective 1 October 2025)
-  SOURCE: Official BNM FEP Notice PDFs — https://www.bnm.gov.my/fep/policies/notices
-  DISCLAIMER: Educational guidance only. Verify complex cases with BNM.
+  SOURCE: Official Malaysia FEP Notice PDFs — https://www.bnm.gov.my/fep/policies/notices (see Settings)
+  DISCLAIMER: Educational guidance only. Verify complex cases with the FEP Authority.
 -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self' https://generativelanguage.googleapis.com http://localhost:11434 https://cdn.jsdelivr.net blob:; worker-src 'self' blob: https://cdn.jsdelivr.net; frame-src 'none'; object-src 'none'; base-uri 'self'">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -40,13 +41,13 @@
       <div class="brand-mark"><i class="ti ti-compass"></i></div>
       <div>
         <div class="brand-name">FEP <span>Compass</span></div>
-        <div class="brand-sub">BNM FX Policy Advisor</div>
+        <div class="brand-sub">Malaysia's FX Policy Advisor</div>
       </div>
     </div>
 
     <nav class="side-nav" aria-label="Primary">
-      <button class="side-link active" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
-      <button class="side-link" data-tab="notices"><i class="ti ti-books"></i><span>FEP Notices</span></button>
+      <button class="side-link active" data-tab="notices"><i class="ti ti-books"></i><span>FEP Notices</span></button>
+      <button class="side-link" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
       <button class="side-link" data-tab="tools"><i class="ti ti-sparkles"></i><span>Smart Tools</span></button>
       <button class="side-link" data-tab="advisor"><i class="ti ti-message-dots"></i><span>AI Advisor</span></button>
       <button class="side-link" data-tab="settings"><i class="ti ti-settings"></i><span>Settings</span></button>
@@ -54,8 +55,8 @@
 
     <div class="side-foot">
       <div class="side-foot-badge"><i class="ti ti-shield-check"></i> Notices N1–N7 · effective 1 Oct 2025</div>
-      <p>Educational guidance only — not legal advice. Verify complex cases at
-        <a href="https://www.bnm.gov.my/fep/policies/notices" target="_blank" rel="noopener">bnm.gov.my/fep</a>.</p>
+      <p>Educational guidance only — not legal advice. Verify complex cases with the FEP Authority — official source linked in
+        <button class="side-foot-link" data-go="settings">Settings</button>.</p>
     </div>
   </aside>
 
@@ -73,12 +74,37 @@
 
     <main id="views">
 
+      <!-- ──────── FEP NOTICES (Educational Hub) ──────── -->
+      <section id="view-notices" class="view active" aria-label="FEP Notices">
+        <div class="page">
+          <header class="page-head">
+            <h1>FEP Notices — Educational Hub</h1>
+            <p class="page-sub">Malaysia's Foreign Exchange Policy (FEP) Notices 1–7, broken down into plain-language provisions.</p>
+          </header>
+
+          <div class="search-box" id="notices-search">
+            <i class="ti ti-search search-icon"></i>
+            <input id="notices-q" type="search" placeholder="Search all provisions — e.g. “export proceeds 6 months”, “RM10 million borrowing”…" autocomplete="off">
+            <button class="search-clear" id="notices-clear" title="Clear"><i class="ti ti-x"></i></button>
+          </div>
+
+          <div id="notices-results"></div>
+          <div id="notices-cards" class="notice-cards"></div>
+
+          <section class="card glossary-card">
+            <div class="card-head"><h2><i class="ti ti-vocabulary"></i> Key Terms Glossary</h2>
+              <span class="card-hint">Tap a term for its FEP definition</span></div>
+            <div id="glossary" class="glossary"></div>
+          </section>
+        </div>
+      </section>
+
       <!-- ──────── DASHBOARD ──────── -->
-      <section id="view-dashboard" class="view active" aria-label="Dashboard">
+      <section id="view-dashboard" class="view" aria-label="Dashboard">
         <div class="page">
           <header class="page-head">
             <h1 id="greeting">Good day</h1>
-            <p class="page-sub">Your foreign-exchange policy workspace — limits, declarations and quick answers.</p>
+            <p class="page-sub">Your FX compliance workspace — limits, declarations and recent activity.</p>
           </header>
 
           <div class="dash-grid">
@@ -124,32 +150,17 @@
               <div id="dash-notices" class="dash-notices"></div>
             </article>
 
+            <!-- Recent activity / audit log -->
+            <article class="card span-2">
+              <div class="card-head">
+                <h2><i class="ti ti-history"></i> Recent Activity</h2>
+                <button class="ghost-btn" id="activity-clear"><i class="ti ti-trash"></i> Clear</button>
+              </div>
+              <p class="card-hint">A local audit trail of advisor queries, compliance checks, document scans and limit/declaration changes — kept on this device only.</p>
+              <ul id="activity-list" class="activity-list"></ul>
+            </article>
+
           </div>
-        </div>
-      </section>
-
-      <!-- ──────── FEP NOTICES (Educational Hub) ──────── -->
-      <section id="view-notices" class="view" aria-label="FEP Notices">
-        <div class="page">
-          <header class="page-head">
-            <h1>FEP Notices — Educational Hub</h1>
-            <p class="page-sub">Bank Negara Malaysia Foreign Exchange Policy Notices 1–7, broken down into plain-language provisions.</p>
-          </header>
-
-          <div class="search-box" id="notices-search">
-            <i class="ti ti-search search-icon"></i>
-            <input id="notices-q" type="search" placeholder="Search all provisions — e.g. “export proceeds 6 months”, “RM10 million borrowing”…" autocomplete="off">
-            <button class="search-clear" id="notices-clear" title="Clear"><i class="ti ti-x"></i></button>
-          </div>
-
-          <div id="notices-results"></div>
-          <div id="notices-cards" class="notice-cards"></div>
-
-          <section class="card glossary-card">
-            <div class="card-head"><h2><i class="ti ti-vocabulary"></i> Key Terms Glossary</h2>
-              <span class="card-hint">Tap a term for its FEP definition</span></div>
-            <div id="glossary" class="glossary"></div>
-          </section>
         </div>
       </section>
 
@@ -320,8 +331,8 @@
 
     <!-- Mobile bottom navigation -->
     <nav class="bottombar" aria-label="Primary mobile">
-      <button class="bb-tab active" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Home</span></button>
-      <button class="bb-tab" data-tab="notices"><i class="ti ti-books"></i><span>Notices</span></button>
+      <button class="bb-tab active" data-tab="notices"><i class="ti ti-books"></i><span>Notices</span></button>
+      <button class="bb-tab" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
       <button class="bb-tab" data-tab="tools"><i class="ti ti-sparkles"></i><span>Tools</span></button>
       <button class="bb-tab" data-tab="advisor"><i class="ti ti-message-dots"></i><span>Advisor</span></button>
       <button class="bb-tab" data-tab="settings"><i class="ti ti-settings"></i><span>More</span></button>
@@ -341,7 +352,6 @@
     </div>
     <div class="modal-body" id="nm-body"></div>
     <div class="modal-foot">
-      <a class="btn" id="nm-fulltext" href="#" target="_blank" rel="noopener"><i class="ti ti-file-text"></i> Full Notice (BNM)</a>
       <button class="btn" id="nm-check"><i class="ti ti-help-hexagon"></i> Am I Affected?</button>
       <button class="btn primary" id="nm-ask"><i class="ti ti-message-dots"></i> Ask Advisor</button>
     </div>
