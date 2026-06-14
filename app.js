@@ -497,7 +497,7 @@ const ST = {
   activity: JSON.parse(localStorage.getItem('fep_activity')||'[]'),
   activityFilter:'all', activitySearch:'',
   msgs: [], loading:false, advisorFilter:'all',
-  toolTab:'scan', analystImport:null, modalNotice:null,
+  toolTab:'analyst', analystImport:null, modalNotice:null,
 };
 const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
 const $ = id => document.getElementById(id);
