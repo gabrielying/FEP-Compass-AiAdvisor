@@ -419,12 +419,19 @@ function buildBM25() {
   docs.forEach(d => Object.keys(d.tf).forEach(t => df[t] = (df[t]||0)+1));
   BM25 = { N, df, docs, avgdl: docs.reduce((s,d)=>s+d.len,0)/N };
 }
+/* Notice 3's core DRB-gated investment limits (Part A/B, Para 1-4) are the foundation
+   every Notice 3 FAQ assumes the reader already has — but their short, generic wording
+   ("ANY amount" / "RM1 million") scores low on BM25 against scenario-style queries, so
+   they often lose out to FAQs that mention the query's literal keywords (e.g. "housing
+   loan"). Anchor them in whenever Notice 3 is relevant, so the model always sees the
+   UNLIMITED (without DRB) and capped (with DRB) provisions side by side. */
+const N3_ANCHOR_REFS = ['Part A, Para 1', 'Part A, Para 2', 'Part B, Para 3', 'Part B, Para 4'];
 function retrieve(query, noticeFilter='all', k=5) {
   if (!BM25) buildBM25();
   const { N, df, docs, avgdl } = BM25, K1=1.5, B=0.75;
   const qterms = tok(query);
   if (!qterms.length) return CHUNKS.slice(0,k);
-  return CHUNKS.map((c,i) => {
+  const ranked = CHUNKS.map((c,i) => {
     if (noticeFilter !== 'all' && c.noticeId !== parseInt(noticeFilter)) return { c, s:-1 };
     const { tf, len } = docs[i]; let s = 0;
     qterms.forEach(t => {
@@ -433,7 +440,13 @@ function retrieve(query, noticeFilter='all', k=5) {
       s += idf * (f*(K1+1)) / (f + K1*(1-B+B*len/avgdl));
     });
     return { c, s };
-  }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,k).map(x=>x.c);
+  }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s);
+  const top = ranked.slice(0,k).map(x=>x.c);
+  if (top.some(c => c.noticeId === 3)) {
+    const anchors = CHUNKS.filter(c => c.noticeId === 3 && N3_ANCHOR_REFS.includes(c.ref) && !top.some(t => t.noticeId === c.noticeId && t.ref === c.ref));
+    return [...anchors, ...top];
+  }
+  return top;
 }
 
 /* ━━━ STATE ━━━ */
@@ -592,7 +605,9 @@ RULES:
 6. For complex cases, recommend the official FEP regulatory portal: ${FEP_OFFICIAL_URL}
 7. DRB check (apply literally, do not assume): a Resident Individual/Entity has Domestic Ringgit Borrowing (DRB) ONLY if they have (a) MORE THAN one (1) housing loan, OR (b) MORE THAN one (1) vehicle loan, OR (c) any other Ringgit borrowing from another Resident not in the excluded categories (see DRB definition). Holding exactly ONE (1) housing loan and/or exactly ONE (1) vehicle loan, with no other such Ringgit borrowing, does NOT give a Resident DRB — that Resident remains in the "WITHOUT DRB" / unlimited-investment category under Notice 3.
    WORKED EXAMPLE: Person A has no Ringgit borrowing at all -> WITHOUT DRB -> UNLIMITED investment in FC asset (Notice 3 Part A Para 1). Person B has exactly ONE (1) outstanding housing loan and no other Ringgit borrowing from a Resident -> still WITHOUT DRB (one housing loan is excluded from the DRB definition) -> ALSO UNLIMITED investment under Notice 3 Part A Para 1 — do NOT apply the RM1 million limit (Para 2) to Person B, since Para 2 only applies to a Resident Individual WITH DRB.
-8. Return ONLY valid JSON. No markdown, no code fences, no preamble.`;
+8. Notice 3 Part A Para 1 (UNLIMITED, applies ONLY to a Resident WITHOUT DRB) and Part A Para 2 (RM1 million/year cap, applies ONLY to a Resident WITH DRB) are MUTUALLY EXCLUSIVE — never merge them into one statement. If EVERY party to the transaction is WITHOUT DRB, the verdict is governed ENTIRELY by Para 1: state their investment is allowed up to ANY amount, do NOT mention "RM1 million" anywhere in the explanation, and do NOT perform or reference an RM1 million comparison for that party. Only a party WITH DRB is subject to Para 2's RM1 million/year cap.
+9. ARITHMETIC CHECK: whenever you compare a converted RM amount against a numeric threshold (e.g. RM1 million), explicitly verify the comparison before writing your conclusion: if the converted amount is GREATER than the threshold, the correct word is "EXCEEDS" (not "is within" / "does not exceed"); if it is less than or equal to the threshold, the correct word is "does not exceed" / "is within". Re-check the two numbers digit-by-digit before choosing which word to use — do not state a conclusion that contradicts the numbers you just computed.
+10. Return ONLY valid JSON. No markdown, no code fences, no preamble.`;
 }
 
 async function callGemini(query, chunks, history=[]) {
