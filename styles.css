@@ -573,6 +573,13 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
   #print-area .vbody { color: #000; }
   #print-area .vsrc-tag, #print-area .vcite { background: #f3f3f3; color: #000; border-color: #999; }
   #print-area .vfoot { display: none; }
+  #print-area .sec-hdr { color: #555; }
+  #print-area .print-input { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #999; }
+  #print-area .print-input-row { font-size: 11px; line-height: 1.6; color: #000; margin-bottom: 3px; }
+  #print-area .print-input-row strong { font-weight: 700; }
+  #print-area .result-card { box-shadow: none; border: 1px solid #999; color: #000; background: #fff; }
+  #print-area .rtag { background: #f3f3f3; color: #000; }
+  #print-area .rref, #print-area .rtitle, #print-area .rexcerpt { color: #000; }
 }
 
 .msg-raw { font-size: var(--fs-sm); line-height: 1.65; padding: 13px; background: var(--surf2); border-radius: var(--radius-sm); border: 1px solid var(--bdr); color: var(--ink2); white-space: pre-wrap; word-break: break-word; }

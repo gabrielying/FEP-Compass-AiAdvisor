@@ -656,9 +656,11 @@ const VCFG = {
   CONDITIONAL:       { cls:'conditional',       icon:'ti-alert-circle',  label:'CONDITIONAL' },
   REQUIRES_APPROVAL: { cls:'requires-approval', icon:'ti-lock',          label:'REQUIRES APPROVAL' },
 };
-function verdictCard(data, chunks, isPartial) {
+function verdictCard(data, chunks, isPartial, inputRows) {
   const vc = VCFG[data.verdict] || VCFG.CONDITIONAL;
   const card = mkEl('div','vcard');
+  card._printChunks = chunks;
+  card._printInputRows = inputRows;
   card.appendChild(mkEl('div','vcard-head',
     `<span class="vbadge ${vc.cls}"><i class="ti ${vc.icon}"></i>${vc.label}</span><span class="vsummary">${esc(data.summary)}</span>`));
   const body = mkEl('div','vbody', `<div class="vlabel">Explanation</div><p>${esc(data.explanation)}</p>`);
@@ -685,6 +687,13 @@ function verdictCard(data, chunks, isPartial) {
   card.appendChild(foot);
   return card;
 }
+/* render the WHO/WHAT/WHERE/WHY/AMOUNT/CONTEXT (or chat question) for the print area */
+function printInputBlock(rows) {
+  const w = mkEl('div','print-input');
+  w.appendChild(mkEl('div','sec-hdr','Compliance check input'));
+  rows.forEach(([label, value]) => w.appendChild(mkEl('div','print-input-row', `<strong>${esc(label)}:</strong> ${esc(value)}`)));
+  return w;
+}
 /* clone a verdict card into the dedicated print area and trigger the browser's print/Save-as-PDF dialog */
 function printVerdict(card) {
   const area = $('print-area');
@@ -694,7 +703,9 @@ function printVerdict(card) {
     <h1>FEP Compass — Compliance Verdict</h1>
     <p>Generated ${esc(new Date().toLocaleString('en-MY'))} · Educational guidance only — not legal advice. Verify complex cases with the FEP Authority.</p>
   </div>`;
+  if (card._printInputRows?.length) area.appendChild(printInputBlock(card._printInputRows));
   area.appendChild(clone);
+  if (card._printChunks?.length) area.appendChild(provisionList(card._printChunks, 'Provisions used for this check'));
   document.body.classList.add('printing');
   window.print();
 }
@@ -1209,6 +1220,13 @@ $('analyst-form').addEventListener('submit', async e => {
   if (ST.analystImport) parts.push(`DOCUMENT EXTRACT (${ST.analystImport.source}): ${ST.analystImport.excerpt}`);
   const query = parts.join('\n');
 
+  const inputRows = [['Who is transacting', who], ['Transaction type', what]];
+  if (where) inputRows.push(['Where', where]);
+  if (why) inputRows.push(['Why', why]);
+  if (amt) inputRows.push(['Amount', `${ccy} ${Number(amt).toLocaleString()}`]);
+  if (ctx) inputRows.push(['Additional context', ctx]);
+  if (ST.analystImport) inputRows.push([`Document extract (${ST.analystImport.source})`, ST.analystImport.excerpt]);
+
   const out = $('analyst-out'); out.innerHTML = '';
   out.appendChild(mkEl('div','sec-hdr','Compliance health-check'));
   const chunks = retrieve(`${who} ${what} ${why} ${ctx}`, 'all', 6);
@@ -1226,7 +1244,7 @@ $('analyst-form').addEventListener('submit', async e => {
     const raw = await callAI(query, chunks, []);
     load.remove();
     const p = parseResp(raw);
-    if (p.ok) out.appendChild(verdictCard(p.data, chunks, p.partial));
+    if (p.ok) out.appendChild(verdictCard(p.data, chunks, p.partial, inputRows));
     else out.appendChild(rawCard(p.raw));
     out.appendChild(provisionList(chunks, 'Provisions used for this check'));
     logActivity('analyst', `Compliance check: ${who} — ${what} → ${p.ok ? (VCFG[p.data.verdict]?.label || p.data.verdict) : 'unparsed response'}`);
@@ -1291,7 +1309,7 @@ async function sendChat() {
     load.remove();
     const wrap = mkEl('div','msg-ai');
     const p = parseResp(raw);
-    if (p.ok) { wrap.appendChild(verdictCard(p.data, chunks, p.partial)); ST.msgs.push({ role:'assistant', content: JSON.stringify(p.data) }); }
+    if (p.ok) { wrap.appendChild(verdictCard(p.data, chunks, p.partial, [['Question', q]])); ST.msgs.push({ role:'assistant', content: JSON.stringify(p.data) }); }
     else { wrap.appendChild(rawCard(p.raw)); ST.msgs.push({ role:'assistant', content: raw }); }
     m.appendChild(wrap);
     logActivity('advisor', `Advisor query: "${q.slice(0,70)}${q.length>70?'…':''}" → ${p.ok ? (VCFG[p.data.verdict]?.label || p.data.verdict) : 'unparsed response'}`);
