@@ -121,6 +121,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
   display: flex; align-items: center; justify-content: center; font-size: 21px;
   box-shadow: 0 4px 14px -2px rgba(13,148,136,.45);
 }
+.brand-mark .brand-svg { width: 62%; height: 62%; display: block; }
 .brand-name { font-size: 16.5px; font-weight: 800; letter-spacing: -.02em; color: #fff; }
 .brand-name span { color: #4fd1bb; }
 .brand-sub { font-size: var(--fs-2xs); color: #7d93b4; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }

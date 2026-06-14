@@ -621,9 +621,14 @@ async function callGemini(query, chunks, history=[]) {
       system_instruction:{ parts:[{ text: buildSystemPrompt(chunks) }] },
       contents:[...history.map(m=>({ role:m.role==='assistant'?'model':'user', parts:[{text:m.content}] })), { role:'user', parts:[{text:query}] }],
       generationConfig:{
-        temperature:0.05, maxOutputTokens:4096, responseMimeType:'application/json',
-        // 2.5-flash spends "thinking" tokens from the same budget — disable so the JSON never truncates
-        ...(model.includes('flash') ? { thinkingConfig:{ thinkingBudget:0 } } : {})
+        temperature:0.05, maxOutputTokens:8192, responseMimeType:'application/json',
+        // The DRB / joint-limit rules (system prompt rules 7-10) need genuine multi-step
+        // reasoning — counting loan types separately, applying the one-housing/one-vehicle
+        // exclusion, then the arithmetic check. Disabling thinking made 2.5-flash fall back to
+        // shallow "has a loan -> has DRB" pattern-matching (e.g. wrongly flagging a daughter
+        // with one housing + one car loan as having DRB). Give flash a dedicated thinking
+        // budget instead, and keep maxOutputTokens generous so the JSON still never truncates.
+        ...(model.includes('flash') ? { thinkingConfig:{ thinkingBudget:4096 } } : {})
       }
     })
   });
