@@ -207,62 +207,13 @@
           </header>
 
           <div class="tool-tabs" role="tablist">
-            <button class="tool-tab active" data-tool="scan" role="tab"><i class="ti ti-scan"></i><span>Document &amp; Image Reader</span><span class="tt-short">Scanner</span></button>
+            <button class="tool-tab active" data-tool="analyst" role="tab"><i class="ti ti-brain"></i><span>AI Compliance Analyst</span><span class="tt-short">Analyst</span></button>
+            <button class="tool-tab" data-tool="scan" role="tab"><i class="ti ti-scan"></i><span>Document &amp; Image Reader</span><span class="tt-short">Scanner</span></button>
             <button class="tool-tab" data-tool="pdf" role="tab"><i class="ti ti-file-type-pdf"></i><span>PDF Reader &amp; Validator</span><span class="tt-short">PDF</span></button>
-            <button class="tool-tab" data-tool="analyst" role="tab"><i class="ti ti-brain"></i><span>AI Compliance Analyst</span><span class="tt-short">Analyst</span></button>
-          </div>
-
-          <!-- OCR scanner -->
-          <div id="tool-scan" class="tool-panel active">
-            <div class="dropzone" id="scan-drop">
-              <i class="ti ti-cloud-upload"></i>
-              <strong>Upload or drop an image</strong>
-              <span>Forms, receipts, invoices, remittance slips — JPG / PNG</span>
-              <input type="file" id="scan-file" accept="image/*" hidden>
-            </div>
-            <div id="scan-stage" class="stage hidden">
-              <div class="stage-side">
-                <img id="scan-preview" alt="Uploaded document preview">
-                <div class="stage-actions">
-                  <button class="btn primary" id="scan-run"><i class="ti ti-text-scan-2"></i> Extract Text (OCR)</button>
-                  <button class="btn" id="scan-reset"><i class="ti ti-rotate"></i> New Image</button>
-                </div>
-                <div id="scan-progress" class="progress hidden"><div id="scan-bar"></div><span id="scan-pct">0%</span></div>
-              </div>
-              <div class="stage-main">
-                <div id="scan-entities"></div>
-                <div class="extract-box"><div class="extract-label">Extracted text</div><div id="scan-text" class="extract-text">—</div></div>
-                <button class="btn primary hidden" id="scan-send"><i class="ti ti-brain"></i> Send to AI Analyst</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- PDF validator -->
-          <div id="tool-pdf" class="tool-panel">
-            <div class="dropzone" id="pdf-drop">
-              <i class="ti ti-file-type-pdf"></i>
-              <strong>Upload or drop a PDF</strong>
-              <span>Agreements, facility letters, official banking documents</span>
-              <input type="file" id="pdf-file" accept="application/pdf" hidden>
-            </div>
-            <div id="pdf-stage" class="stage hidden">
-              <div class="stage-side">
-                <div class="pdf-meta card-lite" id="pdf-meta"></div>
-                <div class="stage-actions">
-                  <button class="btn" id="pdf-reset"><i class="ti ti-rotate"></i> New PDF</button>
-                </div>
-              </div>
-              <div class="stage-main">
-                <div id="pdf-entities"></div>
-                <div id="pdf-flags"></div>
-                <div class="extract-box"><div class="extract-label">Extracted text (first pages)</div><div id="pdf-text" class="extract-text">—</div></div>
-                <button class="btn primary hidden" id="pdf-send"><i class="ti ti-brain"></i> Send to AI Analyst</button>
-              </div>
-            </div>
           </div>
 
           <!-- AI analyst -->
-          <div id="tool-analyst" class="tool-panel">
+          <div id="tool-analyst" class="tool-panel active">
             <form id="analyst-form" class="analyst-form" novalidate>
               <div id="analyst-import" class="import-chip hidden"></div>
 
@@ -328,6 +279,55 @@
                 Structured fields keep the retrieval (RAG) precise — the analyst cross-references Notices 1–7 and cites exact paragraphs.</p>
             </form>
             <div id="analyst-out"></div>
+          </div>
+
+          <!-- OCR scanner -->
+          <div id="tool-scan" class="tool-panel">
+            <div class="dropzone" id="scan-drop">
+              <i class="ti ti-cloud-upload"></i>
+              <strong>Upload or drop an image</strong>
+              <span>Forms, receipts, invoices, remittance slips — JPG / PNG</span>
+              <input type="file" id="scan-file" accept="image/*" hidden>
+            </div>
+            <div id="scan-stage" class="stage hidden">
+              <div class="stage-side">
+                <img id="scan-preview" alt="Uploaded document preview">
+                <div class="stage-actions">
+                  <button class="btn primary" id="scan-run"><i class="ti ti-text-scan-2"></i> Extract Text (OCR)</button>
+                  <button class="btn" id="scan-reset"><i class="ti ti-rotate"></i> New Image</button>
+                </div>
+                <div id="scan-progress" class="progress hidden"><div id="scan-bar"></div><span id="scan-pct">0%</span></div>
+              </div>
+              <div class="stage-main">
+                <div id="scan-entities"></div>
+                <div class="extract-box"><div class="extract-label">Extracted text</div><div id="scan-text" class="extract-text">—</div></div>
+                <button class="btn primary hidden" id="scan-send"><i class="ti ti-brain"></i> Send to AI Analyst</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PDF validator -->
+          <div id="tool-pdf" class="tool-panel">
+            <div class="dropzone" id="pdf-drop">
+              <i class="ti ti-file-type-pdf"></i>
+              <strong>Upload or drop a PDF</strong>
+              <span>Agreements, facility letters, official banking documents</span>
+              <input type="file" id="pdf-file" accept="application/pdf" hidden>
+            </div>
+            <div id="pdf-stage" class="stage hidden">
+              <div class="stage-side">
+                <div class="pdf-meta card-lite" id="pdf-meta"></div>
+                <div class="stage-actions">
+                  <button class="btn" id="pdf-reset"><i class="ti ti-rotate"></i> New PDF</button>
+                </div>
+              </div>
+              <div class="stage-main">
+                <div id="pdf-entities"></div>
+                <div id="pdf-flags"></div>
+                <div class="extract-box"><div class="extract-label">Extracted text (first pages)</div><div id="pdf-text" class="extract-text">—</div></div>
+                <button class="btn primary hidden" id="pdf-send"><i class="ti ti-brain"></i> Send to AI Analyst</button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
