@@ -151,10 +151,11 @@ h1, h2, h3 { letter-spacing: -.02em; }
 
 /* ════════ TOPBAR (mobile) ════════ */
 .topbar {
-  display: none; align-items: center; justify-content: space-between;
+  display: none; flex-direction: column; gap: 6px;
   padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
   background: var(--surf); border-bottom: 1px solid var(--bdr); flex-shrink: 0;
 }
+.topbar-row { display: flex; align-items: center; justify-content: space-between; }
 .brand-sm .brand-mark { width: 30px; height: 30px; border-radius: 9px; font-size: 16px; }
 .brand-sm { gap: 8px; }
 .brand-sm .brand-name { font-size: 14.5px; color: var(--ink); }
@@ -162,6 +163,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
   font-family: var(--mono); font-size: var(--fs-2xs); font-weight: 600;
   color: var(--ink3); border: 1px solid var(--bdr); padding: 4px 9px; border-radius: 20px;
 }
+.topbar-disclaimer { font-size: var(--fs-2xs); color: var(--ink3); line-height: 1.4; }
 
 /* ════════ VIEWS & PAGES ════════ */
 .view { display: none; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }

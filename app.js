@@ -1287,6 +1287,20 @@ $('pdf-reset').addEventListener('click', () => {
 });
 
 /* ━━━ TOOL 3 — AI compliance analyst ━━━ */
+/* Live thousands-separator formatting for the amount field, e.g. 800000 -> 800,000.00 */
+$('af-amt').addEventListener('input', e => {
+  const el = e.target;
+  const cursorFromEnd = el.value.length - el.selectionStart;
+  const clean = el.value.replace(/[^\d.]/g, '');
+  const firstDot = clean.indexOf('.');
+  const intPart = firstDot === -1 ? clean : clean.slice(0, firstDot);
+  const decPart = firstDot === -1 ? '' : '.' + clean.slice(firstDot + 1).replace(/\./g, '').slice(0, 2);
+  const formattedInt = intPart ? Number(intPart).toLocaleString('en-US') : '';
+  el.value = formattedInt + decPart;
+  const pos = Math.max(0, el.value.length - cursorFromEnd);
+  el.setSelectionRange(pos, pos);
+});
+
 $('analyst-form').addEventListener('submit', async e => {
   e.preventDefault();
   const who = $('af-who').value, what = $('af-what').value;
@@ -1294,7 +1308,7 @@ $('analyst-form').addEventListener('submit', async e => {
   const ccy = $('af-ccy').value, ctx = $('af-ctx').value.trim().slice(0, 1000);
   if (!who || !what) return toast('Please select who is transacting and the transaction type');
 
-  let amt = $('af-amt').value;
+  let amt = $('af-amt').value.replace(/,/g, '');
   if (amt) {
     const n = Number(amt);
     if (!Number.isFinite(n) || n < 0) return toast('Please enter a valid, non-negative amount');

@@ -65,11 +65,14 @@
 
     <!-- Mobile topbar -->
     <header class="topbar">
-      <div class="brand brand-sm">
-        <div class="brand-mark"><svg class="brand-svg" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="170" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="30"/><path d="M344 168 L286 286 L168 344 L226 226 Z" fill="#fff"/><circle cx="256" cy="256" r="26" fill="#0d9488"/></svg></div>
-        <div class="brand-name">FEP <span>Compass</span></div>
+      <div class="topbar-row">
+        <div class="brand brand-sm">
+          <div class="brand-mark"><svg class="brand-svg" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="170" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="30"/><path d="M344 168 L286 286 L168 344 L226 226 Z" fill="#fff"/><circle cx="256" cy="256" r="26" fill="#0d9488"/></svg></div>
+          <div class="brand-name">FEP <span>Compass</span></div>
+        </div>
+        <div class="topbar-badge">N1–N7 · Oct 2025</div>
       </div>
-      <div class="topbar-badge">N1–N7 · Oct 2025</div>
+      <p class="topbar-disclaimer">Educational guidance only — not legal advice. Verify complex cases with the FEP Authority.</p>
     </header>
 
     <main id="views">
@@ -309,7 +312,7 @@
                       <option>MYR</option><option>USD</option><option>EUR</option><option>GBP</option>
                       <option>SGD</option><option>JPY</option><option>CNY</option><option>AUD</option><option>Other</option>
                     </select>
-                    <input id="af-amt" type="number" min="0" step="any" placeholder="0.00">
+                    <input id="af-amt" type="text" inputmode="decimal" placeholder="0.00">
                   </div>
                 </label>
                 <label class="field">
