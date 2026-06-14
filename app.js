@@ -181,7 +181,6 @@ const NOTICES = {
       {ref:'FAQ Q27',title:'What Ringgit assets can be settled using funds from a Non-Resident\'s External Account?',body:'Ringgit Asset includes: (a) Ringgit-denominated securities or Islamic securities issued in Malaysia by a Resident; (b) Ringgit-denominated securities or Islamic securities issued by a Non-Resident as approved by BNM; (c) Ringgit-denominated financial instruments or Islamic financial instruments as approved by BNM; or (d) properties in Malaysia.'},
       {ref:'FAQ Q28',title:'Can a Non-Resident invest in Malaysia via an Institutional Investor?',body:'Yes. There is no restriction on a Non-Resident investing in Malaysia via a Non-Resident Institutional Investor.'},
       {ref:'FAQ Q29',title:'Are there flexibilities given to a Non-Resident Institutional Investor arising from investments in Malaysia?',body:'Yes. A Non-Resident Institutional Investor is accorded flexibilities to manage foreign exchange exposure arising from its investments in Malaysia.'},
-      {ref:'FAQ Q30',title:'How is the RM1 million investment limit applied to a remittance/investment funded from a Ringgit account held jointly by two Resident individuals?',body:'The RM1 million annual aggregate limit (FAQ Q2/Q4) is assessed per individual accountholder based on each one\'s own DRB status. For a 2-person joint Ringgit account, if at least one accountholder has DRB, the combined limit for investments/remittances funded from that joint account is RM1 million PER accountholder (i.e. RM2 million in total for 2 accountholders) per calendar year. An amount exceeding this combined limit is not covered by the conversion-limit exemption.'},
     ] },
   4: { id:4, short:'N4', icon:'ti-arrows-exchange', title:'Payment and Receipt',
     desc:'Permitted Ringgit and foreign-currency payments between Residents and Non-Residents, repatriation, and FCA / External Accounts.',
@@ -278,7 +277,6 @@ const GLOSSARY = {
   'AOO': 'Appointed Overseas Office — an overseas office of a LOB\'s banking group approved by the FEP Authority to facilitate Ringgit transactions for Non-Residents.',
   'NRFI': 'Non-Resident Financial Institution — a Non-Resident entity undertaking financial services.',
   'DRB': 'Domestic Ringgit Borrowing — any Ringgit borrowing obtained by a Resident from another Resident, excluding one (1) housing loan, one (1) vehicle loan, and sundry/employee facilities. IMPORTANT: having MORE THAN one (1) housing loan OR more than one (1) vehicle loan means the Resident is deemed to HAVE DRB (loses the unlimited-investment exemption and becomes subject to the RM1 million / RM50 million annual limits under Notice 3).',
-  'Joint Account': 'For investment in FC asset under Notice 3, the RM1 million / RM50 million annual aggregate limit (FAQ Q2/Q4) applies PER RESIDENT INDIVIDUAL based on that individual\'s own DRB status. When a remittance/investment is funded from a Ringgit account held JOINTLY by two or more Resident individuals, each accountholder\'s own limit is attributed to the joint transaction (Notice 3 FAQ Q30): if at least one joint accountholder has DRB, the combined limit available to the joint account is RM1 million PER accountholder per calendar year — e.g. RM2 million in total for a 2-person joint account. A joint remittance/investment exceeding this combined limit is NOT covered by the conversion-limit exemption.',
   'FCA': 'Foreign Currency Account maintained with a LOB or NRFI — split into Trade FCA and Investment FCA.',
   'Trade FCA': 'Foreign Currency Account used for trade-related receipts and payments, including export proceeds.',
   'External Account': 'A Ringgit account opened by a Non-Resident with a Financial Institution in Malaysia.',
@@ -550,11 +548,10 @@ REQUIRES_APPROVAL = needs prior written approval from the FEP Authority
 RULES:
 1. Base your answer ONLY on the KEY DEFINITIONS and RETRIEVED KNOWLEDGE BASE above — both are authoritative FEP source material
 2. Always cite the specific FEP Notice and paragraph reference (a KEY DEFINITION may itself reference the applicable Notice/Part/Para — cite that)
-3. When the transaction amount is in a foreign currency and the applicable threshold is expressed in Ringgit (RM), convert the amount to its approximate RM equivalent using a reasonable current market exchange rate — state the assumed rate as an assumption — before comparing it against the RM threshold
-4. State assumptions if the question is ambiguous
-5. If not covered in the definitions or knowledge base, say so — never fabricate
-6. For complex cases, recommend the official FEP regulatory portal: ${FEP_OFFICIAL_URL}
-7. Return ONLY valid JSON. No markdown, no code fences, no preamble.`;
+3. State assumptions if the question is ambiguous
+4. If not covered in the definitions or knowledge base, say so — never fabricate
+5. For complex cases, recommend the official FEP regulatory portal: ${FEP_OFFICIAL_URL}
+6. Return ONLY valid JSON. No markdown, no code fences, no preamble.`;
 }
 
 async function callGemini(query, chunks, history=[]) {
