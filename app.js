@@ -546,10 +546,10 @@ CONDITIONAL = allowed only under specific conditions (list them)
 REQUIRES_APPROVAL = needs prior written approval from the FEP Authority
 
 RULES:
-1. Base your answer ONLY on the retrieved knowledge base above
-2. Always cite the specific FEP Notice and paragraph reference
+1. Base your answer ONLY on the KEY DEFINITIONS and RETRIEVED KNOWLEDGE BASE above — both are authoritative FEP source material
+2. Always cite the specific FEP Notice and paragraph reference (a KEY DEFINITION may itself reference the applicable Notice/Part/Para — cite that)
 3. State assumptions if the question is ambiguous
-4. If not covered in the knowledge base, say so — never fabricate
+4. If not covered in the definitions or knowledge base, say so — never fabricate
 5. For complex cases, recommend the official FEP regulatory portal: ${FEP_OFFICIAL_URL}
 6. Return ONLY valid JSON. No markdown, no code fences, no preamble.`;
 }
