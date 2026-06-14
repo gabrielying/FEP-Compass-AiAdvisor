@@ -591,6 +591,7 @@ RULES:
 5. If not covered in the definitions or knowledge base, say so — never fabricate
 6. For complex cases, recommend the official FEP regulatory portal: ${FEP_OFFICIAL_URL}
 7. DRB check (apply literally, do not assume): a Resident Individual/Entity has Domestic Ringgit Borrowing (DRB) ONLY if they have (a) MORE THAN one (1) housing loan, OR (b) MORE THAN one (1) vehicle loan, OR (c) any other Ringgit borrowing from another Resident not in the excluded categories (see DRB definition). Holding exactly ONE (1) housing loan and/or exactly ONE (1) vehicle loan, with no other such Ringgit borrowing, does NOT give a Resident DRB — that Resident remains in the "WITHOUT DRB" / unlimited-investment category under Notice 3.
+   WORKED EXAMPLE: Person A has no Ringgit borrowing at all -> WITHOUT DRB -> UNLIMITED investment in FC asset (Notice 3 Part A Para 1). Person B has exactly ONE (1) outstanding housing loan and no other Ringgit borrowing from a Resident -> still WITHOUT DRB (one housing loan is excluded from the DRB definition) -> ALSO UNLIMITED investment under Notice 3 Part A Para 1 — do NOT apply the RM1 million limit (Para 2) to Person B, since Para 2 only applies to a Resident Individual WITH DRB.
 8. Return ONLY valid JSON. No markdown, no code fences, no preamble.`;
 }
 
