@@ -1202,7 +1202,7 @@ $('analyst-form').addEventListener('submit', async e => {
   e.preventDefault();
   const who = $('af-who').value, what = $('af-what').value;
   const where = $('af-where').value.trim().slice(0, 80), why = $('af-why').value.trim().slice(0, 160);
-  const ccy = $('af-ccy').value, ctx = $('af-ctx').value.trim().slice(0, 400);
+  const ccy = $('af-ccy').value, ctx = $('af-ctx').value.trim().slice(0, 1000);
   if (!who || !what) return toast('Please select who is transacting and the transaction type');
 
   let amt = $('af-amt').value;

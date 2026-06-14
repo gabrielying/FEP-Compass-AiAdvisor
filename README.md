@@ -55,7 +55,7 @@ A modern, minimalist, education-first web app for **banking officers** (and comp
 - **Document & Image Reader** — drag-drop or camera upload → on-device OCR (Tesseract.js, lazy-loaded from CDN) with live progress → extracted text with **currencies/amounts highlighted**, entity chips, and "potential FEP touchpoint" chips that map detected keywords to Notices 1–7.
 - **PDF Reader & Validator** — drag-drop a PDF → text extraction (pdf.js, first 10 pages) → same entity detection, plus **validator flags** ("this document references export proceeds, 6 months — review against Notice 7").
 - **AI Compliance Analyst** — structured intake designed for precise RAG retrieval:
-  `WHO` (party type) · `WHAT` (transaction type) · `WHERE` (countries) · `WHY` (purpose, 160 chars) · `AMOUNT` (+ currency) · optional context (400 chars).
+  `WHO` (party type) · `WHAT` (transaction type) · `WHERE` (countries) · `WHY` (purpose, 160 chars) · `AMOUNT` (+ currency) · optional context (1000 chars).
   Both readers can **Send to Analyst**, attaching a 900-char document extract as an evidence chip. Output: verdict card — `PERMITTED / NOT PERMITTED / CONDITIONAL / REQUIRES APPROVAL` — with explanation, conditions, warning, **exact FEP Notice citation**, **suggested next step / filing** (e.g. registration or report to the FEP Authority), the retrieved provisions listed for audit, and a **"Save as PDF"** button (print stylesheet) for compliance files. Without an AI key, or if the AI provider is unreachable, it degrades gracefully to a reference-only lookup of the most relevant provisions.
 
 ### 4 · AI Advisor
