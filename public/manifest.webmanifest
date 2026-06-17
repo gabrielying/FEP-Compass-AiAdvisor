@@ -1,0 +1,14 @@
+{
+  "name": "FEP Compass — Malaysia's FX Policy Advisor",
+  "short_name": "FEP Compass",
+  "description": "Malaysia's Foreign Exchange Policy (FEP Notices 1-7) educational hub, smart document tools and AI compliance analyst.",
+  "start_url": "/notices",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a1628",
+  "theme_color": "#0a1f3d",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
