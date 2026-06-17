@@ -41,6 +41,12 @@ export function Sidebar() {
           Educational guidance only — not legal advice. Verify complex cases with the FEP Authority — official source
           linked in <Link href="/settings">Settings</Link>.
         </p>
+        <form action="/auth/sign-out" method="post">
+          <button type="submit" className="side-link" style={{ width: '100%', border: 'none', background: 'none' }}>
+            <i className="ti ti-logout" />
+            <span>Sign out</span>
+          </button>
+        </form>
       </div>
     </aside>
   );

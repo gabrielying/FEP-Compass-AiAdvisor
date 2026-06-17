@@ -1,6 +1,6 @@
-// Ported from legacy/app.js — localStorage-backed activity log.
-// M2 will replace the storage layer with the `activity_log` Supabase table; the
-// shape/types here are kept identical so that swap is a drop-in change.
+// M2: activity is now stored in the `activity_log` Supabase table, scoped to the
+// signed-in user via RLS. Shape/types are kept identical to the localStorage version.
+import { createClient } from '@/lib/supabase/client';
 
 export type ActivityType =
   | 'advisor'
@@ -42,21 +42,25 @@ export const ACTIVITY_LABELS: Record<ActivityType, string> = {
 };
 
 const MAX_ACTIVITY = 50;
-const STORAGE_KEY = 'fep_activity';
 
-export function loadActivity(): ActivityEntry[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch {
-    return [];
-  }
+export async function loadActivity(): Promise<ActivityEntry[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('activity_log')
+    .select('id, ts, type, text')
+    .order('ts', { ascending: false })
+    .limit(MAX_ACTIVITY);
+
+  if (error || !data) return [];
+  return data as ActivityEntry[];
 }
 
-export function logActivity(type: ActivityType, text: string): ActivityEntry[] {
-  const activity = loadActivity();
-  activity.unshift({ id: Date.now() + '_' + Math.random().toString(36).slice(2), ts: Date.now(), type, text });
-  const trimmed = activity.slice(0, MAX_ACTIVITY);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
-  return trimmed;
+export async function logActivity(type: ActivityType, text: string): Promise<ActivityEntry[]> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  await supabase.from('activity_log').insert({ user_id: user.id, ts: Date.now(), type, text });
+
+  return loadActivity();
 }
