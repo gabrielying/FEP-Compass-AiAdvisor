@@ -749,3 +749,14 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+.decl-new input { flex:1; border:1.5px solid var(--bdr2); border-radius:7px; background:var(--surf); padding:8px 10px; font-size:16px; outline:none; }
+#clear-data { color: var(--red); border-color: var(--red-bdr); }
+
+.mt-0 { margin-top: 0; }
+.mt-8 { margin-top: 8px; }
+.mt-10 { margin-top: 10px; }
+.mb-12 { margin-bottom: 12px; }
+.icon-sp { vertical-align: -2px; }
+.icon-sp-r { vertical-align: -2px; margin-right: 5px; }
+.text-red { color: var(--red); }

@@ -812,14 +812,14 @@ function verdictCard(data, chunks, isPartial, inputRows) {
     `<span class="vbadge ${vc.cls}"><i class="ti ${vc.icon}"></i>${vc.label}</span><span class="vsummary">${esc(data.summary)}</span>`));
   const body = mkEl('div','vbody', `<div class="vlabel">Explanation</div><p>${esc(data.explanation)}</p>`);
   if (data.conditions?.length)
-    body.innerHTML += `<div class="vlabel" style="margin-top:10px">Conditions</div>` +
+    body.innerHTML += `<div class="vlabel mt-10">Conditions</div>` +
       data.conditions.map(c=>`<div class="vcond"><i class="ti ti-point-filled"></i><span>${esc(c)}</span></div>`).join('');
   if (data.warning && data.warning !== 'null')
-    body.innerHTML += `<div class="vwarn"><i class="ti ti-alert-triangle" style="vertical-align:-2px;margin-right:5px"></i>${esc(data.warning)}</div>`;
+    body.innerHTML += `<div class="vwarn"><i class="ti ti-alert-triangle icon-sp-r"></i>${esc(data.warning)}</div>`;
   if (data.nextStep && data.nextStep !== 'null')
-    body.innerHTML += `<div class="vnext"><i class="ti ti-arrow-guide" style="vertical-align:-2px;margin-right:5px"></i><strong>Next step:</strong> ${esc(data.nextStep)}</div>`;
+    body.innerHTML += `<div class="vnext"><i class="ti ti-arrow-guide icon-sp-r"></i><strong>Next step:</strong> ${esc(data.nextStep)}</div>`;
   if (isPartial)
-    body.innerHTML += `<div class="vwarn" style="margin-top:8px">Response partially parsed — some fields may be incomplete.</div>`;
+    body.innerHTML += `<div class="vwarn mt-8">Response partially parsed — some fields may be incomplete.</div>`;
   card.appendChild(body);
   if (data.citation) card.appendChild(mkEl('div','vcite',`<div class="vlabel">FEP Citation</div><div class="vcite-text">${esc(data.citation)}</div>`));
   if (chunks?.length) {
@@ -967,8 +967,7 @@ $('decl-add').addEventListener('click', () => {
   const ul = $('decl-list');
   if (ul.querySelector('.decl-new')) { ul.querySelector('.decl-new input').focus(); return; }
   const li = mkEl('li','decl-item decl-new');
-  li.innerHTML = `<input type="text" maxlength="120" placeholder="Describe the declaration / task…"
-      style="flex:1;border:1.5px solid var(--bdr2);border-radius:7px;background:var(--surf);padding:8px 10px;font-size:16px;outline:none">
+  li.innerHTML = `<input type="text" maxlength="120" placeholder="Describe the declaration / task…">
     <button class="ghost-btn"><i class="ti ti-check"></i> Save</button>`;
   const inp = li.querySelector('input');
   li.querySelector('button').addEventListener('click', () => {
@@ -1148,7 +1147,7 @@ function openQuickCheck(id) {
   const showResult = res => {
     const body = $('qc-body'); body.innerHTML = '';
     const icon = res.type==='ok' ? 'ti-circle-check' : res.type==='warn' ? 'ti-alert-triangle' : 'ti-info-circle';
-    body.appendChild(mkEl('div',`qc-result ${res.type}`,`<strong><i class="ti ${icon}" style="vertical-align:-2px"></i> ${esc(res.t)}</strong>${esc(res.d)}`));
+    body.appendChild(mkEl('div',`qc-result ${res.type}`,`<strong><i class="ti ${icon} icon-sp"></i> ${esc(res.t)}</strong>${esc(res.d)}`));
     logActivity('check', `"Am I Affected?" (Notice ${n.short}) → ${res.t}`);
     const row = mkEl('div','qc-restart qc-opts');
     const again = mkEl('button','btn','<i class="ti ti-rotate"></i> Start over');
@@ -1357,7 +1356,7 @@ wireDropzone('pdf-drop','pdf-file', async f => {
     $('pdf-send').onclick = () => sendToAnalyst('PDF “'+f.name+'”', text, ents);
     logActivity('pdf', `Scanned PDF "${f.name}" — ${ents.amounts.length} amount(s) detected${ents.noticeHits.length ? ', touches ' + ents.noticeHits.map(x=>x.n.short).join(', ') : ''}`);
   } catch (err) {
-    $('pdf-meta').innerHTML = `<strong>${esc(f.name)}</strong><br><span style="color:var(--red)">Failed: ${esc(err.message)}</span>`;
+    $('pdf-meta').innerHTML = `<strong>${esc(f.name)}</strong><br><span class="text-red">Failed: ${esc(err.message)}</span>`;
   }
 });
 $('pdf-reset').addEventListener('click', () => {
@@ -1558,7 +1557,7 @@ function renderSettings() {
 
   const profileCard = mkEl('div','card');
   profileCard.innerHTML = `<div class="card-head"><h2><i class="ti ti-users"></i> Profile</h2></div>
-  <p class="card-hint" style="margin-bottom:12px">Choose which FEP limit trackers appear on your Dashboard — this does not change AI Advisor or Compliance Analyst answers.</p>
+  <p class="card-hint mb-12">Choose which FEP limit trackers appear on your Dashboard — this does not change AI Advisor or Compliance Analyst answers.</p>
   <div class="provider-opts profile-opts">
     <button class="popt ${c.profile==='individual'?'on':''}" data-pr="individual"><span class="popt-id">Individual</span><span class="popt-note">Personal FCY limits — Notices 2 &amp; 3</span></button>
     <button class="popt ${c.profile==='entity'?'on':''}" data-pr="entity"><span class="popt-id">Entity</span><span class="popt-note">Company / group FCY limits — Notice 3</span></button>
@@ -1592,11 +1591,11 @@ function renderSettings() {
 
   const data = mkEl('div','card'); data.style.marginTop = '16px';
   data.innerHTML = `<div class="card-head"><h2><i class="ti ti-database"></i> Data &amp; About</h2></div>
-    <p class="hint" style="margin-bottom:12px">FEP Compass v2.0 · Notices N1–N7 effective 1 Oct 2025 · Educational guidance only, not legal advice.
+    <p class="hint mb-12">FEP Compass v2.0 · Notices N1–N7 effective 1 Oct 2025 · Educational guidance only, not legal advice.
     Official source: <a href="${FEP_OFFICIAL_URL}" target="_blank" rel="noopener">bnm.gov.my/fep/policies/notices</a></p>
-    <div class="btn-row" style="margin-top:0">
+    <div class="btn-row mt-0">
       <button class="btn" id="reset-limits"><i class="ti ti-rotate"></i> Reset limit trackers</button>
-      <button class="btn" id="clear-data" style="color:var(--red);border-color:var(--red-bdr)"><i class="ti ti-trash"></i> Clear all local data</button>
+      <button class="btn" id="clear-data"><i class="ti ti-trash"></i> Clear all local data</button>
     </div>`;
   el.appendChild(data);
 
