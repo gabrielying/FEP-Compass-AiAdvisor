@@ -148,6 +148,11 @@ h1, h2, h3 { letter-spacing: -.02em; }
   padding: 5px 10px; border-radius: 20px; background: rgba(255,255,255,.06);
   color: #aebfd8; font-size: var(--fs-2xs); font-weight: 600;
 }
+.side-foot-legal {
+  display: flex; align-items: center; gap: 6px; margin-top: 8px;
+  font-size: var(--fs-xs); color: #4fd1bb; font-weight: 600;
+}
+.side-foot-legal:hover { text-decoration: underline; }
 
 /* ════════ TOPBAR (mobile) ════════ */
 .topbar {
@@ -164,6 +169,10 @@ h1, h2, h3 { letter-spacing: -.02em; }
   color: var(--ink3); border: 1px solid var(--bdr); padding: 4px 9px; border-radius: 20px;
 }
 .topbar-disclaimer { font-size: var(--fs-2xs); color: var(--ink3); line-height: 1.4; }
+.topbar-legal-link {
+  display: inline-flex; margin-top: 4px;
+  font-size: var(--fs-2xs); color: var(--teal); font-weight: 600; text-decoration: underline;
+}
 
 /* ════════ VIEWS & PAGES ════════ */
 .view { display: none; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
@@ -760,3 +769,18 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 .icon-sp { vertical-align: -2px; }
 .icon-sp-r { vertical-align: -2px; margin-right: 5px; }
 .text-red { color: var(--red); }
+
+/* ════════ LEGAL PAGE (standalone, legal.html) ════════ */
+/* body is normally a fixed-height app shell (height:100dvh; overflow:hidden) —
+   legal.html is a plain scrolling document, so allow natural scroll here. */
+body.legal-doc { height: auto; overflow: auto; }
+.legal-page { padding-top: 26px; }
+.legal-page .page-head p:first-child { margin-bottom: 10px; }
+.legal-toc { margin-bottom: 18px; }
+.legal-toc ol { list-style: decimal; margin-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: var(--fs-sm); }
+.legal-section { margin-bottom: 14px; }
+.legal-section p, .legal-section ul { font-size: var(--fs-sm); color: var(--ink2); line-height: 1.65; }
+.legal-section p + p { margin-top: 10px; }
+.legal-section ul { margin: 8px 0 0 18px; display: flex; flex-direction: column; gap: 6px; }
+.legal-section code { font-family: var(--mono); font-size: 0.92em; background: var(--surf2); padding: 1px 5px; border-radius: 5px; }
+.legal-footer { text-align: center; margin: 26px 0 10px; }

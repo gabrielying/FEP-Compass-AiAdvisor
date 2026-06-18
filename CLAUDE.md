@@ -35,6 +35,7 @@ onboarding text).
 | File | Purpose |
 |---|---|
 | `index.html` | HTML shell; CSP meta tag (explicit allowlist); SRI-pinned CDN `<script>`/`<link>` tags; PWA manifest link. |
+| `legal.html` | Standalone static legal/policy page (Terms, Privacy/PDPA, AI disclosure, data retention, disclaimers, etc.) — self-contained, no `app.js`/`kb.js` script tags, self-only CSP. Linked from the sidebar footer, mobile topbar, and Settings → Data & About. |
 | `app.js` | App logic: global `ST` state, 5-tab UI (notices/dashboard/tools/advisor/settings), `QUICKCHECK` decision trees, `callGemini()` (~line 162), `callOllama()` (~line 188), `AI_COOLDOWN_MS`/`aiCooldownOk()` (~line 210), `repairJSON()`/`parseResp()` (~line 221/244), `VALID_VERDICTS` (~line 243), `MAX_ACTIVITY` (~line 87), OCR/PDF handling, DOM helpers (`mkEl`, `esc`, `toast`). |
 | `kb.js` | Knowledge base + retrieval: `NOTICES` (N1–N7), `GLOSSARY` (56 terms), `CHUNKS`, `N3_ANCHOR_REFS` (~line 476), `retrieve()` (~line 477), `buildSystemPrompt()` (~line 504). Dual-loaded as a browser `<script>` global **and** a CommonJS module via the `module.exports` guard near the bottom (~line 549) — the latter is `require()`d by `test/run-stress-test.js`. |
 | `styles.css` | All styling: CSS custom-properties theme (navy `#0a1f3d` + teal `#0d9488`), dark mode via `prefers-color-scheme`, 860px breakpoint (sidebar desktop / bottom-tab mobile). |
