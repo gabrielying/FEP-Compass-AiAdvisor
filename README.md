@@ -92,6 +92,29 @@ cd FEP-Compass-AiAdvisor
 python -m http.server 8000   # → http://localhost:8000
 ```
 
+## Testing the AI Advisor's citations
+
+The AI Compliance Analyst's value depends on it citing a **real, correctly-applicable**
+FEP provision — not a plausible-sounding hallucination. `test/` has a 31-scenario
+battery across all 7 Notices (ground-truthed directly against the provision text
+in `kb.js`), in two forms:
+
+- **Automated** (`npm run stress-test`) — calls a local Ollama model exactly the
+  way the app does (same `retrieve()` + `buildSystemPrompt()` + request shape +
+  `parseResp`/`repairJSON`), then checks the verdict, that the citation names the
+  right Notice, and that the cited paragraph/FAQ number actually exists in that
+  Notice (catching hallucinated references). Requires `ollama serve` and a pulled
+  model (`ollama pull qwen2.5:7b`).
+  ```
+  npm run stress-test                       # all 31 scenarios, qwen2.5:7b
+  node test/run-stress-test.js --notice 3   # just Notice 3
+  node test/run-stress-test.js --model llama3.1 --verbose
+  ```
+  Writes a full report to `test/last-run-report.json`.
+- **Manual** (`test/SCENARIOS.md`) — the same scenarios as a checklist for running
+  through the live UI by hand (Smart Tools → AI Compliance Analyst), useful for
+  testing Gemini or spot-checking a model the harness doesn't support.
+
 ## Design system
 
 - Deep navy (`#0a1f3d`) + emerald/teal (`#0d9488`) — secure yet modern; automatic dark mode.

@@ -1,0 +1,12 @@
+{
+  "name": "fep-compass-aiadvisor",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Malaysia FEP Notices 1-7 AI Advisor — 100% client-side app",
+  "scripts": {
+    "stress-test": "node test/run-stress-test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
