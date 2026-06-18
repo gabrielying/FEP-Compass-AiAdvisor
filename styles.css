@@ -177,7 +177,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
 /* ════════ VIEWS & PAGES ════════ */
 .view { display: none; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .view.active { display: block; }
-.view-chat.active { display: flex; flex-direction: column; overflow: hidden; }
+.view.view-chat.active { display: flex; flex-direction: column; overflow: hidden; }
 
 .page { max-width: 1060px; margin: 0 auto; padding: 30px 28px 60px; }
 .page.narrow { max-width: 720px; }
@@ -195,6 +195,16 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .card-head h2 { font-size: var(--fs-lg); font-weight: 700; display: flex; align-items: center; gap: 8px; }
 .card-head h2 i { color: var(--teal); font-size: 19px; }
 .card-hint { font-size: var(--fs-xs); color: var(--ink3); }
+
+.dash-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.dash-stat {
+  display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+  border: 1px solid var(--bdr); border-radius: var(--radius); background: var(--surf);
+  box-shadow: var(--shadow);
+}
+.dash-stat i { font-size: 22px; color: var(--teal); flex-shrink: 0; }
+.ds-v { font-size: var(--fs-xl); font-weight: 800; color: var(--ink); line-height: 1.1; }
+.ds-l { font-size: var(--fs-2xs); color: var(--ink3); font-weight: 600; margin-top: 2px; }
 
 .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .span-2 { grid-column: span 2; }
@@ -481,6 +491,12 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 .tool-tab.active { background: var(--grad-brand); color: #fff; box-shadow: 0 4px 14px -4px rgba(13,148,136,.5); }
 .tool-panel { display: none; }
 .tool-panel.active { display: block; animation: fadeUp .3s var(--ease); }
+/* the AI Advisor tool-panel hosts the chat shell — give it a flex column layout with
+   its own bounded, scrollable message area instead of the page's normal block flow */
+.tool-panel.view-chat.active {
+  display: flex; flex-direction: column; animation: fadeUp .3s var(--ease);
+  height: calc(100dvh - 230px); min-height: 420px;
+}
 @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 .dropzone {
@@ -725,6 +741,7 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
   .topbar { display: flex; }
   .bottombar { display: flex; }
   .page { padding: 20px 16px 40px; }
+  .dash-stats { grid-template-columns: 1fr 1fr; }
   .dash-grid { grid-template-columns: 1fr; }
   .span-2 { grid-column: span 1; }
   .form-grid { grid-template-columns: 1fr; }
@@ -743,6 +760,7 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
   .npill { padding: 8px 14px; }
   .page-head h1 { font-size: 23px; }
   .dropzone { padding: 36px 16px; }
+  .tool-panel.view-chat.active { height: calc(100dvh - 280px); min-height: 360px; }
 }
 @media (min-width: 861px) {
   .overlay { align-items: center; padding: 30px; }
@@ -751,6 +769,7 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 }
 @media (max-width: 380px) {
   .qa-grid { grid-template-columns: 1fr; }
+  .dash-stats { grid-template-columns: 1fr; }
   .nc-actions .btn { flex: 100%; }
 }
 

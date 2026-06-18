@@ -55,6 +55,9 @@ const DEFAULT_DECLS = [
   { id:2, t:'Dynamic hedging quarterly position update', d:'Notice 1 · FEP Authority portal', done:false },
 ];
 
+/* timestamp of this page load — used only to scope "this session" dashboard stats; not persisted */
+const APP_LOAD_TS = Date.now();
+
 const ST = {
   tab:'notices',
   cfg: { ...DEFAULT_CFG, ...JSON.parse(localStorage.getItem('fep_cfg')||'{}') },
@@ -458,10 +461,30 @@ function renderDashNotices() {
     wrap.appendChild(b);
   });
 }
+function renderDashStats() {
+  const wrap = $('dash-stats'); if (!wrap) return;
+  wrap.innerHTML = '';
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const queriesSession = ST.activity.filter(a => a.type === 'advisor' && a.ts >= APP_LOAD_TS).length;
+  const checksMonth = ST.activity.filter(a => (a.type === 'analyst' || a.type === 'check') && a.ts >= monthStart).length;
+  const activeDecls = ST.decls.filter(d => !d.done).length;
+  const noticesBrowsed = new Set(ST.activity.filter(a => a.type === 'notice').map(a => a.text)).size;
+  const stats = [
+    { icon:'ti-message-dots', label:'Queries this session', v: queriesSession },
+    { icon:'ti-checkup-list', label:'Checks run this month', v: checksMonth },
+    { icon:'ti-clipboard-check', label:'Active declarations', v: activeDecls },
+    { icon:'ti-books', label:'Notices browsed', v: noticesBrowsed },
+  ];
+  stats.forEach(s => {
+    wrap.appendChild(mkEl('div','dash-stat',
+      `<i class="ti ${s.icon}"></i><div class="ds-body"><div class="ds-v">${s.v}</div><div class="ds-l">${esc(s.label)}</div></div>`));
+  });
+}
 function renderDashboard() {
   const h = new Date().getHours();
   $('greeting').textContent = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-  renderRings(); renderDecls(); renderActivity();
+  renderDashStats(); renderRings(); renderDecls(); renderActivity();
 }
 $('activity-clear').addEventListener('click', () => {
   ST.activity = []; save('fep_activity', ST.activity); renderActivity(); toast('Activity log cleared');
@@ -585,7 +608,7 @@ function openNotice(id, focusRef) {
 $('nm-ask').addEventListener('click', () => {
   closeOverlays();
   ST.advisorFilter = String(ST.modalNotice);
-  renderAdvisorPills(); switchTab('advisor');
+  renderAdvisorPills(); switchTab('tools'); switchTool('advisor');
 });
 $('nm-check').addEventListener('click', () => { closeOverlays(); openQuickCheck(ST.modalNotice); });
 
@@ -620,7 +643,7 @@ function openQuickCheck(id) {
     const again = mkEl('button','btn','<i class="ti ti-rotate"></i> Start over');
     again.addEventListener('click', () => { step=1; render(qc.start); });
     const ask = mkEl('button','btn primary','<i class="ti ti-message-dots"></i> Ask the Advisor');
-    ask.addEventListener('click', () => { closeOverlays(); ST.advisorFilter = String(id); renderAdvisorPills(); switchTab('advisor'); });
+    ask.addEventListener('click', () => { closeOverlays(); ST.advisorFilter = String(id); renderAdvisorPills(); switchTab('tools'); switchTool('advisor'); });
     row.appendChild(again); row.appendChild(ask);
     body.appendChild(row);
   };
@@ -936,10 +959,83 @@ function renderAdvisorEmpty() {
   m.appendChild(empty);
 }
 function pushUserMsg(text) { $('msgs').appendChild(mkEl('div','msg-user', esc(text))); }
+
+/* ━━━ TOPIC-RELEVANCE GATE (chat input only) ━━━
+   Rejects off-topic queries client-side, before any AI call. Built entirely from
+   already-loaded kb.js globals (GLOSSARY, NOTICES) plus a small generic FX/banking
+   allowlist — does not modify kb.js or its exports.
+   Two-bucket allowlist: single-word terms go in a `tokens` Set (exact-match against
+   query words length >=4); multi-word/hyphenated terms (e.g. "write-off", "money
+   changer") are normalized and kept whole in a `phrases` array, matched as a
+   substring of the normalized query — this avoids a short common word inside a
+   hyphenated term (e.g. "write" from "write-off") spuriously matching unrelated
+   queries like "write a haiku".
+   The retrieve() fallback is gated to queries with >=2 distinct content words, and
+   requires >=2 of those words to literally appear in the same retrieved chunk's
+   title/body/kw — a single coincidentally shared common word is no longer enough. */
+const STOPWORDS = new Set([
+  'what','where','when','which','who','whom','whose','why','how',
+  'like','about','today','tonight','right','story','write','short',
+  'long','good','great','nice','capital','please','could','would',
+  'should','really','very','just','that','this','these','those',
+  'your','tell','give','recommend','favorite','favourite','translate',
+  'weather','time','morning','afternoon','evening','night',
+]);
+let _topicTokens = null;
+let _topicPhrases = null;
+function buildTopicSets() {
+  if (_topicTokens) return;
+  const tokens = new Set();
+  const phrases = [];
+  const addPhrase = phrase => {
+    const norm = String(phrase).toLowerCase().trim().replace(/[-/]+/g, ' ').replace(/\s+/g, ' ');
+    if (/\s/.test(norm)) {
+      if (norm.length >= 3) phrases.push(norm);
+    } else if (norm.length >= 3) {
+      tokens.add(norm);
+    }
+  };
+  Object.keys(GLOSSARY).forEach(addPhrase);
+  Object.values(NOTICES).forEach(n => (n.kw || []).forEach(addPhrase));
+  [
+    'remit','remittance','transfer','payment','loan','invest','currency','ringgit',
+    'forex','fx','border','export','import','customs','bank','account','resident',
+    'nonresident','ecf','drb','hedge','ecb','borrow','lend','guarantee','proceeds',
+    'declare','declaration','repatriate','onshore','offshore','sukuk','bond','dealer',
+    'money changer','authority','compliance','transaction','overseas','abroad',
+  ].forEach(addPhrase);
+  _topicTokens = tokens;
+  _topicPhrases = phrases;
+}
+function isOnTopicQuery(query) {
+  buildTopicSets();
+  const raw = String(query || '').toLowerCase().trim();
+  const normalized = raw.replace(/[-/]+/g, ' ').replace(/\s+/g, ' ');
+  const qWords = normalized.split(/[^a-z0-9]+/).filter(Boolean);
+  const qTokens = qWords.filter(w => w.length >= 4 && !STOPWORDS.has(w));
+
+  if (qTokens.some(t => _topicTokens.has(t))) return true;
+  if (_topicPhrases.some(p => normalized.includes(p))) return true;
+
+  if (qTokens.length < 2) return false;
+  try {
+    const chunks = retrieve(query, 'all', 3);
+    if (!chunks || !chunks.length) return false;
+    const qSet = new Set(qTokens);
+    return chunks.some(c => {
+      const text = `${c.title || ''} ${c.body || ''} ${(c.kw || []).join(' ')}`.toLowerCase();
+      let hits = 0;
+      qSet.forEach(t => { if (text.includes(t)) hits++; });
+      return hits >= 2;
+    });
+  } catch { return false; }
+}
+
 async function sendChat() {
   const inp = $('chat-inp');
   const q = inp.value.trim().slice(0, 600);
   if (!q || ST.loading) return;
+  if (!isOnTopicQuery(q)) { toast('Please ask about a forex transaction, remittance, or FEP compliance topic.'); return; }
   if (!aiConfigured()) { toast('Configure an AI provider in Settings first'); switchTab('settings'); return; }
   if (!aiCooldownOk()) return;
   if (!ST.msgs.length) $('msgs').innerHTML = '';
@@ -1000,7 +1096,7 @@ $('history-btn').addEventListener('click', () => {
           m.appendChild(wrap);
         }
       });
-      switchTab('advisor');
+      switchTab('tools'); switchTool('advisor');
     });
     body.appendChild(card);
   });
