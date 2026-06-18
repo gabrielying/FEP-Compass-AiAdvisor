@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a1628">
+<meta name="robots" content="noindex">
+<meta name="description" content="FEP Compass — Terms of Service, Privacy Policy and related legal notices.">
+<title>Legal &amp; Policies · FEP Compass</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; worker-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'self'">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="legal-doc">
+
+<div class="page narrow legal-page">
+
+  <header class="page-head">
+    <p><a href="index.html">&larr; Back to app</a></p>
+    <h1>Legal &amp; Policies</h1>
+    <p class="page-sub">Terms, privacy and related notices for FEP Compass — a 100% client-side, browser-only application. This page is informational and does not require any action to use the app.</p>
+  </header>
+
+  <nav class="card legal-toc" aria-label="Table of contents">
+    <div class="card-head"><h2>Contents</h2></div>
+    <ol>
+      <li><a href="#terms">Terms of Service</a></li>
+      <li><a href="#privacy">Privacy Policy</a></li>
+      <li><a href="#third-party-ai">Third-Party AI Provider Disclosure</a></li>
+      <li><a href="#data-retention">Data Retention</a></li>
+      <li><a href="#aup">Acceptable Use Policy</a></li>
+      <li><a href="#ip-notice">Intellectual Property Notice</a></li>
+      <li><a href="#no-derivatives">No Derivative Works</a></li>
+      <li><a href="#content-disclaimer">Content Disclaimer Policy</a></li>
+      <li><a href="#accuracy-disclaimer">Accuracy Disclaimer</a></li>
+      <li><a href="#not-legal-advice">Not Legal Advice Policy</a></li>
+      <li><a href="#no-statutory-authority">No Statutory Authority / No Affiliation with BNM</a></li>
+      <li><a href="#eligibility">Eligibility &amp; Intended Users</a></li>
+      <li><a href="#changes">Changes to This Policy</a></li>
+      <li><a href="#contact">Contact &amp; Feedback</a></li>
+    </ol>
+  </nav>
+
+  <section class="card legal-section" id="terms">
+    <div class="card-head"><h2>1. Terms of Service</h2></div>
+    <p>By opening or using FEP Compass ("the app"), you agree to these terms. The app is a free, educational tool intended to help Malaysian banking officers and similar professional users navigate Malaysia's Foreign Exchange Policy (FEP) Notices 1–7. It is provided "as is" and "as available," without warranty of any kind, express or implied, including but not limited to warranties of accuracy, completeness, merchantability or fitness for a particular purpose.</p>
+    <p>The developer(s) of FEP Compass shall not be liable for any direct, indirect, incidental, or consequential loss or damage arising from use of, or reliance on, the app, its AI-generated output, or any document-extraction (OCR/PDF) feature, to the fullest extent permitted by law.</p>
+    <p>These terms are governed by the laws of Malaysia, without regard to conflict-of-law principles. Continued use of the app after any update to these terms constitutes acceptance of the updated terms.</p>
+  </section>
+
+  <section class="card legal-section" id="privacy">
+    <div class="card-head"><h2>2. Privacy Policy</h2></div>
+    <p>FEP Compass is a 100% client-side application. <strong>There is no backend server.</strong> No part of this app transmits your data to any server operated by the developer, because no such server exists.</p>
+    <p>All application state — your AI provider configuration, FEP limit trackers, declarations, chat session history and activity log — is stored exclusively in your browser's <code>localStorage</code>, under the keys <code>fep_cfg</code>, <code>fep_limits</code>, <code>fep_decls</code>, <code>fep_sess</code> and <code>fep_activity</code>. This data never leaves your device except where you explicitly configure an AI provider (see §3 below).</p>
+    <p>There is no analytics, telemetry, tracking pixel or third-party advertising script anywhere in this codebase. Nothing about your usage of the app is collected, logged, or reported to the developer.</p>
+    <p>If you configure a Gemini API key, that key is stored only in your browser's <code>localStorage</code> and is sent only directly from your browser to Google's Gemini API endpoint when you make a request — never to any developer-operated server. You are responsible for safeguarding any device or browser profile where you save an API key.</p>
+    <p>This policy is written with Malaysia's Personal Data Protection Act 2010 (PDPA) in mind: because the app processes data entirely on-device and does not collect, store, or transmit personal data to the developer, the developer does not act as a "data user" under the PDPA in respect of your use of this app. Any personal or transaction data you type into the app remains under your own control on your own device, and (where applicable) is subject to your own organisation's data-handling policies.</p>
+  </section>
+
+  <section class="card legal-section" id="third-party-ai">
+    <div class="card-head"><h2>3. Third-Party AI Provider Disclosure</h2></div>
+    <p>The AI Advisor and Compliance Analyst features require you to connect a third-party AI provider. No first-party server is in the loop at any point — requests go directly from your browser to the provider you choose:</p>
+    <ul>
+      <li><strong>Gemini (cloud):</strong> if you configure a Gemini API key, your query text — including any text extracted from documents or images via OCR/PDF reading, and your chat history for that session — is sent directly from your browser to <code>generativelanguage.googleapis.com</code>, Google's own API endpoint. This is governed by Google's own terms and privacy policy, not the developer's.</li>
+      <li><strong>Ollama (local):</strong> if you select Ollama, requests are sent only to the local or loopback URL you specify (by default <code>http://localhost:11434</code>), i.e. to a model running on your own machine or network. Nothing is sent to the internet in this mode.</li>
+    </ul>
+    <p>You should independently review the relevant provider's own privacy and data-handling terms before sending any sensitive or confidential transaction details through either path.</p>
+  </section>
+
+  <section class="card legal-section" id="data-retention">
+    <div class="card-head"><h2>4. Data Retention</h2></div>
+    <p>Because there is no backend, there is no server-side data retention of any kind — the developer cannot retain data that is never transmitted to it.</p>
+    <p>Locally, data persists in your browser's <code>localStorage</code> until you clear it yourself, either via Settings → "Clear all local data," or by clearing your browser's site storage/cache for this app. Chat session history is automatically capped at 30 stored entries, and the activity/audit log is automatically capped at 50 entries (<code>MAX_ACTIVITY</code>) — older entries are dropped as new ones are added.</p>
+  </section>
+
+  <section class="card legal-section" id="aup">
+    <div class="card-head"><h2>5. Acceptable Use Policy</h2></div>
+    <p>You agree not to use FEP Compass:</p>
+    <ul>
+      <li>For any unlawful purpose, or in a way that violates Malaysian law or any applicable foreign exchange, banking, or data-protection regulation;</li>
+      <li>To attempt to circumvent, disable, probe, or bypass the app's security controls, including its Content Security Policy, subresource-integrity checks, or sandboxing of document/OCR text;</li>
+      <li>To make final, binding regulatory or compliance determinations without independent verification — the app's output is a starting point for review, not a substitute for due diligence; or</li>
+      <li>To reverse engineer, scrape, or interfere with the normal operation of the app beyond ordinary browser use.</li>
+    </ul>
+  </section>
+
+  <section class="card legal-section" id="ip-notice">
+    <div class="card-head"><h2>6. Intellectual Property Notice</h2></div>
+    <p>The FEP Compass application code, design, and original explanatory content are the property of their respective developer(s). The underlying FEP Notice text, paragraph numbers, and FAQ references summarised or quoted within the app are sourced from and remain the property of Bank Negara Malaysia (BNM), the issuing regulator. FEP Compass attributes this source material to BNM and links to the official FEP Notice PDFs (see Settings → Data &amp; About) for the authoritative text.</p>
+  </section>
+
+  <section class="card legal-section" id="no-derivatives">
+    <div class="card-head"><h2>7. No Derivative Works</h2></div>
+    <p>Except as otherwise permitted by the developer in writing, you may not redistribute, resell, rebrand, or create derivative versions of the FEP Compass application itself (its code, design, or branding) without permission.</p>
+    <p>This clause applies only to the app as a piece of software — it does not restrict or claim any ownership over your own work product, such as compliance memos, declarations, or analysis you produce using the app in the course of your own FEP compliance work.</p>
+  </section>
+
+  <section class="card legal-section" id="content-disclaimer">
+    <div class="card-head"><h2>8. Content Disclaimer Policy</h2></div>
+    <p>Content within the app — including notice summaries, glossary definitions, quick-check results, and AI-generated verdicts — is provided for general educational reference only. It is condensed and simplified from the official FEP Notices and may not reflect the most current regulatory text, recent amendments, or edge cases specific to your transaction. Always cross-check against the official source linked in Settings before relying on any output.</p>
+  </section>
+
+  <section class="card legal-section" id="accuracy-disclaimer">
+    <div class="card-head"><h2>9. Accuracy Disclaimer</h2></div>
+    <p><strong>"Educational guidance only — not legal advice. Verify complex cases with the FEP Authority."</strong></p>
+    <p>This is the same disclaimer shown throughout the app (sidebar, mobile header, and exported verdict cards). It applies to every feature: the Notices browser, glossary, Quick-Check wizard, AI Advisor, Compliance Analyst, and document/PDF readers. AI-generated verdicts are probabilistic outputs of a language model retrieving and reasoning over FEP Notice text — they may be incomplete, outdated relative to the latest BNM circulars, or simply wrong. No accuracy guarantee is made for any verdict, citation, or extracted document field.</p>
+  </section>
+
+  <section class="card legal-section" id="not-legal-advice">
+    <div class="card-head"><h2>10. Not Legal Advice Policy</h2></div>
+    <p>Nothing produced by FEP Compass — whether a reference-only BM25 lookup result or an AI-generated verdict from Gemini or Ollama — constitutes legal, regulatory, or professional advice. It is not a substitute for consulting a qualified compliance officer, legal counsel, or the FEP Authority directly. Decisions with real financial, legal, or regulatory consequences should always be verified independently before being acted upon, particularly for complex, high-value, or borderline transactions.</p>
+  </section>
+
+  <section class="card legal-section" id="no-statutory-authority">
+    <div class="card-head"><h2>11. No Statutory Authority / No Affiliation with BNM</h2></div>
+    <p>FEP Compass is an independently developed tool. It is <strong>not affiliated with, endorsed by, sponsored by, or operated by Bank Negara Malaysia (BNM) or the FEP Authority</strong> in any way. The app references and summarises publicly available FEP Notice text for educational purposes only.</p>
+    <p>FEP Compass has no statutory or regulatory authority whatsoever. It cannot grant approvals, exemptions, or determinations on behalf of BNM or the FEP Authority, and using the app does not satisfy any regulatory obligation. For any binding determination, approval, or interpretation, you must consult the FEP Authority or BNM directly through their official channels.</p>
+  </section>
+
+  <section class="card legal-section" id="eligibility">
+    <div class="card-head"><h2>12. Eligibility &amp; Intended Users</h2></div>
+    <p>FEP Compass is designed for use by banking officers and other professional users in Malaysia who need a working reference to Malaysia's Foreign Exchange Policy Notices in the course of their duties. It assumes a baseline familiarity with FX compliance concepts and is not intended as a consumer-facing financial advice product.</p>
+  </section>
+
+  <section class="card legal-section" id="changes">
+    <div class="card-head"><h2>13. Changes to This Policy</h2></div>
+    <p>This Legal &amp; Policies page may be updated from time to time to reflect changes in the app's features or applicable law. Because the app has no account system or notification mechanism, please check this page periodically for updates — the most current version is always the one bundled with the app you are running.</p>
+  </section>
+
+  <section class="card legal-section" id="contact">
+    <div class="card-head"><h2>14. Contact &amp; Feedback</h2></div>
+    <p>FEP Compass does not operate a dedicated support channel or helpdesk. For questions about FEP regulatory requirements themselves, please contact the FEP Authority directly through BNM's official channels (see the official source link in Settings). For feedback on the app, please use whatever channel you originally obtained this app through.</p>
+  </section>
+
+  <p class="hint legal-footer">FEP Compass · Notices N1–N7 effective 1 Oct 2025 · Educational guidance only, not legal advice. <a href="index.html">&larr; Back to app</a></p>
+
+</div>
+
+</body>
+</html>

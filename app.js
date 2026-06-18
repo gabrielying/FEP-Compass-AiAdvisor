@@ -1061,6 +1061,7 @@ function renderSettings() {
     <p class="hint mb-12">FEP Compass v2.0 · Notices N1–N7 effective 1 Oct 2025 · Educational guidance only, not legal advice.
     Official source: <a href="${FEP_OFFICIAL_URL}" target="_blank" rel="noopener">bnm.gov.my/fep/policies/notices</a></p>
     <div class="btn-row mt-0">
+      <a class="btn" href="legal.html" target="_blank" rel="noopener"><i class="ti ti-file-text"></i> Legal &amp; Policies</a>
       <button class="btn" id="reset-limits"><i class="ti ti-rotate"></i> Reset limit trackers</button>
       <button class="btn" id="clear-data"><i class="ti ti-trash"></i> Clear all local data</button>
     </div>`;
