@@ -49,7 +49,6 @@
       <button class="side-link active" data-tab="notices"><i class="ti ti-books"></i><span>FEP Notices</span></button>
       <button class="side-link" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
       <button class="side-link" data-tab="tools"><i class="ti ti-sparkles"></i><span>Smart Tools</span></button>
-      <button class="side-link" data-tab="advisor"><i class="ti ti-message-dots"></i><span>AI Advisor</span></button>
       <button class="side-link" data-tab="settings"><i class="ti ti-settings"></i><span>Settings</span></button>
     </nav>
 
@@ -133,6 +132,8 @@
             <p class="page-sub">Your FX compliance workspace — limits, declarations and recent activity.</p>
           </header>
 
+          <div id="dash-stats" class="dash-stats"></div>
+
           <div class="dash-grid">
 
             <!-- Limit utilization -->
@@ -160,7 +161,7 @@
             <article class="card">
               <div class="card-head"><h2><i class="ti ti-bolt"></i> Quick Actions</h2></div>
               <div class="qa-grid">
-                <button class="qa" data-go="advisor"><i class="ti ti-message-dots"></i>Ask the Advisor</button>
+                <button class="qa" data-go="tools" data-tool="advisor"><i class="ti ti-message-dots"></i>Ask the Advisor</button>
                 <button class="qa" data-go="tools" data-tool="scan"><i class="ti ti-scan"></i>Scan a Document</button>
                 <button class="qa" data-go="tools" data-tool="analyst"><i class="ti ti-checkup-list"></i>Compliance Check</button>
                 <button class="qa" data-go="notices"><i class="ti ti-books"></i>Browse Notices</button>
@@ -212,6 +213,7 @@
             <button class="tool-tab active" data-tool="analyst" role="tab"><i class="ti ti-brain"></i><span>AI Compliance Analyst</span><span class="tt-short">Analyst</span></button>
             <button class="tool-tab" data-tool="scan" role="tab"><i class="ti ti-scan"></i><span>Document &amp; Image Reader</span><span class="tt-short">Scanner</span></button>
             <button class="tool-tab" data-tool="pdf" role="tab"><i class="ti ti-file-type-pdf"></i><span>PDF Reader &amp; Validator</span><span class="tt-short">PDF</span></button>
+            <button class="tool-tab" data-tool="advisor" role="tab"><i class="ti ti-message-dots"></i><span>AI Advisor</span><span class="tt-short">Advisor</span></button>
           </div>
 
           <!-- AI analyst -->
@@ -331,25 +333,25 @@
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      <!-- ──────── AI ADVISOR ──────── -->
-      <section id="view-advisor" class="view view-chat" aria-label="AI Advisor">
-        <div class="chat-shell">
-          <div class="notice-bar" id="advisor-pills"></div>
-          <div class="advisor-hdr">
-            <span class="advisor-scope" id="advisor-scope">Scope: All Notices</span>
-            <div class="advisor-hdr-actions">
-              <button class="ghost-btn" id="history-btn"><i class="ti ti-history"></i> History</button>
-              <button class="ghost-btn" id="new-chat-btn"><i class="ti ti-plus"></i> New Chat</button>
+          <!-- AI advisor chat -->
+          <div id="tool-advisor" class="tool-panel view-chat">
+            <div class="chat-shell">
+              <div class="notice-bar" id="advisor-pills"></div>
+              <div class="advisor-hdr">
+                <span class="advisor-scope" id="advisor-scope">Scope: All Notices</span>
+                <div class="advisor-hdr-actions">
+                  <button class="ghost-btn" id="history-btn"><i class="ti ti-history"></i> History</button>
+                  <button class="ghost-btn" id="new-chat-btn"><i class="ti ti-plus"></i> New Chat</button>
+                </div>
+              </div>
+              <div class="msgs" id="msgs"></div>
+              <div class="chat-bar">
+                <textarea id="chat-inp" rows="2" maxlength="600"
+                  placeholder="Describe the FX transaction — who, what, where, why and the amount…"></textarea>
+                <button class="send-btn" id="send-btn" disabled><i class="ti ti-send-2"></i></button>
+              </div>
             </div>
-          </div>
-          <div class="msgs" id="msgs"></div>
-          <div class="chat-bar">
-            <textarea id="chat-inp" rows="2" maxlength="600"
-              placeholder="Describe the FX transaction — who, what, where, why and the amount…"></textarea>
-            <button class="send-btn" id="send-btn" disabled><i class="ti ti-send-2"></i></button>
           </div>
         </div>
       </section>
@@ -372,7 +374,6 @@
       <button class="bb-tab active" data-tab="notices"><i class="ti ti-books"></i><span>Notices</span></button>
       <button class="bb-tab" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
       <button class="bb-tab" data-tab="tools"><i class="ti ti-sparkles"></i><span>Tools</span></button>
-      <button class="bb-tab" data-tab="advisor"><i class="ti ti-message-dots"></i><span>Advisor</span></button>
       <button class="bb-tab" data-tab="settings"><i class="ti ti-settings"></i><span>More</span></button>
     </nav>
   </div>
