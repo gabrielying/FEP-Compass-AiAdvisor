@@ -24,7 +24,7 @@
   SOURCE: Official Malaysia FEP Notice PDFs — https://www.bnm.gov.my/fep/policies/notices (see Settings)
   DISCLAIMER: Educational guidance only. Verify complex cases with the FEP Authority.
 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self' https://generativelanguage.googleapis.com http://localhost:11434 http://127.0.0.1:11434 https://cdn.jsdelivr.net blob:; worker-src 'self' blob: https://cdn.jsdelivr.net; frame-src 'none'; object-src 'none'; base-uri 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self' https://generativelanguage.googleapis.com http://localhost:11434 http://127.0.0.1:11434 https://cdn.jsdelivr.net blob:; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -162,7 +162,6 @@
               <div class="card-head"><h2><i class="ti ti-bolt"></i> Quick Actions</h2></div>
               <div class="qa-grid">
                 <button class="qa" data-go="tools" data-tool="advisor"><i class="ti ti-message-dots"></i>Ask the Advisor</button>
-                <button class="qa" data-go="tools" data-tool="scan"><i class="ti ti-scan"></i>Scan a Document</button>
                 <button class="qa" data-go="tools" data-tool="analyst"><i class="ti ti-checkup-list"></i>Compliance Check</button>
                 <button class="qa" data-go="notices"><i class="ti ti-books"></i>Browse Notices</button>
               </div>
@@ -186,7 +185,7 @@
                   <button class="ghost-btn" id="activity-clear"><i class="ti ti-trash"></i> Clear</button>
                 </div>
               </div>
-              <p class="card-hint">A local audit trail of advisor queries, compliance checks, document scans and limit/declaration changes — kept on this device only.</p>
+              <p class="card-hint">A local audit trail of advisor queries, compliance checks and limit/declaration changes — kept on this device only.</p>
               <div class="activity-controls">
                 <div class="search-box sm" id="activity-search-box">
                   <i class="ti ti-search search-icon"></i>
@@ -211,16 +210,12 @@
 
           <div class="tool-tabs" role="tablist">
             <button class="tool-tab active" data-tool="analyst" role="tab"><i class="ti ti-brain"></i><span>AI Compliance Analyst</span><span class="tt-short">Analyst</span></button>
-            <button class="tool-tab" data-tool="scan" role="tab"><i class="ti ti-scan"></i><span>Document &amp; Image Reader</span><span class="tt-short">Scanner</span></button>
-            <button class="tool-tab" data-tool="pdf" role="tab"><i class="ti ti-file-type-pdf"></i><span>PDF Reader &amp; Validator</span><span class="tt-short">PDF</span></button>
             <button class="tool-tab" data-tool="advisor" role="tab"><i class="ti ti-message-dots"></i><span>AI Advisor</span><span class="tt-short">Advisor</span></button>
           </div>
 
           <!-- AI analyst -->
           <div id="tool-analyst" class="tool-panel active">
             <form id="analyst-form" class="analyst-form" novalidate>
-              <div id="analyst-import" class="import-chip hidden"></div>
-
               <div class="form-grid">
                 <label class="field">
                   <span class="field-lbl">Who is transacting? <button type="button" class="term" data-term="Resident">?</button></span>
@@ -234,10 +229,6 @@
                     <option>Non-Resident Entity</option>
                     <option>Licensed Onshore Bank (LOB)</option>
                   </select>
-                </label>
-                <label class="field">
-                  <span class="field-lbl">Recipient / counterparty <small>(optional)</small></span>
-                  <input id="af-recipient" maxlength="80" placeholder="e.g. Zhengjiang Shenzhen Import &amp; Export Co.">
                 </label>
                 <label class="field">
                   <span class="field-lbl">What is the transaction?</span>
@@ -287,55 +278,6 @@
                 Structured fields keep the retrieval (RAG) precise — the analyst cross-references Notices 1–7 and cites exact paragraphs.</p>
             </form>
             <div id="analyst-out"></div>
-          </div>
-
-          <!-- OCR scanner -->
-          <div id="tool-scan" class="tool-panel">
-            <div class="dropzone" id="scan-drop">
-              <i class="ti ti-cloud-upload"></i>
-              <strong>Upload or drop an image</strong>
-              <span>Forms, receipts, invoices, remittance slips — JPG / PNG</span>
-              <input type="file" id="scan-file" accept="image/*" hidden>
-            </div>
-            <div id="scan-stage" class="stage hidden">
-              <div class="stage-side">
-                <img id="scan-preview" alt="Uploaded document preview">
-                <div class="stage-actions">
-                  <button class="btn primary" id="scan-run"><i class="ti ti-text-scan-2"></i> Extract Text (OCR)</button>
-                  <button class="btn" id="scan-reset"><i class="ti ti-rotate"></i> New Image</button>
-                </div>
-                <div id="scan-progress" class="progress hidden"><div id="scan-bar"></div><span id="scan-pct">0%</span></div>
-              </div>
-              <div class="stage-main">
-                <div id="scan-entities"></div>
-                <div class="extract-box"><div class="extract-label">Extracted text</div><div id="scan-text" class="extract-text">—</div></div>
-                <button class="btn primary hidden" id="scan-send"><i class="ti ti-brain"></i> Send to AI Analyst</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- PDF validator -->
-          <div id="tool-pdf" class="tool-panel">
-            <div class="dropzone" id="pdf-drop">
-              <i class="ti ti-file-type-pdf"></i>
-              <strong>Upload or drop a PDF</strong>
-              <span>Agreements, facility letters, official banking documents</span>
-              <input type="file" id="pdf-file" accept="application/pdf" hidden>
-            </div>
-            <div id="pdf-stage" class="stage hidden">
-              <div class="stage-side">
-                <div class="pdf-meta card-lite" id="pdf-meta"></div>
-                <div class="stage-actions">
-                  <button class="btn" id="pdf-reset"><i class="ti ti-rotate"></i> New PDF</button>
-                </div>
-              </div>
-              <div class="stage-main">
-                <div id="pdf-entities"></div>
-                <div id="pdf-flags"></div>
-                <div class="extract-box"><div class="extract-label">Extracted text (first pages)</div><div id="pdf-text" class="extract-text">—</div></div>
-                <button class="btn primary hidden" id="pdf-send"><i class="ti ti-brain"></i> Send to AI Analyst</button>
-              </div>
-            </div>
           </div>
 
           <!-- AI advisor chat -->
