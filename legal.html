@@ -44,14 +44,14 @@
   <section class="card legal-section" id="terms">
     <div class="card-head"><h2>1. Terms of Service</h2></div>
     <p>By opening or using FEP Compass ("the app"), you agree to these terms. The app is a free, educational tool intended to help Malaysian banking officers and similar professional users navigate Malaysia's Foreign Exchange Policy (FEP) Notices 1–7. It is provided "as is" and "as available," without warranty of any kind, express or implied, including but not limited to warranties of accuracy, completeness, merchantability or fitness for a particular purpose.</p>
-    <p>The developer(s) of FEP Compass shall not be liable for any direct, indirect, incidental, or consequential loss or damage arising from use of, or reliance on, the app, its AI-generated output, or any document-extraction (OCR/PDF) feature, to the fullest extent permitted by law.</p>
+    <p>The developer(s) of FEP Compass shall not be liable for any direct, indirect, incidental, or consequential loss or damage arising from use of, or reliance on, the app or its AI-generated output, to the fullest extent permitted by law.</p>
     <p>These terms are governed by the laws of Malaysia, without regard to conflict-of-law principles. Continued use of the app after any update to these terms constitutes acceptance of the updated terms.</p>
   </section>
 
   <section class="card legal-section" id="privacy">
     <div class="card-head"><h2>2. Privacy Policy</h2></div>
     <p>FEP Compass is a 100% client-side application. <strong>There is no backend server.</strong> No part of this app transmits your data to any server operated by the developer, because no such server exists.</p>
-    <p>All application state — your AI provider configuration, FEP limit trackers, declarations, chat session history and activity log — is stored exclusively in your browser's <code>localStorage</code>, under the keys <code>fep_cfg</code>, <code>fep_limits</code>, <code>fep_decls</code>, <code>fep_sess</code> and <code>fep_activity</code>. This data never leaves your device except where you explicitly configure an AI provider (see §3 below).</p>
+    <p>All application state — your AI provider configuration, FEP limit trackers, declarations, chat session history and activity log — is stored exclusively in your browser's <code>localStorage</code>, under the keys <code>fep_cfg</code>, <code>fep_limits</code>, <code>fep_decls</code>, <code>fep_sess</code> and <code>fep_activity</code> (plus small flags recording that you have dismissed the first-run walkthrough and acknowledged the AI guidance notice). This data never leaves your device except where you explicitly configure an AI provider (see §3 below).</p>
     <p>There is no analytics, telemetry, tracking pixel or third-party advertising script anywhere in this codebase. Nothing about your usage of the app is collected, logged, or reported to the developer.</p>
     <p>If you configure a Gemini API key, that key is stored only in your browser's <code>localStorage</code> and is sent only directly from your browser to Google's Gemini API endpoint when you make a request — never to any developer-operated server. You are responsible for safeguarding any device or browser profile where you save an API key.</p>
     <p>This policy is written with Malaysia's Personal Data Protection Act 2010 (PDPA) in mind: because the app processes data entirely on-device and does not collect, store, or transmit personal data to the developer, the developer does not act as a "data user" under the PDPA in respect of your use of this app. Any personal or transaction data you type into the app remains under your own control on your own device, and (where applicable) is subject to your own organisation's data-handling policies.</p>
@@ -61,7 +61,7 @@
     <div class="card-head"><h2>3. Third-Party AI Provider Disclosure</h2></div>
     <p>The AI Advisor and Compliance Analyst features require you to connect a third-party AI provider. No first-party server is in the loop at any point — requests go directly from your browser to the provider you choose:</p>
     <ul>
-      <li><strong>Gemini (cloud):</strong> if you configure a Gemini API key, your query text — including any text extracted from documents or images via OCR/PDF reading, and your chat history for that session — is sent directly from your browser to <code>generativelanguage.googleapis.com</code>, Google's own API endpoint. This is governed by Google's own terms and privacy policy, not the developer's.</li>
+      <li><strong>Gemini (cloud):</strong> if you configure a Gemini API key, your query text — including the transaction details you enter and your chat history for that session — is sent directly from your browser to <code>generativelanguage.googleapis.com</code>, Google's own API endpoint. This is governed by Google's own terms and privacy policy, not the developer's. Do not enter customer-identifying or other confidential data on the cloud (Gemini) path unless your organisation permits it; use the local Ollama option if such data must stay on-device.</li>
       <li><strong>Ollama (local):</strong> if you select Ollama, requests are sent only to the local or loopback URL you specify (by default <code>http://localhost:11434</code>), i.e. to a model running on your own machine or network. Nothing is sent to the internet in this mode.</li>
     </ul>
     <p>You should independently review the relevant provider's own privacy and data-handling terms before sending any sensitive or confidential transaction details through either path.</p>
@@ -78,7 +78,7 @@
     <p>You agree not to use FEP Compass:</p>
     <ul>
       <li>For any unlawful purpose, or in a way that violates Malaysian law or any applicable foreign exchange, banking, or data-protection regulation;</li>
-      <li>To attempt to circumvent, disable, probe, or bypass the app's security controls, including its Content Security Policy, subresource-integrity checks, or sandboxing of document/OCR text;</li>
+      <li>To attempt to circumvent, disable, probe, or bypass the app's security controls, including its Content Security Policy or subresource-integrity checks;</li>
       <li>To make final, binding regulatory or compliance determinations without independent verification — the app's output is a starting point for review, not a substitute for due diligence; or</li>
       <li>To reverse engineer, scrape, or interfere with the normal operation of the app beyond ordinary browser use.</li>
     </ul>
@@ -103,7 +103,7 @@
   <section class="card legal-section" id="accuracy-disclaimer">
     <div class="card-head"><h2>9. Accuracy Disclaimer</h2></div>
     <p><strong>"Educational guidance only — not legal advice. Verify complex cases with the FEP Authority."</strong></p>
-    <p>This is the same disclaimer shown throughout the app (sidebar, mobile header, and exported verdict cards). It applies to every feature: the Notices browser, glossary, Quick-Check wizard, AI Advisor, Compliance Analyst, and document/PDF readers. AI-generated verdicts are probabilistic outputs of a language model retrieving and reasoning over FEP Notice text — they may be incomplete, outdated relative to the latest BNM circulars, or simply wrong. No accuracy guarantee is made for any verdict, citation, or extracted document field.</p>
+    <p>This is the same disclaimer shown throughout the app (sidebar, mobile header, and exported verdict cards). It applies to every feature: the Notices browser, glossary, Quick-Check wizard, AI Advisor, and Compliance Analyst. AI-generated verdicts are probabilistic outputs of a language model retrieving and reasoning over FEP Notice text — they may be incomplete, outdated relative to the latest BNM circulars, or simply wrong. Where a verdict's cited reference cannot be matched to a provision in the app's knowledge base, the app flags it as an unverified citation — treat any such reference with particular caution. No accuracy guarantee is made for any verdict or citation.</p>
   </section>
 
   <section class="card legal-section" id="not-legal-advice">

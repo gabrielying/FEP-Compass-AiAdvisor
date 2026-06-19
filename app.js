@@ -219,6 +219,37 @@ function aiCooldownOk() {
   return true;
 }
 
+/* One-time acknowledgement gate shown before the first AI verdict — the officer
+   must confirm the educational-only / verify-independently framing once per
+   browser. Resolves true to proceed, false if cancelled/dismissed. */
+const AI_ACK_KEY = 'fep_ai_ack';
+function ensureAiAck() {
+  if (localStorage.getItem(AI_ACK_KEY)) return Promise.resolve(true);
+  return new Promise(resolve => {
+    const ov = $('ack-overlay'), accept = $('ack-accept'), cancel = $('ack-cancel');
+    let done = false;
+    const settle = (val, persist) => {
+      if (done) return; done = true;
+      if (persist) localStorage.setItem(AI_ACK_KEY, '1');
+      ov.classList.remove('open');
+      accept.removeEventListener('click', onAccept);
+      cancel.removeEventListener('click', onCancel);
+      ov.removeEventListener('click', onBackdrop);
+      document.removeEventListener('keydown', onKey);
+      resolve(val);
+    };
+    const onAccept = () => settle(true, true);
+    const onCancel = () => settle(false, false);
+    const onBackdrop = e => { if (e.target === ov) settle(false, false); };
+    const onKey = e => { if (e.key === 'Escape') settle(false, false); };
+    accept.addEventListener('click', onAccept);
+    cancel.addEventListener('click', onCancel);
+    ov.addEventListener('click', onBackdrop);
+    document.addEventListener('keydown', onKey);
+    ov.classList.add('open');
+  });
+}
+
 /* Repair truncated JSON: close an unterminated string, drop a dangling
    key/value fragment, then close unbalanced brackets in nesting order. */
 function repairJSON(s) {
@@ -291,7 +322,13 @@ function verdictCard(data, chunks, isPartial, inputRows) {
   if (isPartial)
     body.innerHTML += `<div class="vwarn mt-8">Response partially parsed — some fields may be incomplete.</div>`;
   card.appendChild(body);
-  if (data.citation) card.appendChild(mkEl('div','vcite',`<div class="vlabel">FEP Citation</div><div class="vcite-text">${esc(data.citation)}</div>`));
+  if (data.citation) {
+    const grounded = verifyCitation(data.citation).grounded;
+    let citeHtml = `<div class="vlabel">FEP Citation</div><div class="vcite-text">${esc(data.citation)}</div>`;
+    if (!grounded)
+      citeHtml += `<div class="vwarn mt-8"><i class="ti ti-alert-triangle icon-sp-r"></i>Unverified citation — this reference could not be matched to a provision in the knowledge base. Confirm against the official FEP Notice before relying on it.</div>`;
+    card.appendChild(mkEl('div','vcite',citeHtml));
+  }
   if (chunks?.length) {
     const srcs = mkEl('div','vsources'); const seen = new Set();
     chunks.forEach(c => { const k = `${c.noticeName} ${c.ref}`; if (!seen.has(k)) { seen.add(k); srcs.appendChild(mkEl('span','vsrc-tag',esc(k))); } });
@@ -738,6 +775,7 @@ $('analyst-form').addEventListener('submit', async e => {
     out.appendChild(provisionList(chunks));
     return;
   }
+  if (!(await ensureAiAck())) { out.innerHTML = ''; return; }
   if (!aiCooldownOk()) return;
   const load = mkEl('div','loading','<span class="dot"></span><span class="dot"></span><span class="dot"></span>');
   out.appendChild(load);
@@ -869,6 +907,7 @@ async function sendChat() {
   if (!q || ST.loading) return;
   if (!isOnTopicQuery(q)) { toast('Please ask about a forex transaction, remittance, or FEP compliance topic.'); return; }
   if (!aiConfigured()) { toast('Configure an AI provider in Settings first'); switchTab('settings'); return; }
+  if (!(await ensureAiAck())) return;
   if (!aiCooldownOk()) return;
   if (!ST.msgs.length) $('msgs').innerHTML = '';
   inp.value = ''; $('send-btn').disabled = true;
@@ -1048,7 +1087,7 @@ function renderSettings() {
       setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.innerHTML = '<i class="ti ti-trash"></i> Clear all local data'; }, 3500);
       return;
     }
-    ['fep_cfg','fep_sess','fep_limits','fep_decls','fep_activity','fep_onboarded'].forEach(k => localStorage.removeItem(k));
+    ['fep_cfg','fep_sess','fep_limits','fep_decls','fep_activity','fep_onboarded','fep_ai_ack'].forEach(k => localStorage.removeItem(k));
     location.reload();
   });
 }

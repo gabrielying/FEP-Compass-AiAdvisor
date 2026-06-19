@@ -205,7 +205,7 @@
         <div class="page">
           <header class="page-head">
             <h1>Smart Tools</h1>
-            <p class="page-sub">Read documents, extract FX entities and run an instant compliance health-check against Notices 1–7.</p>
+            <p class="page-sub">Run an instant, structured compliance health-check or ask the AI Advisor — both cross-reference Notices 1–7 and cite exact paragraphs.</p>
           </header>
 
           <div class="tool-tabs" role="tablist">
@@ -276,6 +276,8 @@
               </button>
               <p class="micro-note"><i class="ti ti-database-search"></i>
                 Structured fields keep the retrieval (RAG) precise — the analyst cross-references Notices 1–7 and cites exact paragraphs.</p>
+              <p class="pii-note"><i class="ti ti-shield-lock"></i>
+                Do not enter customer-identifying or other confidential data. On the cloud (Gemini) provider your input is sent to Google; use local Ollama if such data must stay on-device.</p>
             </form>
             <div id="analyst-out"></div>
           </div>
@@ -292,6 +294,8 @@
                 </div>
               </div>
               <div class="msgs" id="msgs"></div>
+              <p class="pii-note"><i class="ti ti-shield-lock"></i>
+                Do not enter customer-identifying or other confidential data. On the cloud (Gemini) provider your input is sent to Google; use local Ollama if such data must stay on-device.</p>
               <div class="chat-bar">
                 <textarea id="chat-inp" rows="2" maxlength="600"
                   placeholder="Describe the FX transaction — who, what, where, why and the amount…"></textarea>
@@ -365,6 +369,26 @@
       <button class="modal-close" data-close="hist-overlay"><i class="ti ti-x"></i></button>
     </div>
     <div class="modal-body" id="hist-body"></div>
+  </div>
+</div>
+
+<!-- ════════ AI ACKNOWLEDGEMENT GATE (first AI verdict) ════════ -->
+<div class="overlay" id="ack-overlay">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="ack-title">
+    <div class="modal-head">
+      <div>
+        <div class="modal-tag">BEFORE YOU CONTINUE</div>
+        <div class="modal-name" id="ack-title">AI guidance — please acknowledge</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p>The AI Advisor and Compliance Analyst provide <strong>educational guidance only — not legal advice</strong>. Verdicts and citations are AI-generated, may be incomplete or wrong, and where a cited reference cannot be matched to a provision the app flags it as <em>unverified</em>.</p>
+      <p>You are responsible for independently verifying any result — particularly for complex, high-value or borderline transactions — and for verifying complex cases with the FEP Authority before acting. Do not enter customer-identifying or confidential data, especially on the cloud (Gemini) provider.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="ack-cancel"><i class="ti ti-x"></i> Cancel</button>
+      <button class="btn primary" id="ack-accept"><i class="ti ti-check"></i> I understand &amp; agree</button>
+    </div>
   </div>
 </div>
 
