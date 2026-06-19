@@ -897,10 +897,11 @@ $('scan-run').addEventListener('click', async () => {
   btn.disabled = true; prog.classList.remove('hidden'); bar.style.width = '4%'; pct.textContent = 'loading OCR engine…';
   const OCR_STATUS_LABEL = { 'loading tesseract core':'loading OCR engine…', 'initializing tesseract':'initializing OCR engine…',
     'loading language traineddata':'downloading language model…', 'initializing api':'starting recognition…' };
+  let worker;
   try {
     await withTimeout(loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js', 'sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F'),
       20000, 'Could not load the OCR engine script — check your internet connection and try again.');
-    const worker = await withTimeout(Tesseract.createWorker('eng', 1, {
+    worker = await withTimeout(Tesseract.createWorker('eng', 1, {
       logger: m => {
         if (m.status === 'recognizing text') { const p = Math.round(m.progress*100); bar.style.width = p+'%'; pct.textContent = p+'%'; }
         else if (OCR_STATUS_LABEL[m.status]) { pct.textContent = OCR_STATUS_LABEL[m.status]; }
@@ -917,6 +918,7 @@ $('scan-run').addEventListener('click', async () => {
     $('scan-send').onclick = () => sendToAnalyst('Scanned image', scanState.text, ents);
     logActivity('scan', `Scanned image — ${ents.amounts.length} amount(s) detected${ents.noticeHits.length ? ', touches ' + ents.noticeHits.map(x=>x.n.short).join(', ') : ''}`);
   } catch (err) {
+    if (worker) { try { await worker.terminate(); } catch (_) {} }
     $('scan-text').textContent = 'OCR failed: ' + err.message + ' (check your internet connection — the OCR engine loads from CDN).';
   } finally {
     btn.disabled = false; prog.classList.add('hidden');
