@@ -1,9 +1,9 @@
 /* FEP Compass v2.0 — service worker
    App shell: cache-first with background refresh.
-   CDN assets (fonts, icons, OCR/PDF engines): cached on first use for offline reuse. */
+   CDN assets (fonts, icons): cached on first use for offline reuse. */
 'use strict';
 
-const CACHE = 'fep-compass-v23';
+const CACHE = 'fep-compass-v26';
 const SHELL = ['./', './index.html', './styles.css', './kb.js', './app.js', './legal.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', e => {

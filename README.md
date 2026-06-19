@@ -20,10 +20,11 @@ A modern, minimalist, education-first web app for **banking officers** (and comp
 │ 2 Dashboard  │ Limit utilisation rings · pending declarations│
 │              │ quick actions · notices at a glance ·         │
 │              │ recent activity / audit log                   │
-│ 3 Smart Tools│ a) Document & Image Reader (OCR, Tesseract.js)│
-│   (engine)   │ b) PDF Reader & Validator (pdf.js)            │
-│              │ c) AI Compliance Analyst (structured form +   │
-│              │    BM25 RAG + Gemini/Ollama verdict)          │
+│ 3 Smart Tools│ AI Compliance Analyst (structured form +       │
+│   (engine)   │ BM25 RAG + Gemini/Ollama verdict). The OCR     │
+│              │ Document/Image Reader and PDF Reader &         │
+│              │ Validator have been removed (see git history)  │
+│              │ and may return in a future release.            │
 │ 4 AI Advisor │ Free-form chat, notice-scoped retrieval,      │
 │              │ structured verdict cards with FEP citations   │
 │ 5 Settings   │ Provider config (Gemini cloud / Ollama local),│
@@ -47,27 +48,22 @@ A modern, minimalist, education-first web app for **banking officers** (and comp
 - **Profile** (set in Settings) — Individual / Entity / Both. Filters which limit rings appear here, since individuals and entities are subject to different FEP limits.
 - **FEP Limit Utilisation** — up to three SVG progress rings, filtered by Profile: Individual FCY investment (RM1M/yr, Notice 3), Individual FCY borrowing (RM10M, Notice 2), Entity FCY investment (RM50M/yr group basis, Notice 3). Rings turn amber at 70%, red at 90%. Click a ring → inline editor to update the utilised amount (persisted to `localStorage`).
 - **Pending Declarations** — checklist (e.g. "export proceeds 6-month window"); add / complete / remove.
-- **Quick Actions** — 4 deep links: Ask the Advisor, Scan a Document, Compliance Check, Browse Notices.
+- **Quick Actions** — 3 deep links: Ask the Advisor, Compliance Check, Browse Notices.
 - **Notices at a Glance** — 7 mini-tiles, each opening the notice detail sheet.
-- **Recent Activity** — local audit trail (last 50 events) of advisor queries, compliance checks, document scans, notice lookups and limit/declaration changes, with timestamps. Searchable, filterable by type (once 2+ types are logged), **exportable as CSV**, and a "Clear" action. Stored only in `localStorage` on this device.
+- **Recent Activity** — local audit trail (last 50 events) of advisor queries, compliance checks, notice lookups and limit/declaration changes, with timestamps. Searchable, filterable by type (once 2+ types are logged), **exportable as CSV**, and a "Clear" action. Stored only in `localStorage` on this device.
 
 ### 3 · Smart Tools (the engine)
-- **Document & Image Reader** — drag-drop or camera upload → on-device OCR (Tesseract.js, lazy-loaded from CDN) with live progress → extracted text with **currencies/amounts highlighted**, entity chips, and "potential FEP touchpoint" chips that map detected keywords to Notices 1–7.
-- **PDF Reader & Validator** — drag-drop a PDF → text extraction (pdf.js, first 10 pages) → same entity detection, plus **validator flags** ("this document references export proceeds, 6 months — review against Notice 7").
 - **AI Compliance Analyst** — structured intake designed for precise RAG retrieval:
   `WHO` (party type) · `WHAT` (transaction type) · `WHERE` (countries) · `WHY` (purpose, 160 chars) · `AMOUNT` (+ currency) · optional context (1000 chars).
-  Both readers can **Send to Analyst**, attaching a 900-char document extract as an evidence chip. Output: verdict card — `PERMITTED / NOT PERMITTED / CONDITIONAL / REQUIRES APPROVAL` — with explanation, conditions, warning, **exact FEP Notice citation**, **suggested next step / filing** (e.g. registration or report to the FEP Authority), the retrieved provisions listed for audit, and a **"Save as PDF"** button (print stylesheet) for compliance files. Without an AI key, or if the AI provider is unreachable, it degrades gracefully to a reference-only lookup of the most relevant provisions.
+  Output: verdict card — `PERMITTED / NOT PERMITTED / CONDITIONAL / REQUIRES APPROVAL` — with explanation, conditions, warning, **exact FEP Notice citation**, **suggested next step / filing** (e.g. registration or report to the FEP Authority), the retrieved provisions listed for audit, and a **"Save as PDF"** button (print stylesheet) for compliance files. Without an AI key, or if the AI provider is unreachable, it degrades gracefully to a reference-only lookup of the most relevant provisions.
+- **Removed:** the OCR Document & Image Reader (Tesseract.js) and PDF Reader & Validator (pdf.js) tools, previously documented here, have been removed from the app. See git history for the prior implementation; they may return in a future release.
 
 ### 4 · AI Advisor
 Free-form chat with notice-scope pills (All / N1–N7), sample prompts, Enter-to-send, structured verdict cards (each with **"Save as PDF"**), and a session history sheet (last 30 conversations, restorable). If the configured AI provider is unreachable, the Advisor falls back to showing the top BM25-retrieved provisions as a reference-only answer instead of just erroring.
 
-### Interactive flow: readers → analyst
+### Interactive flow: compliance analyst
 ```
-Upload image/PDF ─→ OCR / text extraction ─→ entity & keyword detection
-      │                                            │
-      └── "Send to AI Analyst" ────────────────────┘
-                     │
-        evidence chip + structured WHO/WHAT/WHERE/WHY/AMOUNT form
+Structured WHO/WHAT/WHERE/WHY/AMOUNT form
                      │
         BM25 retrieval over Notices 1–7 (top 6 provisions)
                      │
@@ -81,7 +77,7 @@ Upload image/PDF ─→ OCR / text extraction ─→ entity & keyword detection
 | **Gemini** (cloud, free tier) | Get a key at [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) → Settings → Gemini → paste → Save |
 | **Ollama** (local, offline) | `ollama pull qwen2.5:7b` → Settings → Ollama → Save |
 
-Keys are stored only in the browser's `localStorage`. Retrieval (BM25), OCR and PDF parsing all run client-side.
+Keys are stored only in the browser's `localStorage`. Retrieval (BM25) runs entirely client-side.
 
 ## Run locally
 
