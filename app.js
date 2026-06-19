@@ -291,7 +291,13 @@ function verdictCard(data, chunks, isPartial, inputRows) {
   if (isPartial)
     body.innerHTML += `<div class="vwarn mt-8">Response partially parsed — some fields may be incomplete.</div>`;
   card.appendChild(body);
-  if (data.citation) card.appendChild(mkEl('div','vcite',`<div class="vlabel">FEP Citation</div><div class="vcite-text">${esc(data.citation)}</div>`));
+  if (data.citation) {
+    const grounded = verifyCitation(data.citation).grounded;
+    let citeHtml = `<div class="vlabel">FEP Citation</div><div class="vcite-text">${esc(data.citation)}</div>`;
+    if (!grounded)
+      citeHtml += `<div class="vwarn mt-8"><i class="ti ti-alert-triangle icon-sp-r"></i>Unverified citation — this reference could not be matched to a provision in the knowledge base. Confirm against the official FEP Notice before relying on it.</div>`;
+    card.appendChild(mkEl('div','vcite',citeHtml));
+  }
   if (chunks?.length) {
     const srcs = mkEl('div','vsources'); const seen = new Set();
     chunks.forEach(c => { const k = `${c.noticeName} ${c.ref}`; if (!seen.has(k)) { seen.add(k); srcs.appendChild(mkEl('span','vsrc-tag',esc(k))); } });

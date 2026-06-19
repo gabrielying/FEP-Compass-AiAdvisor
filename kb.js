@@ -545,11 +545,73 @@ RULES:
 11. Return ONLY valid JSON. No markdown, no code fences, no preamble.`;
 }
 
+/* ━━━ CITATION GROUNDING ━━━
+   Verify that a model-produced citation actually resolves to a real provision
+   in the knowledge base. Used at runtime by app.js to flag a fabricated
+   Para/FAQ reference before it reaches an officer, and by the stress-test
+   harness to judge model output — one implementation, so the two never drift.
+   Refs are compared structurally ({type,num,sub,end}) rather than as exact
+   strings, so a parent ref like "Para 1" matches a real child ref "Para 1(1)",
+   and "Para 9" matches a real range "Para 9-10". */
+function extractRefTokens(text) {
+  const tokens = [];
+  const lower = String(text || '').toLowerCase();
+  let m;
+  const paraRe = /para\.?\s*(\d+)(?:\((\d+)\))?(?:-(\d+))?/g;
+  while ((m = paraRe.exec(lower))) {
+    tokens.push({ type:'para', num:Number(m[1]), sub:m[2]!=null?Number(m[2]):null, end:m[3]!=null?Number(m[3]):null });
+  }
+  const faqRe = /faq\s*q\.?\s*(\d+)/g;
+  while ((m = faqRe.exec(lower))) tokens.push({ type:'faq', num:Number(m[1]) });
+  return tokens;
+}
+function tokensMatch(a, b) {
+  if (a.type !== b.type) return false;
+  if (a.type === 'faq') return a.num === b.num;
+  const aEnd = a.end != null ? a.end : a.num;
+  const bEnd = b.end != null ? b.end : b.num;
+  const numsOverlap = (b.num >= a.num && b.num <= aEnd) || (a.num >= b.num && a.num <= bEnd);
+  if (!numsOverlap) return false;
+  if (a.sub != null && b.sub != null) return a.sub === b.sub;
+  return true;
+}
+function tokensOverlap(citedTokens, realTokens) {
+  return citedTokens.some(c => realTokens.some(r => tokensMatch(c, r)));
+}
+function extractNoticeNumbers(text) {
+  const nums = new Set();
+  const re = /\bn(?:otice)?\.?\s*(\d)\b/gi;
+  let m;
+  while ((m = re.exec(String(text || '')))) nums.add(Number(m[1]));
+  return nums;
+}
+function refTokensByNotice(chunks = CHUNKS) {
+  const map = {};
+  for (const c of chunks) (map[c.noticeId] || (map[c.noticeId] = [])).push(...extractRefTokens(c.ref));
+  return map;
+}
+/* Returns { grounded, citedNotices, citedTokens }. `grounded` is true only when
+   the citation names at least one Notice AND carries at least one Para/FAQ ref
+   that actually exists under one of the Notices it names. A citation with no
+   Notice number, or no extractable Para/FAQ ref, is treated as NOT grounded
+   (unverifiable) so the UI can flag it for manual confirmation rather than
+   presenting an unmatched reference as authoritative. */
+function verifyCitation(citation, chunks = CHUNKS) {
+  const citedNotices = [...extractNoticeNumbers(citation)];
+  const citedTokens = extractRefTokens(citation);
+  if (!citedNotices.length || !citedTokens.length) return { grounded:false, citedNotices, citedTokens };
+  const byNotice = refTokensByNotice(chunks);
+  const grounded = citedNotices.some(n => tokensOverlap(citedTokens, byNotice[n] || []));
+  return { grounded, citedNotices, citedTokens };
+}
+
 /* ━━━ NODE / COMMONJS EXPORT (no-op in the browser) ━━━ */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     FEP_OFFICIAL_URL, NOTICES, CHUNKS, GLOSSARY,
     faqCiteRef, faqTotal, retrieve, buildBM25,
     baseDefinitions, buildSystemPrompt,
+    extractRefTokens, tokensMatch, tokensOverlap, extractNoticeNumbers,
+    refTokensByNotice, verifyCitation,
   };
 }

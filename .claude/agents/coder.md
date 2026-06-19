@@ -29,10 +29,10 @@ efficient.
   must trace to real text. If you're not certain a provision is real, leave
   a clear placeholder and say so in your summary instead of inventing one —
   citation-auditor will block on anything it can't verify anyway.
-- **Document sandboxing**: keep `<<<BEGIN_DOCUMENT>>>` / `<<<END_DOCUMENT>>>`
-  markers around OCR/PDF-extracted text intact (prompt-injection mitigation,
-  `app.js` ~line 867). Never forward raw document/user text into a prompt
-  unwrapped.
+- **Citation grounding**: a model `citation` is checked at runtime by
+  `verifyCitation()` (`kb.js`, shared with the stress-test harness); if you
+  touch the ref-token parsing/matching, keep the live "Unverified citation"
+  flag in `verdictCard()` and the harness `citation-grounded` check in sync.
 - **Service worker cache**: if you touch any file in `sw.js`'s `SHELL` array
   (`index.html`, `styles.css`, `kb.js`, `app.js`, `manifest.webmanifest`,
   `icon.svg`), bump `CACHE` in `sw.js` (currently `'fep-compass-v17'`) to the

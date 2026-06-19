@@ -77,44 +77,11 @@ function parseResp(raw) {
 /* ─── citation grounding checks ───
    Refs are structured ({type, num, sub, end}) rather than exact strings, so a
    parent reference like "Para 1" correctly matches a real child ref like
-   "Para 1(1)", and "Para 9" matches a real range like "Para 9-10". */
-function extractRefTokens(text) {
-  const tokens = [];
-  const lower = String(text || '').toLowerCase();
-  let m;
-  const paraRe = /para\.?\s*(\d+)(?:\((\d+)\))?(?:-(\d+))?/g;
-  while ((m = paraRe.exec(lower))) {
-    tokens.push({ type: 'para', num: Number(m[1]), sub: m[2] != null ? Number(m[2]) : null, end: m[3] != null ? Number(m[3]) : null });
-  }
-  const faqRe = /faq\s*q\.?\s*(\d+)/g;
-  while ((m = faqRe.exec(lower))) tokens.push({ type: 'faq', num: Number(m[1]) });
-  return tokens;
-}
-function tokensMatch(a, b) {
-  if (a.type !== b.type) return false;
-  if (a.type === 'faq') return a.num === b.num;
-  const aEnd = a.end != null ? a.end : a.num;
-  const bEnd = b.end != null ? b.end : b.num;
-  const numsOverlap = (b.num >= a.num && b.num <= aEnd) || (a.num >= b.num && a.num <= bEnd);
-  if (!numsOverlap) return false;
-  if (a.sub != null && b.sub != null) return a.sub === b.sub;
-  return true;
-}
-function tokensOverlap(citedTokens, realTokens) {
-  return citedTokens.some(c => realTokens.some(r => tokensMatch(c, r)));
-}
-function extractNoticeNumbers(text) {
-  const nums = new Set();
-  const re = /\bn(?:otice)?\.?\s*(\d)\b/gi;
-  let m;
-  while ((m = re.exec(String(text || '')))) nums.add(Number(m[1]));
-  return nums;
-}
-const REF_TOKENS_BY_NOTICE = {};
-for (const c of kb.CHUNKS) {
-  if (!REF_TOKENS_BY_NOTICE[c.noticeId]) REF_TOKENS_BY_NOTICE[c.noticeId] = [];
-  REF_TOKENS_BY_NOTICE[c.noticeId].push(...extractRefTokens(c.ref));
-}
+   "Para 1(1)", and "Para 9" matches a real range like "Para 9-10". The token
+   extraction/matching now lives in kb.js (shared with the live app's runtime
+   citation check) so the harness and the app judge a citation identically. */
+const { extractRefTokens, tokensOverlap, extractNoticeNumbers } = kb;
+const REF_TOKENS_BY_NOTICE = kb.refTokensByNotice();
 
 function buildAnalystQuery(s) {
   const parts = [`WHO: ${s.who}`, `WHAT: ${s.what}`];
