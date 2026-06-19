@@ -258,6 +258,8 @@ h1, h2, h3 { letter-spacing: -.02em; }
 
 .micro-note { display: flex; gap: 7px; align-items: flex-start; margin-top: 14px; font-size: var(--fs-xs); color: var(--ink3); line-height: 1.55; }
 .micro-note i { font-size: 14px; margin-top: 2px; flex-shrink: 0; color: var(--teal); }
+.pii-note { display: flex; gap: 8px; align-items: flex-start; margin-top: 12px; padding: 10px 12px; font-size: var(--fs-xs); line-height: 1.5; color: var(--amber); background: var(--amber-bg); border: 1px solid var(--amber-bdr); border-radius: var(--radius-sm); }
+.pii-note i { font-size: 15px; margin-top: 1px; flex-shrink: 0; }
 
 .decl-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .decl-item {
