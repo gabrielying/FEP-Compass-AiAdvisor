@@ -91,7 +91,7 @@ python -m http.server 8000   # → http://localhost:8000
 ## Testing the AI Advisor's citations
 
 The AI Compliance Analyst's value depends on it citing a **real, correctly-applicable**
-FEP provision — not a plausible-sounding hallucination. `test/` has a 31-scenario
+FEP provision — not a plausible-sounding hallucination. `test/` has a 150-scenario
 battery across all 7 Notices (ground-truthed directly against the provision text
 in `kb.js`), in two forms:
 
@@ -102,7 +102,7 @@ in `kb.js`), in two forms:
   Notice (catching hallucinated references). Requires `ollama serve` and a pulled
   model (`ollama pull qwen2.5:7b`).
   ```
-  npm run stress-test                       # all 31 scenarios, qwen2.5:7b
+  npm run stress-test                       # all 150 scenarios, qwen2.5:7b
   node test/run-stress-test.js --notice 3   # just Notice 3
   node test/run-stress-test.js --model llama3.1 --verbose
   ```
