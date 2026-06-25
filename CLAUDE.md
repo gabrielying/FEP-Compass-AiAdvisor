@@ -43,7 +43,7 @@ onboarding text).
 | `manifest.webmanifest`, `icon.svg` | PWA assets. |
 | `package.json` | Zero dependencies, one script (`stress-test`), `engines.node >=18`. |
 | `test/run-stress-test.js` | Node CLI harness; calls a local Ollama model using the real `retrieve()`/`buildSystemPrompt()` from `kb.js`. Flags: `--notice N`, `--model NAME`, `--url URL`, `--verbose`. Writes `test/last-run-report.json`. |
-| `test/scenarios.js` | 31 ground-truthed test scenarios across Notices 1–7, shared by the harness and the manual checklist. |
+| `test/scenarios.js` | 150 ground-truthed test scenarios across Notices 1–7, shared by the harness and the manual checklist. |
 | `test/SCENARIOS.md` | Manual UI testing checklist mirroring the same scenarios. |
 | `README.md` | Product-facing walkthrough — defer to it for UX/feature detail. |
 
@@ -126,7 +126,7 @@ check, so the app and `test/run-stress-test.js` judge a citation identically.
   your environment) after any change to**: `kb.js` provisions/citations,
   `retrieve()`/BM25 logic, `buildSystemPrompt()`, or
   `parseResp`/`repairJSON` in `app.js`. These are exactly the surfaces the
-  31 scenarios in `test/scenarios.js` are designed to catch regressions on
+  150 scenarios in `test/scenarios.js` are designed to catch regressions on
   — a wrong verdict, or a citation referencing a paragraph/FAQ number that
   doesn't actually exist in that Notice.
 - If Ollama isn't available, fall back to manually tracing 2–3 affected
