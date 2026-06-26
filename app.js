@@ -323,7 +323,8 @@ function verdictCard(data, chunks, isPartial, inputRows) {
     body.innerHTML += `<div class="vwarn mt-8">Response partially parsed — some fields may be incomplete.</div>`;
   card.appendChild(body);
   if (data.citation) {
-    const grounded = verifyCitation(data.citation).grounded;
+    const leaked = /section title|ref copied verbatim|[\[\]]/i.test(data.citation);
+    const grounded = !leaked && verifyCitation(data.citation).grounded;
     let citeHtml = `<div class="vlabel">FEP Citation</div><div class="vcite-text">${esc(data.citation)}</div>`;
     if (!grounded)
       citeHtml += `<div class="vwarn mt-8"><i class="ti ti-alert-triangle icon-sp-r"></i>Unverified citation — this reference could not be matched to a provision in the knowledge base. Confirm against the official FEP Notice before relying on it.</div>`;
