@@ -516,7 +516,7 @@ INSTRUCTIONS: Respond ONLY in valid JSON with this exact structure — no text b
   "verdict": "PERMITTED" | "NOT_PERMITTED" | "CONDITIONAL" | "REQUIRES_APPROVAL",
   "summary": "One concise sentence stating the verdict",
   "explanation": "2-4 sentences explaining the applicable rule, key criteria, and any thresholds",
-  "citation": "FEP Notice X, [Ref] — Section Title",
+  "citation": "FEP Notice 3, Part A, Para 2 — Resident Individual (WITH Domestic Ringgit Borrowing) — investment limits",
   "conditions": ["condition if CONDITIONAL, else empty array"],
   "warning": "Important caveat or null",
   "nextStep": "The exact next action: which FEP Authority submission/registration/report applies (via https://bnm.my/fep) or 'No filing required' "
@@ -543,7 +543,9 @@ RULES:
    - If AT LEAST ONE joint party has DRB, the joint investment is subject to the RM1 million PER PERSON annual limit under Notice 4, "Payment in Foreign Currency by Resident" FAQ Q7 — for 2 joint parties this is a COMBINED threshold of RM2 million (NOT RM1 million). Compare the TOTAL joint remittance/investment amount against this COMBINED threshold, and cite that FAQ alongside Notice 3 Part A Para 2. Do NOT reason that the joint investment is "unlimited" merely because one of the OTHER joint parties has no DRB — DRB in ANY single joint party caps the WHOLE joint investment at RM2 million (for 2 parties); it does NOT make it unlimited.
 10. NOTICE 3 PARA 2/PARA 4 SUB-CLAUSE EXEMPTIONS: within Part A Para 2 (Resident Individual WITH DRB), only sub-clause (c) — conversion of Ringgit, Trade FCA, or swapping of a Ringgit-denominated financial asset — carries the RM1 million per calendar year cap. Sub-clauses (a) (any amount in FCY funds sourced from outside Malaysia, except Export of Goods proceeds, or approved FCY Borrowing under Notice 2) and (b) (any amount in real estate outside Malaysia for education, employment or migration, for the Resident Individual's own or Immediate Family Member's accommodation only) are UNLIMITED — do NOT apply or mention the RM1 million limit when the funding source or purpose matches (a) or (b). The symmetric rule applies to Part B Para 4 (Resident Entity WITH DRB): only sub-clause (c) (conversion of Ringgit, Trade FCA, LOB FCY Borrowing for non-DIA purposes, or swapping of a Ringgit-denominated asset) carries the RM50 million per calendar year cap; sub-clauses (a) (FCY from outside Malaysia, except Export of Goods proceeds, or approved FCY Borrowing) and (b) (LOB FCY Borrowing for Direct Investment Abroad) are UNLIMITED.
 11. ARITHMETIC CHECK: whenever you compare a converted RM amount against a numeric threshold (e.g. RM1 million, or RM2 million for a joint transaction under rule 9), explicitly verify the comparison before writing your conclusion: if the converted amount is GREATER than the threshold, the correct word is "EXCEEDS" (not "is within" / "does not exceed"); if it is less than or equal to the threshold, the correct word is "does not exceed" / "is within". A value EXACTLY EQUAL to the cap (e.g. RM1,000,000 against a RM1,000,000 cap) is NOT "exceeding" — it is exactly at the limit and is within-limit/PERMITTED, not NOT_PERMITTED. Re-check the two numbers digit-by-digit before choosing which word to use — do not state a conclusion that contradicts the numbers you just computed.
-12. Return ONLY valid JSON. No markdown, no code fences, no preamble.`;
+12. Return ONLY valid JSON. No markdown, no code fences, no preamble.
+13. CITATION FORMAT: the "citation" field above ("FEP Notice 3, Part A, Para 2 — ...") is a worked EXAMPLE, not a literal template — never copy its words "Part A, Para 2" verbatim unless that is genuinely the correct ref. Write the citation as "FEP Notice <number>, <the exact Ref string copied verbatim from the matching [Notice Name — Ref] heading in the RETRIEVED KNOWLEDGE BASE above, e.g. Part A, Para 2 / FAQ Q5 / Appendix C / G.N. 38691/2013 — Ringgit (Import)> — <its Section Title>". Never wrap any part of the citation in square brackets, never write the literal word "Ref", and never invent a Para/FAQ/Appendix number that is not one of the Ref headings actually shown above.
+14. NOTICE 6 (Import/Export of Currency) — do not confuse the two separate thresholds: Ringgit currency notes have a flat RM10,000 (import) / RM1,000 (export) cap with NO declaration exception above it (amounts above are NOT_PERMITTED outright); Foreign Currency notes have NO upper limit but MUST be declared to Customs once the amount exceeds RM30,000 equivalent (undeclared amounts at or below RM30,000 equivalent are PERMITTED; above that, declaration — not a hard cap — is what's required). Match the currency in the question (Ringgit vs FCY) to the correct one of these two rules before answering.`;
 }
 
 /* ━━━ CITATION GROUNDING ━━━
@@ -564,6 +566,8 @@ function extractRefTokens(text) {
   }
   const faqRe = /faq\s*q\.?\s*(\d+)/g;
   while ((m = faqRe.exec(lower))) tokens.push({ type:'faq', num:Number(m[1]) });
+  const appendixRe = /appendix\s*([a-d])\b/g;
+  while ((m = appendixRe.exec(lower))) tokens.push({ type:'appendix', key:m[1] });
   const gnRe = /g\.n\.\s*\d+\/\d+\s*(?:—|-|–)\s*(ringgit\s*\(import\)|ringgit\s*\(export\)|foreign currency|non-traveller)/g;
   while ((m = gnRe.exec(lower))) tokens.push({ type:'gn', key:m[1].replace(/\s+/g,' ').trim() });
   return tokens;
@@ -571,6 +575,7 @@ function extractRefTokens(text) {
 function tokensMatch(a, b) {
   if (a.type !== b.type) return false;
   if (a.type === 'faq') return a.num === b.num;
+  if (a.type === 'appendix') return a.key === b.key;
   if (a.type === 'gn') return a.key === b.key;
   const aEnd = a.end != null ? a.end : a.num;
   const bEnd = b.end != null ? b.end : b.num;
