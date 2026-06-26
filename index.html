@@ -37,18 +37,18 @@
 
   <!-- ════════ SIDEBAR (desktop / tablet) ════════ -->
   <aside class="sidebar">
-    <div class="brand">
+    <button type="button" class="brand" id="brand-jump-sidebar">
       <div class="brand-mark"><svg class="brand-svg" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="170" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="30"/><path d="M344 168 L286 286 L168 344 L226 226 Z" fill="#fff"/><circle cx="256" cy="256" r="26" fill="#0d9488"/></svg></div>
       <div>
         <div class="brand-name">FEP <span>Compass</span></div>
         <div class="brand-sub">Malaysia's FX Policy Advisor</div>
       </div>
-    </div>
+    </button>
 
     <nav class="side-nav" aria-label="Primary">
-      <button class="side-link active" data-tab="notices"><i class="ti ti-books"></i><span>FEP Notices</span></button>
-      <button class="side-link" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
       <button class="side-link" data-tab="tools"><i class="ti ti-sparkles"></i><span>Smart Tools</span></button>
+      <button class="side-link" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
+      <button class="side-link active" data-tab="notices"><i class="ti ti-books"></i><span>FEP Notices</span></button>
       <button class="side-link" data-tab="settings"><i class="ti ti-settings"></i><span>Settings</span></button>
     </nav>
 
@@ -66,10 +66,10 @@
     <!-- Mobile topbar -->
     <header class="topbar">
       <div class="topbar-row">
-        <div class="brand brand-sm">
+        <button type="button" class="brand brand-sm" id="brand-jump-topbar">
           <div class="brand-mark"><svg class="brand-svg" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="170" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="30"/><path d="M344 168 L286 286 L168 344 L226 226 Z" fill="#fff"/><circle cx="256" cy="256" r="26" fill="#0d9488"/></svg></div>
           <div class="brand-name">FEP <span>Compass</span></div>
-        </div>
+        </button>
         <div class="topbar-badge">N1–N7 · Oct 2025</div>
       </div>
       <p class="topbar-disclaimer">Educational guidance only — not legal advice. Verify complex cases with the FEP Authority.</p>
@@ -321,9 +321,9 @@
 
     <!-- Mobile bottom navigation -->
     <nav class="bottombar" aria-label="Primary mobile">
-      <button class="bb-tab active" data-tab="notices"><i class="ti ti-books"></i><span>Notices</span></button>
-      <button class="bb-tab" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
       <button class="bb-tab" data-tab="tools"><i class="ti ti-sparkles"></i><span>Tools</span></button>
+      <button class="bb-tab" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
+      <button class="bb-tab active" data-tab="notices"><i class="ti ti-books"></i><span>Notices</span></button>
       <button class="bb-tab" data-tab="settings"><i class="ti ti-settings"></i><span>More</span></button>
     </nav>
   </div>
@@ -388,6 +388,65 @@
     <div class="modal-foot">
       <button class="btn" id="ack-cancel"><i class="ti ti-x"></i> Cancel</button>
       <button class="btn primary" id="ack-accept"><i class="ti ti-check"></i> I understand &amp; agree</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ FIRST-RUN SETUP GUIDE ════════ -->
+<div class="overlay" id="firstrun-overlay">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="fr-title">
+    <div class="modal-head">
+      <div>
+        <div class="modal-tag" id="fr-tag">SETUP GUIDE</div>
+        <div class="modal-name" id="fr-title">Welcome to FEP Compass</div>
+      </div>
+    </div>
+    <div class="modal-body">
+
+      <div class="fr-step" data-fr-step="welcome">
+        <p>FEP Compass gives Malaysian banking officers AI-assisted, plain-language guidance on Malaysia's Foreign Exchange Policy Notices 1–7 — with every AI verdict cross-referenced against the actual Notice text.</p>
+        <p>This short guide will help you connect an AI provider and confirm you understand how the app handles data. It only takes a minute.</p>
+      </div>
+
+      <div class="fr-step hidden" data-fr-step="gemini">
+        <p>To unlock the AI Advisor and Compliance Analyst, connect a free Gemini API key:</p>
+        <ol class="fr-list">
+          <li>Open <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a> in a new tab.</li>
+          <li>Create or select a project — name it anything, e.g. "fep".</li>
+          <li>Click "Create API key".</li>
+          <li>Copy the key.</li>
+        </ol>
+        <p class="hint">Prefer not to use the cloud? You can skip this and use local Ollama instead (Settings → AI Provider).</p>
+      </div>
+
+      <div class="fr-step hidden" data-fr-step="paste">
+        <p>Paste your Gemini API key below — it will be saved directly into Settings, no need to re-enter it.</p>
+        <div class="set-field">
+          <label class="set-lbl" for="fr-key">Gemini API Key</label>
+          <input class="set-inp" id="fr-key" type="password" placeholder="AIzaSy…" autocomplete="off">
+        </div>
+        <p class="hint">You can leave this blank and add it later in Settings — or use local Ollama, which needs no key.</p>
+      </div>
+
+      <div class="fr-step hidden" data-fr-step="consent">
+        <p>Please read before continuing: do not enter customer-identifying or other confidential data into FEP Compass, especially via the cloud (Gemini) provider — that data is sent to Google. Nothing leaves this device unless a cloud AI provider is configured; local Ollama keeps everything on-device. All guidance is educational only, not legal advice — verify complex cases with the FEP Authority.</p>
+        <p><a href="legal.html" target="_blank" rel="noopener">Read full Legal &amp; Policies</a> for complete Terms, Privacy/PDPA and AI-disclosure text.</p>
+        <label class="fr-consent-row">
+          <input type="checkbox" id="fr-consent-check">
+          <span>I have read and agree to the above, and to the full Legal &amp; Policies.</span>
+        </label>
+      </div>
+
+      <div class="fr-step hidden" data-fr-step="done">
+        <p id="fr-done-msg">You're all set.</p>
+        <p>You can revisit your AI provider or replay this guide anytime from Settings → Data &amp; About.</p>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn hidden" id="fr-skip">Skip — I'll do this later</button>
+      <button class="btn primary hidden" id="fr-next">Next</button>
+      <button class="btn primary hidden" id="fr-agree" disabled>I agree &amp; continue</button>
     </div>
   </div>
 </div>
