@@ -404,6 +404,7 @@ document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', 
   switchTab(b.dataset.go);
   if (b.dataset.tool) switchTool(b.dataset.tool);
 }));
+['brand-jump-sidebar', 'brand-jump-topbar'].forEach(id => $(id).addEventListener('click', () => switchTab('tools')));
 
 /* ━━━ DASHBOARD ━━━ */
 function ringSVG(pct, color) {
@@ -1029,6 +1030,7 @@ function renderSettings() {
     Official source: <a href="${FEP_OFFICIAL_URL}" target="_blank" rel="noopener">bnm.gov.my/fep/policies/notices</a></p>
     <div class="btn-row mt-0">
       <a class="btn" href="legal.html" target="_blank" rel="noopener"><i class="ti ti-file-text"></i> Legal &amp; Policies</a>
+      <button class="btn" id="replay-guide"><i class="ti ti-replay"></i> Replay setup guide</button>
       <button class="btn" id="reset-limits"><i class="ti ti-rotate"></i> Reset limit trackers</button>
       <button class="btn" id="clear-data"><i class="ti ti-trash"></i> Clear all local data</button>
     </div>`;
@@ -1079,6 +1081,10 @@ function renderSettings() {
   data.querySelector('#reset-limits').addEventListener('click', () => {
     ST.limits = JSON.parse(JSON.stringify(DEFAULT_LIMITS)); save('fep_limits', ST.limits); renderRings(); toast('Limit trackers reset');
   });
+  data.querySelector('#replay-guide').addEventListener('click', () => {
+    localStorage.removeItem(FIRST_RUN_GUIDE_KEY);
+    renderFirstRunStep(0);
+  });
   const clearBtn = data.querySelector('#clear-data');
   clearBtn.addEventListener('click', () => {
     if (!clearBtn.dataset.armed) {
@@ -1087,7 +1093,7 @@ function renderSettings() {
       setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.innerHTML = '<i class="ti ti-trash"></i> Clear all local data'; }, 3500);
       return;
     }
-    ['fep_cfg','fep_sess','fep_limits','fep_decls','fep_activity','fep_onboarded','fep_ai_ack'].forEach(k => localStorage.removeItem(k));
+    ['fep_cfg','fep_sess','fep_limits','fep_decls','fep_activity','fep_onboarded','fep_ai_ack','fep_setup_guide_seen'].forEach(k => localStorage.removeItem(k));
     location.reload();
   });
 }
@@ -1112,6 +1118,80 @@ function dismissOnboarding() {
   $('onboarding-card').classList.add('hidden');
 }
 
+/* ━━━ FIRST-RUN SETUP GUIDE (separate from the onboarding nudge card above) ━━━
+   A one-time, step-by-step modal: welcome → get a Gemini key → paste it →
+   PII/legal consent gate → done. Only the "seen" flag is persisted; the
+   current step is transient. Mirrors ensureAiAck()'s open/cleanup shape. */
+const FIRST_RUN_GUIDE_KEY = 'fep_setup_guide_seen';
+const FIRST_RUN_STEPS = ['welcome', 'gemini', 'paste', 'consent', 'done'];
+function initFirstRunGuide() {
+  if (!localStorage.getItem(FIRST_RUN_GUIDE_KEY)) renderFirstRunStep(0);
+}
+function renderFirstRunStep(stepIdx) {
+  const ov = $('firstrun-overlay');
+  const step = FIRST_RUN_STEPS[stepIdx];
+  ov.querySelectorAll('.fr-step').forEach(el => el.classList.toggle('hidden', el.dataset.frStep !== step));
+
+  const next = $('fr-next'), skip = $('fr-skip'), agree = $('fr-agree'), keyInp = $('fr-key'), consentChk = $('fr-consent-check');
+  next.classList.add('hidden'); skip.classList.add('hidden'); agree.classList.add('hidden');
+
+  if (step === 'welcome') {
+    next.classList.remove('hidden'); next.innerHTML = 'Get started';
+  } else if (step === 'gemini') {
+    next.classList.remove('hidden'); next.innerHTML = 'Next';
+    skip.classList.remove('hidden');
+  } else if (step === 'paste') {
+    next.classList.remove('hidden'); next.innerHTML = 'Next';
+  } else if (step === 'consent') {
+    agree.classList.remove('hidden');
+    agree.disabled = !consentChk.checked;
+  } else if (step === 'done') {
+    next.classList.remove('hidden'); next.innerHTML = 'Finish';
+    const c = ST.cfg;
+    $('fr-done-msg').textContent = c.apiKey
+      ? "You're all set — your Gemini key is saved in Settings."
+      : "You're all set. Add a Gemini key (or switch to local Ollama) anytime in Settings → AI Provider.";
+  }
+
+  const onNext = () => {
+    if (step === 'paste') {
+      const v = keyInp.value.trim();
+      if (v) { ST.cfg.apiKey = v; save('fep_cfg', ST.cfg); renderSettings(); }
+    }
+    cleanup();
+    renderFirstRunStep(stepIdx + 1);
+  };
+  const onSkip = () => { cleanup(); renderFirstRunStep(stepIdx + 1); };
+  const onAgree = () => { cleanup(); renderFirstRunStep(stepIdx + 1); };
+  const onFinish = () => {
+    localStorage.setItem(FIRST_RUN_GUIDE_KEY, '1');
+    cleanup();
+    ov.classList.remove('open');
+  };
+  const onConsentChange = () => { agree.disabled = !consentChk.checked; };
+  const onBackdrop = e => { if (e.target === ov) { cleanup(); ov.classList.remove('open'); } };
+  const onKey = e => { if (e.key === 'Escape') { cleanup(); ov.classList.remove('open'); } };
+
+  function cleanup() {
+    next.removeEventListener('click', step === 'done' ? onFinish : onNext);
+    skip.removeEventListener('click', onSkip);
+    agree.removeEventListener('click', onAgree);
+    consentChk.removeEventListener('change', onConsentChange);
+    ov.removeEventListener('click', onBackdrop);
+    document.removeEventListener('keydown', onKey);
+  }
+
+  if (step === 'done') next.addEventListener('click', onFinish);
+  else next.addEventListener('click', onNext);
+  skip.addEventListener('click', onSkip);
+  agree.addEventListener('click', onAgree);
+  consentChk.addEventListener('change', onConsentChange);
+  ov.addEventListener('click', onBackdrop);
+  document.addEventListener('keydown', onKey);
+
+  ov.classList.add('open');
+}
+
 /* ━━━ PWA — offline service worker (https / localhost only) ━━━ */
 if ('serviceWorker' in navigator &&
     (location.protocol === 'https:' || ['localhost','127.0.0.1'].includes(location.hostname))) {
@@ -1128,3 +1208,4 @@ renderAdvisorEmpty();
 renderSettings();
 buildBM25();
 initOnboarding();
+initFirstRunGuide();
