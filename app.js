@@ -1083,7 +1083,7 @@ function renderSettings() {
   });
   data.querySelector('#replay-guide').addEventListener('click', () => {
     localStorage.removeItem(FIRST_RUN_GUIDE_KEY);
-    renderFirstRunStep(0);
+    renderFirstRunStep('welcome');
   });
   const clearBtn = data.querySelector('#clear-data');
   clearBtn.addEventListener('click', () => {
@@ -1119,29 +1119,38 @@ function dismissOnboarding() {
 }
 
 /* ━━━ FIRST-RUN SETUP GUIDE (separate from the onboarding nudge card above) ━━━
-   A one-time, step-by-step modal: welcome → get a Gemini key → paste it →
-   PII/legal consent gate → done. Only the "seen" flag is persisted; the
-   current step is transient. Mirrors ensureAiAck()'s open/cleanup shape. */
+   A one-time, step-by-step modal: welcome → get a Gemini key → paste it (or
+   skip) → if no key was provided, a "skipped" step explains what's limited →
+   PII/legal consent gate → done. Step navigation is name-based (not a flat
+   index) since the flow branches conditionally: Skip on the "gemini" step
+   jumps straight to "skipped", bypassing "paste" entirely; "paste" itself
+   only falls through to "skipped" when left blank. Only the "seen" flag is
+   persisted; the current step is transient. Mirrors ensureAiAck()'s
+   open/cleanup shape. */
 const FIRST_RUN_GUIDE_KEY = 'fep_setup_guide_seen';
-const FIRST_RUN_STEPS = ['welcome', 'gemini', 'paste', 'consent', 'done'];
 function initFirstRunGuide() {
-  if (!localStorage.getItem(FIRST_RUN_GUIDE_KEY)) renderFirstRunStep(0);
+  if (!localStorage.getItem(FIRST_RUN_GUIDE_KEY)) renderFirstRunStep('welcome');
 }
-function renderFirstRunStep(stepIdx) {
+function renderFirstRunStep(step) {
   const ov = $('firstrun-overlay');
-  const step = FIRST_RUN_STEPS[stepIdx];
   ov.querySelectorAll('.fr-step').forEach(el => el.classList.toggle('hidden', el.dataset.frStep !== step));
 
   const next = $('fr-next'), skip = $('fr-skip'), agree = $('fr-agree'), keyInp = $('fr-key'), consentChk = $('fr-consent-check');
   next.classList.add('hidden'); skip.classList.add('hidden'); agree.classList.add('hidden');
 
+  let nextStep = null;
   if (step === 'welcome') {
     next.classList.remove('hidden'); next.innerHTML = 'Get started';
+    nextStep = 'gemini';
   } else if (step === 'gemini') {
     next.classList.remove('hidden'); next.innerHTML = 'Next';
     skip.classList.remove('hidden');
+    nextStep = 'paste';
   } else if (step === 'paste') {
     next.classList.remove('hidden'); next.innerHTML = 'Next';
+  } else if (step === 'skipped') {
+    next.classList.remove('hidden'); next.innerHTML = 'Continue';
+    nextStep = 'consent';
   } else if (step === 'consent') {
     agree.classList.remove('hidden');
     agree.disabled = !consentChk.checked;
@@ -1157,12 +1166,15 @@ function renderFirstRunStep(stepIdx) {
     if (step === 'paste') {
       const v = keyInp.value.trim();
       if (v) { ST.cfg.apiKey = v; save('fep_cfg', ST.cfg); renderSettings(); }
+      cleanup();
+      renderFirstRunStep(v ? 'consent' : 'skipped');
+      return;
     }
     cleanup();
-    renderFirstRunStep(stepIdx + 1);
+    renderFirstRunStep(nextStep);
   };
-  const onSkip = () => { cleanup(); renderFirstRunStep(stepIdx + 1); };
-  const onAgree = () => { cleanup(); renderFirstRunStep(stepIdx + 1); };
+  const onSkip = () => { cleanup(); renderFirstRunStep('skipped'); };
+  const onAgree = () => { cleanup(); renderFirstRunStep('done'); };
   const onFinish = () => {
     localStorage.setItem(FIRST_RUN_GUIDE_KEY, '1');
     cleanup();
