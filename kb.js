@@ -541,6 +541,8 @@ RULES:
 REMINDER BEFORE YOU ANSWER:
 - Closed list without "any"/"except" = exhaustive, anything else is NOT_PERMITTED. "Subject to compliance with Notice X" = CONDITIONAL/REQUIRES_APPROVAL, never an unconditional PERMITTED — name the cross-referenced provision.
 - Re-confirm: does the cap you're citing actually name this party's category? Check group-deeming FAQs before assuming no own borrowing means unlimited.
+- Notice 3 Para 2/Para 4 SUB-CLAUSE CHECK: before applying the RM1 million (Para 2) or RM50 million (Para 4) cap, check whether the funding source or purpose actually matches sub-clause (c) (Ringgit conversion/Trade FCA/swap). If it instead matches sub-clause (a) (FCY from outside Malaysia / approved FCY Borrowing) or (b) (real estate for education/employment/migration accommodation, or DIA), the amount is UNLIMITED — do not apply the RM cap.
+- EXACT-AT-CAP CHECK: re-read the two numbers you are about to compare, digit by digit. If the converted amount EQUALS the threshold (e.g. RM1,000,000 vs a RM1,000,000 cap), that is within-limit and PERMITTED — it is NOT "exceeding". Only a STRICTLY GREATER amount exceeds the cap.
 - Citation field: copy the exact Ref text verbatim from a real heading shown above — never output literal words like "Section Title" or "Ref", never use square brackets.
 
 INSTRUCTIONS: Respond ONLY in valid JSON with this exact structure — no text before or after:
