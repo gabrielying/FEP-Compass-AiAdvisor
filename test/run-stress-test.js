@@ -141,7 +141,7 @@ function evaluate(scenario, parsed) {
   const grounded = citedTokens.length === 0 ? false : tokensOverlap(citedTokens, realTokens);
   checks.push({
     name: 'citation-grounded', pass: grounded,
-    detail: citedTokens.length === 0 ? `could not extract a Para/FAQ reference from citation "${citation}"` : `citation tokens [${citedTokens.map(t => t.type + t.num + (t.sub != null ? `(${t.sub})` : '')).join(',')}] vs real Notice ${scenario.notice} refs`,
+    detail: citedTokens.length === 0 ? `could not extract a Para/FAQ reference from citation "${citation}"` : `citation tokens [${citedTokens.map(t => t.type === 'gn' ? t.type + t.key : t.type + t.num + (t.sub != null ? `(${t.sub})` : '')).join(',')}] vs real Notice ${scenario.notice} refs`,
   });
 
   if (scenario.expectRefHints) {

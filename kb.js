@@ -490,7 +490,7 @@ function retrieve(query, noticeFilter='all', k=5) {
     return { c, s };
   }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s);
   const top = ranked.slice(0,k).map(x=>x.c);
-  if (top.some(c => c.noticeId === 3)) {
+  if (top.filter(c => c.noticeId === 3).length >= top.length / 2) {
     const anchors = CHUNKS.filter(c => c.noticeId === 3 && N3_ANCHOR_REFS.includes(c.ref) && !top.some(t => t.noticeId === c.noticeId && t.ref === c.ref));
     return [...anchors, ...top];
   }
