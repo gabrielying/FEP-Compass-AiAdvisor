@@ -14,29 +14,52 @@ A modern, minimalist, education-first web app for **banking officers** (and comp
 ┌──────────────────────────────────────────────────────────────┐
 │  Desktop: left sidebar nav   ·   Mobile: bottom tab bar      │
 ├──────────────┬───────────────────────────────────────────────┤
-│ 1 Smart Tools│ AI Compliance Analyst (structured form +       │
-│   (engine,   │ BM25 RAG + Gemini/Ollama verdict) and the      │
-│   default    │ AI Advisor chat — the app's primary purpose.   │
-│   landing)   │ The OCR Document/Image Reader and PDF Reader & │
+│ 1 FEP Notices│ Educational hub (default landing page):       │
+│   (hub)      │ N1–N7 cards → Provisions/FAQs accordions,     │
+│              │ "Am I Affected?" wizards, searchable, glossary │
+│ 2 Dashboard  │ Limit utilisation rings · pending declarations│
+│              │ quick actions · notices at a glance ·         │
+│              │ recent activity / audit log                   │
+│ 3 Smart Tools│ AI Compliance Analyst (structured form +       │
+│   (engine)   │ BM25 RAG + Gemini/Ollama verdict). The OCR     │
+│              │ Document/Image Reader and PDF Reader &         │
 │              │ Validator have been removed (see git history)  │
 │              │ and may return in a future release.            │
-│ 2 FEP Notices│ Educational hub: N1–N7 cards → Provisions/FAQs │
-│   (hub)      │ accordions, "Am I Affected?" wizards,          │
-│              │ searchable, glossary                           │
-│ 3 Settings   │ Provider config (Gemini cloud / Ollama local), │
-│              │ official source link, recent activity / audit  │
-│              │ log, data management, about                    │
+│ 4 AI Advisor │ Free-form chat, notice-scoped retrieval,      │
+│              │ structured verdict cards with FEP citations   │
+│ 5 Settings   │ Provider config (Gemini cloud / Ollama local),│
+│              │ official source link, data management, about │
 └──────────────┴───────────────────────────────────────────────┘
 ```
 
 ## Screen-by-screen walkthrough (wireframe text)
 
-### 1 · Smart Tools — default landing page (the engine)
+### 1 · FEP Notices (Educational Hub) — default landing page
+- **Onboarding checklist** — first-run only, a dismissible card with 3 quick-start steps: explore a notice, try "Am I Affected?", and connect an AI provider (with a note that Gemini's free tier has a daily request limit, and Ollama is unlimited/offline).
+- **Global provision search** — substring + BM25 fallback across all provisions and FAQs, highlighted matches, click-through to the exact provision or FAQ.
+- **Notice cards (N1–N7)** — number badge, plain-English description, provision (and FAQ, where available) counts, and two actions:
+  - **Explore** → bottom sheet (mobile) / centered modal (desktop). Notices with official FAQs (N1, N2, N3, N4, N7) show a **Provisions / FAQs tab switcher**, each an accordion; regulatory jargon (Resident, NRFI, DRB…) is auto-linked to tap-for-definition tooltips throughout.
+  - **Am I Affected?** → 2–3 question yes/no decision tree per notice ending in a colour-coded result (green = fine / amber = limits engaged / blue = check details) with a one-tap handoff to the AI Advisor.
+- **Glossary** — 56 key FEP terms (from the FEP Notices and the official Preamble & Interpretation definitions) as tappable chips.
+- The official source (FEP Authority notices page) is linked once, in **Settings** — not repeated on every notice.
+
+### 2 · Dashboard
+- **Header** — time-aware greeting + one-line mission statement.
+- **Profile** (set in Settings) — Individual / Entity / Both. Filters which limit rings appear here, since individuals and entities are subject to different FEP limits.
+- **FEP Limit Utilisation** — up to three SVG progress rings, filtered by Profile: Individual FCY investment (RM1M/yr, Notice 3), Individual FCY borrowing (RM10M, Notice 2), Entity FCY investment (RM50M/yr group basis, Notice 3). Rings turn amber at 70%, red at 90%. Click a ring → inline editor to update the utilised amount (persisted to `localStorage`).
+- **Pending Declarations** — checklist (e.g. "export proceeds 6-month window"); add / complete / remove.
+- **Quick Actions** — 3 deep links: Ask the Advisor, Compliance Check, Browse Notices.
+- **Notices at a Glance** — 7 mini-tiles, each opening the notice detail sheet.
+- **Recent Activity** — local audit trail (last 50 events) of advisor queries, compliance checks, notice lookups and limit/declaration changes, with timestamps. Searchable, filterable by type (once 2+ types are logged), **exportable as CSV**, and a "Clear" action. Stored only in `localStorage` on this device.
+
+### 3 · Smart Tools (the engine)
 - **AI Compliance Analyst** — structured intake designed for precise RAG retrieval:
   `WHO` (party type) · `WHAT` (transaction type) · `WHERE` (countries) · `WHY` (purpose, 160 chars) · `AMOUNT` (+ currency) · optional context (1000 chars).
   Output: verdict card — `PERMITTED / NOT PERMITTED / CONDITIONAL / REQUIRES APPROVAL` — with explanation, conditions, warning, **exact FEP Notice citation**, **suggested next step / filing** (e.g. registration or report to the FEP Authority), the retrieved provisions listed for audit, and a **"Save as PDF"** button (print stylesheet) for compliance files. Without an AI key, or if the AI provider is unreachable, it degrades gracefully to a reference-only lookup of the most relevant provisions.
-- **AI Advisor** — free-form chat with notice-scope pills (All / N1–N7), sample prompts, Enter-to-send, structured verdict cards (each with **"Save as PDF"**), and a session history sheet (last 30 conversations, restorable). If the configured AI provider is unreachable, the Advisor falls back to showing the top BM25-retrieved provisions as a reference-only answer instead of just erroring.
 - **Removed:** the OCR Document & Image Reader (Tesseract.js) and PDF Reader & Validator (pdf.js) tools, previously documented here, have been removed from the app. See git history for the prior implementation; they may return in a future release.
+
+### 4 · AI Advisor
+Free-form chat with notice-scope pills (All / N1–N7), sample prompts, Enter-to-send, structured verdict cards (each with **"Save as PDF"**), and a session history sheet (last 30 conversations, restorable). If the configured AI provider is unreachable, the Advisor falls back to showing the top BM25-retrieved provisions as a reference-only answer instead of just erroring.
 
 ### Interactive flow: compliance analyst
 ```
@@ -46,20 +69,6 @@ Structured WHO/WHAT/WHERE/WHY/AMOUNT form
                      │
         Gemini / Ollama → JSON verdict → card + citation + next step
 ```
-
-### 2 · FEP Notices (Educational Hub)
-- **Onboarding checklist** — first-run only, a dismissible card with 3 quick-start steps: explore a notice, try "Am I Affected?", and connect an AI provider (with a note that Gemini's free tier has a daily request limit, and Ollama is unlimited/offline).
-- **Global provision search** — substring + BM25 fallback across all provisions and FAQs, highlighted matches, click-through to the exact provision or FAQ.
-- **Notice cards (N1–N7)** — number badge, plain-English description, provision (and FAQ, where available) counts, and two actions:
-  - **Explore** → bottom sheet (mobile) / centered modal (desktop). Notices with official FAQs (N1, N2, N3, N4, N7) show a **Provisions / FAQs tab switcher**, each an accordion; regulatory jargon (Resident, NRFI, DRB…) is auto-linked to tap-for-definition tooltips throughout.
-  - **Am I Affected?** → 2–3 question yes/no decision tree per notice ending in a colour-coded result (green = fine / amber = limits engaged / blue = check details) with a one-tap handoff to the AI Advisor.
-- **Glossary** — 56 key FEP terms (from the FEP Notices and the official Preamble & Interpretation definitions) as tappable chips.
-- The official source (FEP Authority notices page) is linked once, in **Settings** — not repeated on every notice.
-
-### 3 · Settings
-- **AI Provider** — Gemini (cloud, free key) or Ollama (local, offline); model selection, connection test.
-- **Data & About** — app version, official FEP source link, link to Legal & Policies, "Replay setup guide", and "Clear all local data".
-- **Recent Activity** — local audit trail (last 50 events) of advisor queries and compliance checks, with timestamps. Searchable, filterable by type (once 2+ types are logged), **exportable as CSV**, and a "Clear" action. Stored only in `localStorage` on this device.
 
 ## AI setup (optional — reference features work without it)
 
