@@ -55,6 +55,38 @@ const DEFAULT_DECLS = [
   { id:2, t:'Dynamic hedging quarterly position update', d:'Notice 1 · FEP Authority portal', done:false },
 ];
 
+/* ━━━ AI COMPLIANCE ANALYST — picker options ━━━ */
+const AF_WHO_OPTIONS = [
+  'Resident Individual',
+  'Joint Account — two or more Resident Individuals',
+  'Joint Account — Resident & Non-Resident Individual',
+  'Resident Entity (company)',
+  'Non-Resident Individual',
+  'Non-Resident Entity',
+  'Licensed Onshore Bank (LOB)',
+];
+const AF_WHAT_GROUPS = [
+  { group:'FX dealing', items:['Buy / sell foreign currency', 'Forward / hedging contract'] },
+  { group:'Borrowing & lending', items:['Borrowing', 'Lending', 'Financial guarantee'] },
+  { group:'Investment', items:['Investment in foreign currency asset', 'Issue securities / financial instrument'] },
+  { group:'Cross-border movement', items:['Payment or receipt', 'Carry cash across the border', 'Export of goods (proceeds)'] },
+  { group:'Other', items:['Other'] },
+];
+const FX_COUNTRIES = [
+  'Malaysia', 'Singapore', 'Indonesia', 'Thailand', 'Vietnam', 'Philippines', 'Brunei', 'Cambodia',
+  'Laos', 'Myanmar', 'China', 'Hong Kong', 'Japan', 'South Korea', 'Taiwan', 'India',
+  'United States', 'United Kingdom', 'Australia', 'New Zealand', 'Germany', 'Netherlands',
+  'Switzerland', 'United Arab Emirates', 'Canada',
+];
+/* Static, curated quick-fill scenarios — deliberately NOT derived from the fep_activity log,
+   which is unstructured free text users are told to keep PII out of. */
+const QUICKFILL_SCENARIOS = [
+  { label:'Resident sending funds abroad', who:'Resident Individual', what:'Payment or receipt', from:'Malaysia', to:'United Kingdom' },
+  { label:'Non-resident repatriating proceeds', who:'Non-Resident Individual', what:'Investment in foreign currency asset', from:'Malaysia', to:'Singapore' },
+  { label:'Inbound FDI / equity investment', who:'Non-Resident Entity', what:'Investment in foreign currency asset', from:'Singapore', to:'Malaysia' },
+  { label:'Resident foreign-currency borrowing', who:'Resident Entity (company)', what:'Borrowing', from:'Malaysia', to:'Other' },
+];
+
 /* timestamp of this page load — used only to scope "this session" dashboard stats; not persisted */
 const APP_LOAD_TS = Date.now();
 
@@ -725,6 +757,122 @@ function switchTool(tool) {
 document.querySelectorAll('.tool-tab').forEach(b => b.addEventListener('click', () => switchTool(b.dataset.tool)));
 
 /* ━━━ AI compliance analyst ━━━ */
+
+/* Renders a flat array of option strings, or an array of {group, items}, as tappable chips
+   into the given sheet body. Highlights currentValue and calls onPick(text) on selection. */
+function renderChipSheet(bodyId, options, currentValue, onPick) {
+  const body = $(bodyId);
+  body.innerHTML = '';
+  const renderGrid = items => {
+    const grid = mkEl('div', 'chip-grid');
+    items.forEach(item => {
+      const on = item === currentValue;
+      const chip = mkEl('button', 'chip-pick' + (on ? ' on' : ''), esc(item));
+      chip.type = 'button';
+      chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+      chip.addEventListener('click', () => { onPick(item); closeOverlays(); });
+      grid.appendChild(chip);
+    });
+    return grid;
+  };
+  if (options.length && typeof options[0] === 'object') {
+    options.forEach(({ group, items }) => {
+      body.appendChild(mkEl('div', 'sec-hdr', esc(group)));
+      body.appendChild(renderGrid(items));
+    });
+  } else {
+    body.appendChild(renderGrid(options));
+  }
+}
+
+/* Renders a chip-field trigger's label + trailing chevron icon, falling back to its
+   data-placeholder attribute (and the "placeholder" style class) when val is empty. */
+function setChipFieldValue(trigger, val) {
+  const text = val || trigger.dataset.placeholder || '';
+  trigger.innerHTML = `<span>${esc(text)}</span><i class="ti ti-chevron-down"></i>`;
+  trigger.classList.toggle('placeholder', !val);
+}
+
+function openWhoSheet() {
+  renderChipSheet('who-sheet-body', AF_WHO_OPTIONS, $('af-who').value, selectWho);
+  openOverlay('who-overlay');
+}
+function openWhatSheet() {
+  renderChipSheet('what-sheet-body', AF_WHAT_GROUPS, $('af-what').value, selectWhat);
+  openOverlay('what-overlay');
+}
+function selectWho(val) {
+  $('af-who').value = val;
+  setChipFieldValue($('af-who-trigger'), val);
+  updateAfSummary();
+  updateAfReqHint();
+}
+function selectWhat(val) {
+  $('af-what').value = val;
+  setChipFieldValue($('af-what-trigger'), val);
+  updateAfSummary();
+  updateAfReqHint();
+}
+
+function updateAfSummary() {
+  const who = $('af-who').value, what = $('af-what').value;
+  const ccy = $('af-ccy').value, amtRaw = $('af-amt').value.replace(/,/g, '');
+  const parts = [];
+  if (who) parts.push(who);
+  if (what) parts.push(what);
+  if (amtRaw) {
+    const n = Number(amtRaw);
+    parts.push(`${ccy} ${Number.isFinite(n) ? n.toLocaleString() : amtRaw}`);
+  }
+  const summary = $('af-summary');
+  summary.textContent = parts.join(' · ');
+  summary.classList.toggle('hidden', parts.length === 0);
+}
+
+function updateAfReqHint() {
+  const who = $('af-who').value, what = $('af-what').value;
+  const hint = $('af-req-hint');
+  if (who && what) {
+    hint.textContent = 'Ready to run — add From/To/Why/Amount for a more precise check';
+    hint.classList.add('ok');
+  } else {
+    hint.classList.remove('ok');
+    if (!who && !what) hint.textContent = 'Select who is transacting and the transaction type to continue';
+    else if (!who) hint.textContent = 'Still need: who is transacting';
+    else hint.textContent = 'Still need: the transaction type';
+  }
+}
+
+function renderQuickfillChips() {
+  const row = $('qf-row'); row.innerHTML = '';
+  QUICKFILL_SCENARIOS.forEach(scenario => {
+    const chip = mkEl('button', 'npill', esc(scenario.label));
+    chip.type = 'button';
+    chip.addEventListener('click', () => applyQuickfill(scenario));
+    row.appendChild(chip);
+  });
+}
+function applyQuickfill(scenario) {
+  selectWho(scenario.who);
+  selectWhat(scenario.what);
+  $('af-from').value = scenario.from;
+  $('af-to').value = scenario.to;
+  updateAfSummary();
+}
+
+function renderCountryDatalist() {
+  const dl = $('af-country-list'); dl.innerHTML = '';
+  FX_COUNTRIES.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    dl.appendChild(opt);
+  });
+}
+
+$('af-who-trigger').addEventListener('click', openWhoSheet);
+$('af-what-trigger').addEventListener('click', openWhatSheet);
+$('af-ccy').addEventListener('change', updateAfSummary);
+
 /* Live thousands-separator formatting for the amount field, e.g. 800000 -> 800,000.00 */
 $('af-amt').addEventListener('input', e => {
   const el = e.target;
@@ -737,12 +885,15 @@ $('af-amt').addEventListener('input', e => {
   el.value = formattedInt + decPart;
   const pos = Math.max(0, el.value.length - cursorFromEnd);
   el.setSelectionRange(pos, pos);
+  updateAfSummary();
 });
 
 $('analyst-form').addEventListener('submit', async e => {
   e.preventDefault();
   const who = $('af-who').value, what = $('af-what').value;
-  const where = $('af-where').value.trim().slice(0, 80), why = $('af-why').value.trim().slice(0, 160);
+  const from = $('af-from').value.trim().slice(0, 60), to = $('af-to').value.trim().slice(0, 60);
+  const where = from && to ? `${from} → ${to}` : (from || to || '');
+  const why = $('af-why').value.trim().slice(0, 160);
   const ccy = $('af-ccy').value, ctx = $('af-ctx').value.trim().slice(0, 1000);
   if (!who || !what) return toast('Please select who is transacting and the transaction type');
 
@@ -1220,5 +1371,10 @@ renderAdvisorPills();
 renderAdvisorEmpty();
 renderSettings();
 buildBM25();
+renderQuickfillChips();
+renderCountryDatalist();
+setChipFieldValue($('af-who-trigger'), $('af-who').value);
+setChipFieldValue($('af-what-trigger'), $('af-what').value);
+updateAfReqHint();
 initOnboarding();
 initFirstRunGuide();
