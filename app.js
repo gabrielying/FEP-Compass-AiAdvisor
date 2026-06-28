@@ -73,10 +73,10 @@ const AF_WHAT_GROUPS = [
   { group:'Other', items:['Other'] },
 ];
 const FX_COUNTRIES = [
-  'Malaysia', 'Singapore', 'Indonesia', 'Thailand', 'Vietnam', 'Philippines', 'Brunei', 'Cambodia',
-  'Laos', 'Myanmar', 'China', 'Hong Kong', 'Japan', 'South Korea', 'Taiwan', 'India',
-  'United States', 'United Kingdom', 'Australia', 'New Zealand', 'Germany', 'Netherlands',
-  'Switzerland', 'United Arab Emirates', 'Canada', 'Other',
+  'Malaysia', 'Australia', 'Brunei', 'Cambodia', 'Canada', 'China', 'Germany', 'Hong Kong',
+  'India', 'Indonesia', 'Japan', 'Laos', 'Myanmar', 'Netherlands', 'New Zealand', 'Philippines',
+  'Singapore', 'South Korea', 'Switzerland', 'Taiwan', 'Thailand', 'United Arab Emirates',
+  'United Kingdom', 'United States', 'Vietnam', 'Other',
 ];
 /* Static, curated quick-fill scenarios — deliberately NOT derived from the fep_activity log,
    which is unstructured free text users are told to keep PII out of. */
@@ -772,6 +772,8 @@ function renderChipSheet(bodyId, options, currentValue, onPick) {
       chip.setAttribute('aria-pressed', on ? 'true' : 'false');
       chip.addEventListener('click', () => { onPick(item); closeOverlays(); });
       grid.appendChild(chip);
+      /* force "Lending" onto its own row, directly under "Borrowing" */
+      if (item === 'Borrowing') grid.appendChild(mkEl('div', 'chip-break'));
     });
     return grid;
   };
@@ -783,6 +785,51 @@ function renderChipSheet(bodyId, options, currentValue, onPick) {
   } else {
     body.appendChild(renderGrid(options));
   }
+}
+
+/* Country picker: same chip-grid look as renderChipSheet, but "Other" reveals a free-text
+   input instead of immediately picking the literal word "Other" — lets users name a country
+   that isn't in the curated FX_COUNTRIES list. */
+function renderCountrySheet(bodyId, currentValue, onPick) {
+  const body = $(bodyId);
+  body.innerHTML = '';
+  const isCustom = !!currentValue && !FX_COUNTRIES.includes(currentValue);
+
+  const otherInput = document.createElement('input');
+  otherInput.type = 'text';
+  otherInput.className = 'other-input';
+  otherInput.maxLength = 60;
+  otherInput.placeholder = 'Type country name…';
+  if (isCustom) otherInput.value = currentValue;
+
+  const confirmBtn = mkEl('button', 'btn primary', 'Use');
+  confirmBtn.type = 'button';
+  const applyOther = () => {
+    const val = otherInput.value.trim().slice(0, 60);
+    if (val) { onPick(val); closeOverlays(); }
+  };
+  confirmBtn.addEventListener('click', applyOther);
+  otherInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyOther(); } });
+
+  const otherRow = mkEl('div', 'other-input-row' + (isCustom ? '' : ' hidden'));
+  otherRow.appendChild(otherInput);
+  otherRow.appendChild(confirmBtn);
+
+  const grid = mkEl('div', 'chip-grid');
+  FX_COUNTRIES.forEach(item => {
+    const on = item === currentValue || (item === 'Other' && isCustom);
+    const chip = mkEl('button', 'chip-pick' + (on ? ' on' : ''), esc(item));
+    chip.type = 'button';
+    chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+    chip.addEventListener('click', () => {
+      if (item === 'Other') { otherRow.classList.remove('hidden'); otherInput.focus(); }
+      else { onPick(item); closeOverlays(); }
+    });
+    grid.appendChild(chip);
+  });
+
+  body.appendChild(grid);
+  body.appendChild(otherRow);
 }
 
 /* Renders a chip-field trigger's label + trailing chevron icon, falling back to its
@@ -814,11 +861,11 @@ function selectWhat(val) {
   updateAfReqHint();
 }
 function openFromSheet() {
-  renderChipSheet('from-sheet-body', FX_COUNTRIES, $('af-from').value, selectFrom);
+  renderCountrySheet('from-sheet-body', $('af-from').value, selectFrom);
   openOverlay('from-overlay');
 }
 function openToSheet() {
-  renderChipSheet('to-sheet-body', FX_COUNTRIES, $('af-to').value, selectTo);
+  renderCountrySheet('to-sheet-body', $('af-to').value, selectTo);
   openOverlay('to-overlay');
 }
 function selectFrom(val) {
