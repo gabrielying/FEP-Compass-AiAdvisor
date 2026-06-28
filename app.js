@@ -76,7 +76,7 @@ const FX_COUNTRIES = [
   'Malaysia', 'Singapore', 'Indonesia', 'Thailand', 'Vietnam', 'Philippines', 'Brunei', 'Cambodia',
   'Laos', 'Myanmar', 'China', 'Hong Kong', 'Japan', 'South Korea', 'Taiwan', 'India',
   'United States', 'United Kingdom', 'Australia', 'New Zealand', 'Germany', 'Netherlands',
-  'Switzerland', 'United Arab Emirates', 'Canada',
+  'Switzerland', 'United Arab Emirates', 'Canada', 'Other',
 ];
 /* Static, curated quick-fill scenarios — deliberately NOT derived from the fep_activity log,
    which is unstructured free text users are told to keep PII out of. */
@@ -813,6 +813,24 @@ function selectWhat(val) {
   updateAfSummary();
   updateAfReqHint();
 }
+function openFromSheet() {
+  renderChipSheet('from-sheet-body', FX_COUNTRIES, $('af-from').value, selectFrom);
+  openOverlay('from-overlay');
+}
+function openToSheet() {
+  renderChipSheet('to-sheet-body', FX_COUNTRIES, $('af-to').value, selectTo);
+  openOverlay('to-overlay');
+}
+function selectFrom(val) {
+  $('af-from').value = val;
+  setChipFieldValue($('af-from-trigger'), val);
+  updateAfSummary();
+}
+function selectTo(val) {
+  $('af-to').value = val;
+  setChipFieldValue($('af-to-trigger'), val);
+  updateAfSummary();
+}
 
 function updateAfSummary() {
   const who = $('af-who').value, what = $('af-what').value;
@@ -855,22 +873,15 @@ function renderQuickfillChips() {
 function applyQuickfill(scenario) {
   selectWho(scenario.who);
   selectWhat(scenario.what);
-  $('af-from').value = scenario.from;
-  $('af-to').value = scenario.to;
+  selectFrom(scenario.from);
+  selectTo(scenario.to);
   updateAfSummary();
-}
-
-function renderCountryDatalist() {
-  const dl = $('af-country-list'); dl.innerHTML = '';
-  FX_COUNTRIES.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c;
-    dl.appendChild(opt);
-  });
 }
 
 $('af-who-trigger').addEventListener('click', openWhoSheet);
 $('af-what-trigger').addEventListener('click', openWhatSheet);
+$('af-from-trigger').addEventListener('click', openFromSheet);
+$('af-to-trigger').addEventListener('click', openToSheet);
 $('af-ccy').addEventListener('change', updateAfSummary);
 
 /* Live thousands-separator formatting for the amount field, e.g. 800000 -> 800,000.00 */
@@ -1372,9 +1383,10 @@ renderAdvisorEmpty();
 renderSettings();
 buildBM25();
 renderQuickfillChips();
-renderCountryDatalist();
 setChipFieldValue($('af-who-trigger'), $('af-who').value);
 setChipFieldValue($('af-what-trigger'), $('af-what').value);
+setChipFieldValue($('af-from-trigger'), $('af-from').value);
+setChipFieldValue($('af-to-trigger'), $('af-to').value);
 updateAfReqHint();
 initOnboarding();
 initFirstRunGuide();

@@ -241,11 +241,13 @@
                 <div class="form-grid">
                   <label class="field">
                     <span class="field-lbl">From <small>(originating country)</small></span>
-                    <input id="af-from" list="af-country-list" maxlength="60" placeholder="e.g. Malaysia">
+                    <button type="button" class="chip-field placeholder" id="af-from-trigger" aria-haspopup="dialog" data-placeholder="Select country…"></button>
+                    <input type="hidden" id="af-from">
                   </label>
                   <label class="field">
                     <span class="field-lbl">To <small>(destination country)</small></span>
-                    <input id="af-to" list="af-country-list" maxlength="60" placeholder="e.g. Singapore">
+                    <button type="button" class="chip-field placeholder" id="af-to-trigger" aria-haspopup="dialog" data-placeholder="Select country…"></button>
+                    <input type="hidden" id="af-to">
                   </label>
                   <label class="field">
                     <span class="field-lbl">Why? <small>(purpose, max 160 chars)</small></span>
@@ -262,7 +264,6 @@
                     </div>
                   </label>
                 </div>
-                <datalist id="af-country-list"></datalist>
               </div>
 
               <div class="form-sec">
@@ -403,6 +404,34 @@
       <button type="button" class="modal-close" data-close="what-overlay"><i class="ti ti-x"></i></button>
     </div>
     <div class="modal-body" id="what-sheet-body"></div>
+  </div>
+</div>
+
+<!-- ════════ ANALYST — FROM COUNTRY PICKER SHEET ════════ -->
+<div class="overlay" id="from-overlay">
+  <div class="modal modal-sm" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <div class="modal-tag">AI COMPLIANCE ANALYST</div>
+        <div class="modal-name">From (originating country)</div>
+      </div>
+      <button type="button" class="modal-close" data-close="from-overlay"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="from-sheet-body"></div>
+  </div>
+</div>
+
+<!-- ════════ ANALYST — TO COUNTRY PICKER SHEET ════════ -->
+<div class="overlay" id="to-overlay">
+  <div class="modal modal-sm" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <div class="modal-tag">AI COMPLIANCE ANALYST</div>
+        <div class="modal-name">To (destination country)</div>
+      </div>
+      <button type="button" class="modal-close" data-close="to-overlay"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="to-sheet-body"></div>
   </div>
 </div>
 
