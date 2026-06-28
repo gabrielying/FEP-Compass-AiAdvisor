@@ -215,70 +215,76 @@
 
           <!-- AI analyst -->
           <div id="tool-analyst" class="tool-panel active">
+            <div class="qf-row" id="qf-row"></div>
             <form id="analyst-form" class="analyst-form" novalidate>
-              <div class="form-grid">
-                <label class="field">
-                  <span class="field-lbl">Who is transacting? <button type="button" class="term" data-term="Resident">?</button></span>
-                  <select id="af-who" required>
-                    <option value="">Select party…</option>
-                    <option>Resident Individual</option>
-                    <option>Joint Account — two or more Resident Individuals</option>
-                    <option>Joint Account — Resident &amp; Non-Resident Individual</option>
-                    <option>Resident Entity (company)</option>
-                    <option>Non-Resident Individual</option>
-                    <option>Non-Resident Entity</option>
-                    <option>Licensed Onshore Bank (LOB)</option>
-                  </select>
-                </label>
-                <label class="field">
-                  <span class="field-lbl">What is the transaction?</span>
-                  <select id="af-what" required>
-                    <option value="">Select type…</option>
-                    <option>Buy / sell foreign currency</option>
-                    <option>Forward / hedging contract</option>
-                    <option>Borrowing</option>
-                    <option>Lending</option>
-                    <option>Financial guarantee</option>
-                    <option>Investment in foreign currency asset</option>
-                    <option>Payment or receipt</option>
-                    <option>Issue securities / financial instrument</option>
-                    <option>Carry cash across the border</option>
-                    <option>Export of goods (proceeds)</option>
-                    <option>Other</option>
-                  </select>
-                </label>
-                <label class="field">
-                  <span class="field-lbl">Where? <small>(countries / in or outside Malaysia)</small></span>
-                  <input id="af-where" maxlength="80" placeholder="e.g. Malaysia → Singapore">
-                </label>
-                <label class="field">
-                  <span class="field-lbl">Why? <small>(purpose, max 160 chars)</small></span>
-                  <input id="af-why" maxlength="160" placeholder="e.g. investing in overseas property for education">
-                </label>
-                <label class="field">
-                  <span class="field-lbl">Amount</span>
-                  <div class="amount-row">
-                    <select id="af-ccy">
-                      <option>MYR</option><option>USD</option><option>EUR</option><option>GBP</option>
-                      <option>SGD</option><option>JPY</option><option>CNY</option><option>AUD</option><option>Other</option>
-                    </select>
-                    <input id="af-amt" type="text" inputmode="decimal" placeholder="0.00">
-                  </div>
-                </label>
-                <label class="field">
-                  <span class="field-lbl">Additional context <small>(optional, max 1000 chars)</small></span>
-                  <textarea id="af-ctx" maxlength="1000" rows="2" placeholder="e.g. the individual has an existing housing loan in Ringgit…"></textarea>
-                </label>
+              <div class="af-summary hidden" id="af-summary"></div>
+
+              <div class="form-sec">
+                <div class="sec-hdr">Parties &amp; transaction</div>
+                <div class="form-grid">
+                  <label class="field">
+                    <span class="field-lbl">Who is transacting? <button type="button" class="term" data-term="Resident">?</button></span>
+                    <button type="button" class="chip-field placeholder" id="af-who-trigger" aria-haspopup="dialog" data-placeholder="Select party…"></button>
+                    <input type="hidden" id="af-who">
+                  </label>
+                  <label class="field">
+                    <span class="field-lbl">What is the transaction?</span>
+                    <button type="button" class="chip-field placeholder" id="af-what-trigger" aria-haspopup="dialog" data-placeholder="Select type…"></button>
+                    <input type="hidden" id="af-what">
+                  </label>
+                </div>
+                <p class="form-hint" id="af-req-hint"></p>
               </div>
 
-              <button class="btn primary lg" id="analyst-run" type="submit">
-                <i class="ti ti-checkup-list"></i> Run Compliance Health-Check
-              </button>
+              <div class="form-sec">
+                <div class="sec-hdr">Cross-border details</div>
+                <div class="form-grid">
+                  <label class="field">
+                    <span class="field-lbl">From <small>(originating country)</small></span>
+                    <input id="af-from" list="af-country-list" maxlength="60" placeholder="e.g. Malaysia">
+                  </label>
+                  <label class="field">
+                    <span class="field-lbl">To <small>(destination country)</small></span>
+                    <input id="af-to" list="af-country-list" maxlength="60" placeholder="e.g. Singapore">
+                  </label>
+                  <label class="field">
+                    <span class="field-lbl">Why? <small>(purpose, max 160 chars)</small></span>
+                    <input id="af-why" maxlength="160" placeholder="e.g. investing in overseas property for education">
+                  </label>
+                  <label class="field">
+                    <span class="field-lbl">Amount</span>
+                    <div class="amount-row">
+                      <select id="af-ccy">
+                        <option>MYR</option><option>USD</option><option>EUR</option><option>GBP</option>
+                        <option>SGD</option><option>JPY</option><option>CNY</option><option>AUD</option><option>Other</option>
+                      </select>
+                      <input id="af-amt" type="text" inputmode="decimal" placeholder="0.00">
+                    </div>
+                  </label>
+                </div>
+                <datalist id="af-country-list"></datalist>
+              </div>
+
+              <div class="form-sec">
+                <div class="sec-hdr">Notes</div>
+                <div class="form-grid">
+                  <label class="field">
+                    <span class="field-lbl">Additional context <small>(optional, max 1000 chars)</small></span>
+                    <textarea id="af-ctx" maxlength="1000" rows="2" placeholder="e.g. the individual has an existing housing loan in Ringgit…"></textarea>
+                  </label>
+                </div>
+              </div>
+
               <p class="micro-note"><i class="ti ti-database-search"></i>
                 Structured fields keep the retrieval (RAG) precise — the analyst cross-references Notices 1–7 and cites exact paragraphs.</p>
               <p class="pii-note"><i class="ti ti-shield-lock"></i>
                 Do not enter customer-identifying or other confidential data. On the cloud (Gemini) provider your input is sent to Google; use local Ollama if such data must stay on-device.</p>
             </form>
+            <div class="af-sticky-bar" id="af-sticky-bar">
+              <button class="btn primary lg" id="analyst-run" type="submit" form="analyst-form">
+                <i class="ti ti-checkup-list"></i> Run Compliance Health-Check
+              </button>
+            </div>
             <div id="analyst-out"></div>
           </div>
 
@@ -369,6 +375,34 @@
       <button class="modal-close" data-close="hist-overlay"><i class="ti ti-x"></i></button>
     </div>
     <div class="modal-body" id="hist-body"></div>
+  </div>
+</div>
+
+<!-- ════════ ANALYST — WHO PICKER SHEET ════════ -->
+<div class="overlay" id="who-overlay">
+  <div class="modal modal-sm" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <div class="modal-tag">AI COMPLIANCE ANALYST</div>
+        <div class="modal-name">Who is transacting?</div>
+      </div>
+      <button type="button" class="modal-close" data-close="who-overlay"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="who-sheet-body"></div>
+  </div>
+</div>
+
+<!-- ════════ ANALYST — WHAT PICKER SHEET ════════ -->
+<div class="overlay" id="what-overlay">
+  <div class="modal modal-sm" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <div class="modal-tag">AI COMPLIANCE ANALYST</div>
+        <div class="modal-name">What is the transaction?</div>
+      </div>
+      <button type="button" class="modal-close" data-close="what-overlay"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="what-sheet-body"></div>
   </div>
 </div>
 

@@ -444,6 +444,10 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 #firstrun-overlay { align-items: center; padding: 16px; }
 #firstrun-overlay .modal { border-radius: 22px; }
 
+/* who/what chip-sheets: centered dialog on every viewport, not a bottom sheet */
+#who-overlay, #what-overlay { align-items: center; padding: 16px; }
+#who-overlay .modal, #what-overlay .modal { border-radius: 22px; }
+
 /* notice modal Provisions/FAQs tabs */
 .nm-tabs { display: flex; gap: 6px; margin-bottom: 6px; }
 .nm-tabs .npill { flex: 1; text-align: center; }
@@ -527,6 +531,52 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 .field textarea { resize: vertical; }
 .amount-row { display: flex; gap: 8px; }
 .amount-row select { width: 92px; flex-shrink: 0; }
+
+/* quick-fill scenario chips */
+.qf-row { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 10px; scrollbar-width: none; }
+.qf-row::-webkit-scrollbar { display: none; }
+
+/* live summary banner */
+.af-summary {
+  margin-bottom: 16px; padding: 9px 13px; border-radius: var(--radius-sm);
+  background: var(--green-bg); border: 1px solid var(--green-bdr); color: var(--green);
+  font-size: var(--fs-xs); font-weight: 600; line-height: 1.5;
+}
+
+/* field grouping */
+.form-sec { margin-bottom: 18px; }
+.form-sec + .form-sec { padding-top: 16px; border-top: 1px solid var(--bdr); }
+.form-sec .sec-hdr { margin: 0 0 10px; }
+
+.form-hint { font-size: var(--fs-xs); color: var(--ink3); margin-top: 4px; line-height: 1.5; }
+.form-hint.ok { color: var(--green); }
+
+/* chip-field trigger (replaces native <select> for Who / What) */
+.chip-field {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 11px 13px; border: 1.5px solid var(--bdr); border-radius: var(--radius-sm);
+  background: var(--surf2); font-size: var(--fs-sm); width: 100%; text-align: left;
+  color: var(--ink); font-family: inherit; cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+.chip-field span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip-field i { color: var(--ink3); flex-shrink: 0; font-size: 15px; }
+.chip-field:hover { border-color: var(--ink3); }
+.chip-field:focus-visible { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,148,136,.12); outline: none; }
+.chip-field.placeholder { color: var(--ink3); }
+
+/* picker sheet chip grids */
+.chip-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.chip-pick {
+  padding: 11px 16px; border-radius: 20px; border: 1px solid var(--bdr);
+  background: var(--surf); color: var(--ink2); font-size: var(--fs-sm); font-weight: 600;
+  white-space: nowrap; transition: all .16s var(--ease);
+}
+.chip-pick:hover { border-color: var(--blue-bdr); color: var(--blue); transform: translateY(-1px); }
+.chip-pick.on { background: var(--grad-brand); border-color: transparent; color: #fff; }
+
+/* sticky submit bar */
+.af-sticky-bar { margin-top: 18px; }
 
 /* verdict card (analyst + advisor) */
 .vcard { border: 1px solid var(--bdr); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); background: var(--surf); }
@@ -712,7 +762,7 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
   .tool-tab span { display: none; }
   .tool-tab .tt-short { display: inline; }
   /* 16px inputs prevent iOS focus-zoom */
-  .search-box input, .field input, .field select, .field textarea, .set-inp, .ring-edit input { font-size: 16px; }
+  .search-box input, .field input, .field select, .field textarea, .set-inp, .ring-edit input, .chip-field { font-size: 16px; }
   .profile-opts { grid-template-columns: 1fr; }
   /* comfortable touch targets */
   .btn { padding: 11px 16px; }
@@ -720,6 +770,13 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
   .npill { padding: 8px 14px; }
   .page-head h1 { font-size: 23px; }
   .tool-panel.view-chat.active { height: calc(100dvh - 280px); min-height: 360px; }
+  /* analyst submit button becomes a sticky bottom bar within the scrollable .view */
+  .af-sticky-bar {
+    position: sticky; bottom: 0; background: var(--bg);
+    margin: 0 -16px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    box-shadow: 0 -6px 14px -8px rgba(8,15,28,.18);
+  }
+  .af-sticky-bar .btn { width: 100%; }
 }
 @media (min-width: 861px) {
   .overlay { align-items: center; padding: 30px; }
