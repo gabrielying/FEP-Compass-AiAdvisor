@@ -411,11 +411,10 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 /* ════════ MODALS ════════ */
 .overlay {
   position: fixed; inset: 0; z-index: 100; background: rgba(8,15,28,.55);
-  backdrop-filter: blur(3px);
   display: flex; align-items: flex-end; justify-content: center;
   opacity: 0; pointer-events: none; transition: opacity .22s;
 }
-.overlay.open { opacity: 1; pointer-events: auto; }
+.overlay.open { opacity: 1; pointer-events: auto; backdrop-filter: blur(3px); }
 .modal {
   background: var(--surf); width: 100%; max-width: 720px; max-height: 88dvh;
   border-radius: 22px 22px 0 0; display: flex; flex-direction: column;
