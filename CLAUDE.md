@@ -36,10 +36,10 @@ onboarding text).
 |---|---|
 | `index.html` | HTML shell; CSP meta tag (explicit allowlist); SRI-pinned CDN `<script>`/`<link>` tags; PWA manifest link. |
 | `legal.html` | Standalone static legal/policy page (Terms, Privacy/PDPA, AI disclosure, data retention, disclaimers, etc.) — self-contained, no `app.js`/`kb.js` script tags, self-only CSP. Linked from the sidebar footer, mobile topbar, and Settings → Data & About. |
-| `app.js` | App logic: global `ST` state, 5-tab UI (notices/dashboard/tools/advisor/settings), `QUICKCHECK` decision trees, `callGemini()` (~line 162), `callOllama()` (~line 188), `AI_COOLDOWN_MS`/`aiCooldownOk()` (~line 210), `repairJSON()`/`parseResp()` (~line 221/244), `VALID_VERDICTS` (~line 243), `MAX_ACTIVITY` (~line 87), runtime citation grounding (`verdictCard()` calls `verifyCitation()`), DOM helpers (`mkEl`, `esc`, `toast`). |
+| `app.js` | App logic: global `ST` state, 3-tab UI (tools/notices/settings — "Smart Tools" hosts the Analyst/Advisor sub-tools), `QUICKCHECK` decision trees, `callGemini()` (~line 162), `callOllama()` (~line 188), `AI_COOLDOWN_MS`/`aiCooldownOk()` (~line 210), `repairJSON()`/`parseResp()` (~line 221/244), `VALID_VERDICTS` (~line 243), `MAX_ACTIVITY` (~line 87), runtime citation grounding (`verdictCard()` calls `verifyCitation()`), DOM helpers (`mkEl`, `esc`, `toast`). |
 | `kb.js` | Knowledge base + retrieval: `NOTICES` (N1–N7), `GLOSSARY` (57 terms), `CHUNKS`, `N3_ANCHOR_REFS` (~line 476), `retrieve()` (~line 477), `buildSystemPrompt()` (~line 504), and citation-grounding helpers (`extractRefTokens`/`extractNoticeNumbers`/`refTokensByNotice`/`verifyCitation`) shared with the test harness. Dual-loaded as a browser `<script>` global **and** a CommonJS module via the `module.exports` guard near the bottom — the latter is `require()`d by `test/run-stress-test.js`. |
 | `styles.css` | All styling: CSS custom-properties theme (navy `#0a1f3d` + teal `#0d9488`), dark mode via `prefers-color-scheme`, 860px breakpoint (sidebar desktop / bottom-tab mobile). |
-| `sw.js` | Service worker. `CACHE = 'fep-compass-v17'` + `SHELL` array list the cached app-shell files. **Bump the `CACHE` version string whenever any file in `SHELL` changes**, or returning users get a stale cached bundle. |
+| `sw.js` | Service worker. `CACHE = 'fep-compass-v46'` + `SHELL` array list the cached app-shell files. **Bump the `CACHE` version string whenever any file in `SHELL` changes**, or returning users get a stale cached bundle. |
 | `manifest.webmanifest`, `icon.svg` | PWA assets. |
 | `package.json` | Zero dependencies, one script (`stress-test`), `engines.node >=18`. |
 | `test/run-stress-test.js` | Node CLI harness; calls a local Ollama model using the real `retrieve()`/`buildSystemPrompt()` from `kb.js`. Flags: `--notice N`, `--model NAME`, `--url URL`, `--verbose`. Writes `test/last-run-report.json`. |
@@ -50,14 +50,17 @@ onboarding text).
 ## Architecture & data flow
 
 **State** — a single global `ST` object (`app.js`) is assembled from
-default constants merged with `JSON.parse(localStorage.getItem(...))`. Five
+default constants merged with `JSON.parse(localStorage.getItem(...))`. Three
 keys are persisted independently whenever mutated: `fep_cfg`
-(provider/apiKey/model/ollamaUrl/ollamaModel/profile, defaults in
-`DEFAULT_CFG`), `fep_limits` (`DEFAULT_LIMITS`, 3 trackers), `fep_decls`
-(`DEFAULT_DECLS`), `fep_sess` (chat history, capped 30), `fep_activity`
+(provider/apiKey/model/ollamaUrl/ollamaModel, defaults in
+`DEFAULT_CFG`), `fep_sess` (chat history, capped 30), `fep_activity`
 (audit log, capped via `MAX_ACTIVITY = 50`). New persisted state should
 follow this same "default constant + localStorage merge" pattern rather
-than introducing a new storage abstraction.
+than introducing a new storage abstraction. (The app previously had a
+Dashboard tab with limit trackers/declarations persisted under
+`fep_limits`/`fep_decls` — both have been removed; those localStorage keys
+are still cleared by Settings → "Clear all local data" for hygiene on
+existing users' devices, but nothing writes them anymore.)
 
 **AI provider abstraction** — `callGemini()` and `callOllama()` are
 interchangeable: both consume the same BM25-retrieved chunks +
