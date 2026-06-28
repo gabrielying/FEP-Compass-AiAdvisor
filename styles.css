@@ -444,6 +444,10 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 #firstrun-overlay { align-items: center; padding: 16px; }
 #firstrun-overlay .modal { border-radius: 22px; }
 
+/* who/what chip-sheets: centered dialog on every viewport, not a bottom sheet */
+#who-overlay, #what-overlay { align-items: center; padding: 16px; }
+#who-overlay .modal, #what-overlay .modal { border-radius: 22px; }
+
 /* notice modal Provisions/FAQs tabs */
 .nm-tabs { display: flex; gap: 6px; margin-bottom: 6px; }
 .nm-tabs .npill { flex: 1; text-align: center; }
