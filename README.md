@@ -46,8 +46,6 @@ A modern, minimalist, education-first web app for **banking officers** (and comp
 ### 2 · Dashboard
 - **Header** — time-aware greeting + one-line mission statement.
 - **Profile** (set in Settings) — Individual / Entity / Both. Filters which limit rings appear here, since individuals and entities are subject to different FEP limits.
-- **FEP Limit Utilisation** — up to three SVG progress rings, filtered by Profile: Individual FCY investment (RM1M/yr, Notice 3), Individual FCY borrowing (RM10M, Notice 2), Entity FCY investment (RM50M/yr group basis, Notice 3). Rings turn amber at 70%, red at 90%. Click a ring → inline editor to update the utilised amount (persisted to `localStorage`).
-- **Pending Declarations** — checklist (e.g. "export proceeds 6-month window"); add / complete / remove.
 - **Quick Actions** — 3 deep links: Ask the Advisor, Compliance Check, Browse Notices.
 - **Notices at a Glance** — 7 mini-tiles, each opening the notice detail sheet.
 - **Recent Activity** — local audit trail (last 50 events) of advisor queries, compliance checks, notice lookups and limit/declaration changes, with timestamps. Searchable, filterable by type (once 2+ types are logged), **exportable as CSV**, and a "Clear" action. Stored only in `localStorage` on this device.
@@ -79,7 +77,7 @@ Structured WHO/WHAT/WHERE/WHY/AMOUNT form
 
 Keys are stored only in the browser's `localStorage`. Retrieval (BM25) runs entirely client-side.
 
-## Run locally
+## Run locally ( use better local AI models for better reasoning, qwen2.5:7b has limitations and latest stress test indicates 70/150 pass rate, mostly citation errors but some hallucination errros in the verdict as well, should be no issue for gemini)
 
 ```
 git clone <this repo>
