@@ -129,36 +129,15 @@
         <div class="page">
           <header class="page-head">
             <h1 id="greeting">Good day</h1>
-            <p class="page-sub">Your FX compliance workspace — limits, declarations and recent activity.</p>
+            <p class="page-sub">Your FX compliance workspace — quick actions, notices and recent activity.</p>
           </header>
 
           <div id="dash-stats" class="dash-stats"></div>
 
           <div class="dash-grid">
 
-            <!-- Limit utilization -->
-            <article class="card span-2">
-              <div class="card-head">
-                <h2><i class="ti ti-gauge"></i> FEP Limit Utilisation</h2>
-                <span class="card-hint">Per calendar year · tap a ring to update</span>
-              </div>
-              <div id="rings" class="rings"></div>
-              <p class="micro-note"><i class="ti ti-info-circle"></i>
-                Limits apply to persons <em>with</em> <button class="term" data-term="DRB">Domestic Ringgit Borrowing</button>
-                converting Ringgit (Notice 3) or borrowing in foreign currency (Notice 2).</p>
-            </article>
-
-            <!-- Pending declarations -->
-            <article class="card">
-              <div class="card-head">
-                <h2><i class="ti ti-clipboard-check"></i> Pending Declarations</h2>
-                <button class="ghost-btn" id="decl-add"><i class="ti ti-plus"></i> Add</button>
-              </div>
-              <ul id="decl-list" class="decl-list"></ul>
-            </article>
-
             <!-- Quick actions -->
-            <article class="card">
+            <article class="card span-2">
               <div class="card-head"><h2><i class="ti ti-bolt"></i> Quick Actions</h2></div>
               <div class="qa-grid">
                 <button class="qa" data-go="tools" data-tool="advisor"><i class="ti ti-message-dots"></i>Ask the Advisor</button>
@@ -185,7 +164,7 @@
                   <button class="ghost-btn" id="activity-clear"><i class="ti ti-trash"></i> Clear</button>
                 </div>
               </div>
-              <p class="card-hint">A local audit trail of advisor queries, compliance checks and limit/declaration changes — kept on this device only.</p>
+              <p class="card-hint">A local audit trail of advisor queries, compliance checks and notices browsed — kept on this device only.</p>
               <div class="activity-controls">
                 <div class="search-box sm" id="activity-search-box">
                   <i class="ti ti-search search-icon"></i>

@@ -42,18 +42,7 @@ const QUICKCHECK = {
 };
 
 /* ━━━ STATE ━━━ */
-const DEFAULT_CFG = { provider:'gemini', apiKey:'', model:'gemini-2.5-flash', ollamaUrl:'http://localhost:11434', ollamaModel:'qwen2.5:7b', profile:'both' };
-const DEFAULT_LIMITS = [
-  { id:'n3i', label:'Individual FCY investment', notice:'Notice 3 · with DRB', limit:1000000, used:0 },
-  { id:'n2i', label:'Individual FCY borrowing', notice:'Notice 2 · Part A', limit:10000000, used:0 },
-  { id:'n3e', label:'Entity FCY investment', notice:'Notice 3 · group basis', limit:50000000, used:0 },
-];
-/* which profile each limit tracker belongs to — drives the Dashboard's Individual/Entity/Both filter */
-const LIMIT_PROFILE = { n3i:'individual', n2i:'individual', n3e:'entity' };
-const DEFAULT_DECLS = [
-  { id:1, t:'Export proceeds — Q1 shipment approaching 6-month window', d:'Notice 7 · due 30 Jun 2026', done:false },
-  { id:2, t:'Dynamic hedging quarterly position update', d:'Notice 1 · FEP Authority portal', done:false },
-];
+const DEFAULT_CFG = { provider:'gemini', apiKey:'', model:'gemini-2.5-flash', ollamaUrl:'http://localhost:11434', ollamaModel:'qwen2.5:7b' };
 
 /* ━━━ AI COMPLIANCE ANALYST — picker options ━━━ */
 const AF_WHO_OPTIONS = [
@@ -93,8 +82,6 @@ const APP_LOAD_TS = Date.now();
 const ST = {
   tab:'notices',
   cfg: { ...DEFAULT_CFG, ...JSON.parse(localStorage.getItem('fep_cfg')||'{}') },
-  limits: JSON.parse(localStorage.getItem('fep_limits')||'null') || DEFAULT_LIMITS,
-  decls: JSON.parse(localStorage.getItem('fep_decls')||'null') || DEFAULT_DECLS,
   sessions: JSON.parse(localStorage.getItem('fep_sess')||'[]'),
   activity: JSON.parse(localStorage.getItem('fep_activity')||'[]'),
   activityFilter:'all', activitySearch:'',
@@ -440,90 +427,6 @@ document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', 
 ['brand-jump-sidebar', 'brand-jump-topbar'].forEach(id => $(id).addEventListener('click', () => switchTab('tools')));
 
 /* ━━━ DASHBOARD ━━━ */
-function ringSVG(pct, color) {
-  const r = 30, c = 2*Math.PI*r, off = c*(1-Math.min(pct,1));
-  return `<svg class="ring-svg" width="76" height="76" viewBox="0 0 76 76">
-    <circle class="track" cx="38" cy="38" r="${r}" fill="none" stroke-width="7"/>
-    <circle class="val" cx="38" cy="38" r="${r}" fill="none" stroke="${color}" stroke-width="7" stroke-linecap="round"
-      stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 38 38)"/>
-    <text class="ring-pct" x="38" y="43" text-anchor="middle">${Math.round(pct*100)}%</text>
-  </svg>`;
-}
-function renderRings() {
-  const wrap = $('rings'); wrap.innerHTML = '';
-  const profile = ST.cfg.profile || 'both';
-  const limits = profile === 'both' ? ST.limits : ST.limits.filter(L => LIMIT_PROFILE[L.id] === profile);
-  if (!limits.length) { wrap.appendChild(mkEl('div','ring-empty','No limit trackers for this profile.')); return; }
-  limits.forEach(L => {
-    const pct = L.used / L.limit;
-    const color = pct >= .9 ? 'var(--red)' : pct >= .7 ? 'var(--amber)' : 'var(--teal)';
-    const card = mkEl('div','ring-card');
-    card.innerHTML = ringSVG(pct, color) +
-      `<div class="ring-info"><div class="t">${esc(L.label)}</div>
-       <div class="v">${fmtRM(L.used)} / ${fmtRM(L.limit)}</div>
-       <div class="n">${esc(L.notice)}</div></div>`;
-    card.title = 'Click to update utilised amount';
-    card.addEventListener('click', () => {
-      if (card.querySelector('.ring-edit')) return;
-      const ed = mkEl('div','ring-edit');
-      const inp = document.createElement('input');
-      inp.type = 'number'; inp.min = 0; inp.value = L.used; inp.placeholder = 'Utilised (RM)';
-      const ok = mkEl('button','ghost-btn','<i class="ti ti-check"></i>');
-      ed.appendChild(inp); ed.appendChild(ok);
-      card.querySelector('.ring-info').appendChild(ed);
-      inp.focus();
-      const commit = () => {
-        const v = Math.max(0, Number(inp.value)||0);
-        L.used = v; save('fep_limits', ST.limits); renderRings();
-        toast(`${L.label} updated — ${Math.round(v/L.limit*100)}% utilised`);
-        logActivity('limit', `Updated ${L.label} to ${fmtRM(v)} (${Math.round(v/L.limit*100)}% of ${fmtRM(L.limit)})`);
-      };
-      ok.addEventListener('click', e => { e.stopPropagation(); commit(); });
-      inp.addEventListener('keydown', e => { if (e.key==='Enter') commit(); });
-      inp.addEventListener('click', e => e.stopPropagation());
-    });
-    wrap.appendChild(card);
-  });
-}
-function renderDecls() {
-  const ul = $('decl-list'); ul.innerHTML = '';
-  if (!ST.decls.length) { ul.appendChild(mkEl('li','decl-empty','No pending declarations — all clear ✓')); return; }
-  ST.decls.forEach(d => {
-    const li = mkEl('li', 'decl-item'+(d.done?' done':''));
-    li.innerHTML = `<button class="decl-check"><i class="ti ti-check"></i></button>
-      <div><div class="decl-t">${esc(d.t)}</div><div class="decl-d">${esc(d.d)}</div></div>
-      <button class="decl-del" title="Remove"><i class="ti ti-trash"></i></button>`;
-    li.querySelector('.decl-check').addEventListener('click', () => {
-      d.done = !d.done; save('fep_decls', ST.decls); renderDecls();
-      logActivity('declaration', `${d.done?'Completed':'Reopened'} declaration: "${d.t}"`);
-    });
-    li.querySelector('.decl-del').addEventListener('click', () => {
-      ST.decls = ST.decls.filter(x=>x.id!==d.id); save('fep_decls', ST.decls); renderDecls();
-      logActivity('declaration', `Removed declaration: "${d.t}"`);
-    });
-    ul.appendChild(li);
-  });
-}
-$('decl-add').addEventListener('click', () => {
-  const ul = $('decl-list');
-  if (ul.querySelector('.decl-new')) { ul.querySelector('.decl-new input').focus(); return; }
-  const li = mkEl('li','decl-item decl-new');
-  li.innerHTML = `<input type="text" maxlength="120" placeholder="Describe the declaration / task…">
-    <button class="ghost-btn"><i class="ti ti-check"></i> Save</button>`;
-  const inp = li.querySelector('input');
-  li.querySelector('button').addEventListener('click', () => {
-    const t = inp.value.trim();
-    if (!t) { li.remove(); return; }
-    ST.decls.push({ id:Date.now(), t, d:'Added '+new Date().toLocaleDateString('en-MY',{day:'numeric',month:'short',year:'numeric'}), done:false });
-    save('fep_decls', ST.decls); renderDecls();
-    logActivity('declaration', `Added declaration: "${t}"`);
-  });
-  inp.addEventListener('keydown', e => {
-    if (e.key === 'Enter') li.querySelector('button').click();
-    if (e.key === 'Escape') li.remove();
-  });
-  ul.prepend(li); inp.focus();
-});
 function renderDashNotices() {
   const wrap = $('dash-notices'); wrap.innerHTML = '';
   Object.values(NOTICES).forEach(n => {
@@ -539,12 +442,10 @@ function renderDashStats() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
   const queriesSession = ST.activity.filter(a => a.type === 'advisor' && a.ts >= APP_LOAD_TS).length;
   const checksMonth = ST.activity.filter(a => (a.type === 'analyst' || a.type === 'check') && a.ts >= monthStart).length;
-  const activeDecls = ST.decls.filter(d => !d.done).length;
   const noticesBrowsed = new Set(ST.activity.filter(a => a.type === 'notice').map(a => a.text)).size;
   const stats = [
     { icon:'ti-message-dots', label:'Queries this session', v: queriesSession },
     { icon:'ti-checkup-list', label:'Checks run this month', v: checksMonth },
-    { icon:'ti-clipboard-check', label:'Active declarations', v: activeDecls },
     { icon:'ti-books', label:'Notices browsed', v: noticesBrowsed },
   ];
   stats.forEach(s => {
@@ -555,7 +456,7 @@ function renderDashStats() {
 function renderDashboard() {
   const h = new Date().getHours();
   $('greeting').textContent = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-  renderDashStats(); renderRings(); renderDecls(); renderActivity();
+  renderDashStats(); renderActivity();
 }
 $('activity-clear').addEventListener('click', () => {
   ST.activity = []; save('fep_activity', ST.activity); renderActivity(); toast('Activity log cleared');
@@ -1200,23 +1101,7 @@ function renderSettings() {
   const el = $('settings-content'); el.innerHTML = '';
   const c = ST.cfg;
 
-  const profileCard = mkEl('div','card');
-  profileCard.innerHTML = `<div class="card-head"><h2><i class="ti ti-users"></i> Profile</h2></div>
-  <p class="card-hint mb-12">Choose which FEP limit trackers appear on your Dashboard — this does not change AI Advisor or Compliance Analyst answers.</p>
-  <div class="provider-opts profile-opts">
-    <button class="popt ${c.profile==='individual'?'on':''}" data-pr="individual"><span class="popt-id">Individual</span><span class="popt-note">Personal FCY limits — Notices 2 &amp; 3</span></button>
-    <button class="popt ${c.profile==='entity'?'on':''}" data-pr="entity"><span class="popt-id">Entity</span><span class="popt-note">Company / group FCY limits — Notice 3</span></button>
-    <button class="popt ${c.profile==='both'?'on':''}" data-pr="both"><span class="popt-id">Both</span><span class="popt-note">Show all limit trackers</span></button>
-  </div>`;
-  el.appendChild(profileCard);
-  profileCard.querySelectorAll('.popt').forEach(b => b.addEventListener('click', () => {
-    c.profile = b.dataset.pr; save('fep_cfg', c);
-    profileCard.querySelectorAll('.popt').forEach(x => x.classList.toggle('on', x.dataset.pr === c.profile));
-    renderRings();
-    toast(`Profile set to ${b.querySelector('.popt-id').textContent}`);
-  }));
-
-  const sec = mkEl('div','card'); sec.style.marginTop = '16px';
+  const sec = mkEl('div','card');
   sec.innerHTML = `<div class="card-head"><h2><i class="ti ti-plug-connected"></i> AI Provider</h2></div>
   <div class="provider-opts">
     <button class="popt ${c.provider==='gemini'?'on':''}" data-p="gemini"><span class="popt-id">Gemini</span><span class="popt-note">Cloud · free API key from Google AI Studio</span></button>
@@ -1241,7 +1126,6 @@ function renderSettings() {
     <div class="btn-row mt-0">
       <a class="btn" href="legal.html" target="_blank" rel="noopener"><i class="ti ti-file-text"></i> Legal &amp; Policies</a>
       <button class="btn" id="replay-guide"><i class="ti ti-replay"></i> Replay setup guide</button>
-      <button class="btn" id="reset-limits"><i class="ti ti-rotate"></i> Reset limit trackers</button>
       <button class="btn" id="clear-data"><i class="ti ti-trash"></i> Clear all local data</button>
     </div>`;
   el.appendChild(data);
@@ -1287,9 +1171,6 @@ function renderSettings() {
       st.className = raw ? 'status-ok' : 'status-err';
       st.textContent = raw ? '✓ Connected' : 'Empty response';
     } catch (err) { st.className = 'status-err'; st.textContent = err.message; }
-  });
-  data.querySelector('#reset-limits').addEventListener('click', () => {
-    ST.limits = JSON.parse(JSON.stringify(DEFAULT_LIMITS)); save('fep_limits', ST.limits); renderRings(); toast('Limit trackers reset');
   });
   data.querySelector('#replay-guide').addEventListener('click', () => {
     localStorage.removeItem(FIRST_RUN_GUIDE_KEY);
