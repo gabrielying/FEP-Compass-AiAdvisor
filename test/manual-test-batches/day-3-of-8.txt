@@ -1,0 +1,227 @@
+*FEP COMPASS — MANUAL TEST — DAY 3 of 8*
+Scenarios n3-01 → n3-21  (20 questions)
+Covers: N3 (Investment in Foreign Currency Asset)
+
+How to run: open Smart Tools → AI Compliance Analyst, enter each WHO/WHAT/AMOUNT into the form, run it, then compare the verdict + citation the AI gives against "Expected verdict" / "Expected citation" below.
+
+═══════════════════
+
+*Q41 [n3-01]* — Regression: one housing loan + one vehicle loan together is still WITHOUT DRB
+WHO: Resident individual with exactly ONE outstanding housing loan AND exactly ONE outstanding vehicle loan at the same time, and no other Ringgit borrowing from any Resident
+WHAT: Converting RM1.5 million from Ringgit to invest in foreign-listed stocks
+AMOUNT: RM 1,500,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 1
+🚫 Must NOT mention: RM1 million, RM2 million
+ℹ️ Why: One housing loan + one vehicle loan is the excluded DRB combination, NOT "more than one" of either type — this Resident is WITHOUT DRB, so Part A Para 1 (UNLIMITED) governs, not the RM1M Para 2 cap.
+
+═══════════════════
+
+*Q42 [n3-02]* — Two housing loans triggers DRB, RM1M cap exceeded
+WHO: Resident individual with TWO outstanding housing loans and no other Ringgit borrowing
+WHAT: Converting RM1.2 million from Ringgit to invest in a foreign currency fixed deposit
+AMOUNT: RM 1,200,000
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 3, Para 2
+ℹ️ Why: TWO housing loans (more than one of the same type) gives this Resident DRB, so the RM1 million/year conversion cap (Part A, Para 2(c)) applies and is exceeded.
+
+═══════════════════
+
+*Q43 [n3-03]* — No Ringgit borrowing at all — unlimited investment
+WHO: Resident individual with no Ringgit borrowing of any kind
+WHAT: Converting RM5 million from Ringgit to invest in foreign-listed stocks
+AMOUNT: RM 5,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 1
+🚫 Must NOT mention: RM1 million
+ℹ️ Why: Part A, Para 1: a Resident Individual without DRB may invest any amount in FCY assets.
+
+═══════════════════
+
+*Q44 [n3-04]* — Joint investment, neither party has DRB — must stay unlimited
+WHO: Two Resident individuals, joint accountholders, NEITHER of whom has any Domestic Ringgit Borrowing
+WHAT: Jointly converting RM3 million from their joint Ringgit account into a joint foreign currency fixed deposit
+AMOUNT: RM 3,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 1
+🚫 Must NOT mention: RM1 million, RM2 million
+ℹ️ Why: With no DRB on either side, Part A Para 1 (UNLIMITED) governs the whole joint investment — the RM1M/RM2M joint-FCA FAQ only engages when at least one party has DRB.
+
+═══════════════════
+
+*Q45 [n3-06]* — Entity with DRB using LOB FCY borrowing for Direct Investment Abroad
+WHO: Resident company with Domestic Ringgit Borrowing
+WHAT: Using RM80 million equivalent of Foreign Currency borrowing obtained from a Licensed Onshore Bank to fund a Direct Investment Abroad (acquiring 25% equity in a foreign company)
+AMOUNT: RM 80,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 4
+🚫 Must NOT mention: RM50 million
+ℹ️ Why: Part B, Para 4(b): LOB FCY borrowing used for DIA is unlimited — the RM50 million/year cap (Para 4(c)) only applies to conversion-funded, non-DIA investment.
+
+═══════════════════
+
+*Q46 [n3-07]* — Boundary: individual WITH DRB converting exactly RM1,000,000 — at the cap
+WHO: Resident individual with Domestic Ringgit Borrowing (two outstanding vehicle loans)
+WHAT: Converting exactly RM1,000,000 from Ringgit to invest in foreign-listed stocks this calendar year, with no other FC asset investment so far this year
+AMOUNT: RM 1,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 2
+ℹ️ Why: Part A, Para 2(c): a Resident Individual with DRB may convert up to RM1 million equivalent per calendar year — exactly RM1,000,000 is within (not exceeding) that cap.
+
+═══════════════════
+
+*Q47 [n3-08]* — Boundary: individual WITH DRB converting RM1,000,001 — RM1 over the cap
+WHO: Resident individual with Domestic Ringgit Borrowing (two outstanding housing loans)
+WHAT: Converting RM1,000,001 from Ringgit to invest in a foreign currency fixed deposit this calendar year, with no other FC asset investment so far this year
+AMOUNT: RM 1,000,001
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 3, Para 2
+ℹ️ Why: Part A, Para 2(c): the RM1 million per calendar year cap for a Resident Individual with DRB is exceeded by RM1, however marginal — the conversion is not permitted without approval.
+
+═══════════════════
+
+*Q48 [n3-09]* — Individual with DRB using offshore FCY funds (not from conversion) for unlimited investment
+WHO: Resident individual with Domestic Ringgit Borrowing (three outstanding vehicle loans)
+WHAT: Investing RM8 million equivalent in foreign-listed stocks using Foreign Currency funds already held outside Malaysia (not Export of Goods proceeds, not from Ringgit conversion)
+AMOUNT: RM 8,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 2
+🚫 Must NOT mention: RM1 million
+ℹ️ Why: Part A, Para 2(a): a Resident Individual with DRB may invest any amount using FCY funds from outside Malaysia (excluding Export of Goods proceeds) — the RM1 million cap (2(c)) only applies to Ringgit-conversion-sourced investment.
+
+═══════════════════
+
+*Q49 [n3-10]* — Individual with DRB buying real estate abroad for own accommodation while studying
+WHO: Resident individual with Domestic Ringgit Borrowing (two outstanding housing loans), studying abroad
+WHAT: Purchasing real estate outside Malaysia for his own accommodation while pursuing full-time education abroad, with documentary evidence of enrolment
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 2
+🚫 Must NOT mention: RM1 million
+ℹ️ Why: Part A, Para 2(b): real estate abroad for own/immediate-family accommodation for education, employment or migration purposes is unlimited — the RM1 million conversion cap does not apply.
+
+═══════════════════
+
+*Q50 [n3-11]* — Individual with DRB buying real estate abroad for a non-family friend
+WHO: Resident individual with Domestic Ringgit Borrowing (two outstanding vehicle loans)
+WHAT: Purchasing real estate outside Malaysia for the accommodation of a close friend (not an Immediate Family Member) who is migrating abroad
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 3, FAQ Q5
+ℹ️ Why: Notice 3 FAQ Q5: a Resident individual may only purchase property abroad for their own account or Immediate Family Members under the permitted purposes — a non-family friend does not qualify.
+
+═══════════════════
+
+*Q51 [n3-12]* — Entity with DRB converting Ringgit, within RM50M/year cap
+WHO: Resident company with Domestic Ringgit Borrowing
+WHAT: Converting RM35 million from Ringgit this calendar year to invest in foreign-listed equities for non-DIA purposes
+AMOUNT: RM 35,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 4
+ℹ️ Why: Part B, Para 4(c): a Resident Entity with DRB may convert up to RM50 million equivalent per calendar year for non-DIA purposes — RM35 million is within that cap.
+
+═══════════════════
+
+*Q52 [n3-13]* — Boundary: entity with DRB converting exactly RM50,000,000 — at the cap
+WHO: Resident company with Domestic Ringgit Borrowing
+WHAT: Converting exactly RM50,000,000 from Ringgit this calendar year for non-DIA foreign currency asset investment, with no other conversion so far this year
+AMOUNT: RM 50,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 4
+ℹ️ Why: Part B, Para 4(c): the RM50 million per calendar year cap is exactly met, not exceeded, so the conversion remains permitted.
+
+═══════════════════
+
+*Q53 [n3-14]* — Boundary: entity with DRB converting RM50,000,001 — RM1 over the cap
+WHO: Resident company with Domestic Ringgit Borrowing
+WHAT: Converting RM50,000,001 from Ringgit this calendar year for non-DIA foreign currency asset investment, with no other conversion so far this year
+AMOUNT: RM 50,000,001
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 3, Para 4
+ℹ️ Why: Part B, Para 4(c): the RM50 million per calendar year cap is exceeded by RM1, so only the amount exceeding the cap requires prior BNM approval (per FAQ Q17) — without approval the excess is not permitted.
+
+═══════════════════
+
+*Q54 [n3-15]* — Entity with DRB exceeding the RM50M cap — partial approval pathway
+WHO: Resident company with Domestic Ringgit Borrowing
+WHAT: Converting RM65 million from Ringgit this calendar year for non-DIA investment in foreign currency assets
+AMOUNT: RM 65,000,000
+
+✅ Expected verdict: REQUIRES_APPROVAL OR NOT_PERMITTED
+📌 Expected citation: Notice 3, FAQ Q17
+ℹ️ Why: Notice 3 FAQ Q17: only the amount exceeding the RM50 million annual aggregate limit requires prior BNM approval — RM65 million exceeds the cap by RM15 million, which needs approval.
+
+═══════════════════
+
+*Q55 [n3-16]* — Entity without DRB, unlimited offshore investment
+WHO: Resident company with no Domestic Ringgit Borrowing of any kind
+WHAT: Converting RM200 million from Ringgit to invest in a portfolio of foreign-listed bonds
+AMOUNT: RM 200,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 3
+🚫 Must NOT mention: RM50 million
+ℹ️ Why: Part B, Para 3: a Resident Entity without DRB may invest in FCY Asset up to any amount.
+
+═══════════════════
+
+*Q56 [n3-17]* — LOB investing in FCY Asset for its own account, unlimited
+WHO: Licensed Onshore Bank
+WHAT: Investing RM500 million equivalent in Foreign Currency Asset for its own proprietary trading account
+AMOUNT: RM 500,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 5
+ℹ️ Why: Part C, Para 5: a LOB may invest in Foreign Currency Asset up to any amount for its own account.
+
+═══════════════════
+
+*Q57 [n3-18]* — SC-licensed fund manager investing FCY Asset onshore on behalf of clients, unlimited
+WHO: Resident Entity licensed by the Securities Commission Malaysia for fund management
+WHAT: Investing RM300 million in Foreign Currency Asset onshore on behalf of its Resident clients
+AMOUNT: RM 300,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 6
+ℹ️ Why: Part C, Para 6: a SC-licensed Entity may invest in Foreign Currency Asset ONSHORE on behalf of its clients up to ANY amount.
+
+═══════════════════
+
+*Q58 [n3-19]* — Licensed insurer investing offshore for a Resident client WITH DRB, exceeding the 50% NAV limit
+WHO: Licensed insurer
+WHAT: Investing 70% of the NAV of an investment-linked fund offshore on behalf of a Resident client with DRB, where none of paragraphs 2(a), 2(c)(i)-(ii), 4(a) or 4(c)(i)-(iii) can be ascertained to apply
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 3, Para 7
+ℹ️ Why: Part C, Para 7-8(b): a licensed insurer may invest offshore on behalf of a Resident client WITH DRB up to only 50% of the NAV (aggregated at insurer level) unless the higher exception paragraphs apply — 70% exceeds the 50% limit here.
+
+═══════════════════
+
+*Q59 [n3-20]* — Licensed insurer investing offshore for a Non-Resident client, unlimited
+WHO: Licensed insurer
+WHAT: Investing 100% of the NAV of an investment-linked fund offshore on behalf of a Non-Resident client
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 7
+ℹ️ Why: Part C, Para 7-8(a): a licensed insurer may invest offshore on behalf of a client who is a Non-Resident up to the full NAV of the fund.
+
+═══════════════════
+
+*Q60 [n3-21]* — SC-licensed fund manager investing offshore for a Resident client WITH DRB, within 50% NAV limit
+WHO: Resident Entity licensed by SC Malaysia for fund management
+WHAT: Investing 45% of the total funds offshore in conventional (non-Shariah) FCY assets on behalf of a Resident client with DRB
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 9
+ℹ️ Why: Part C, Para 9-10: a SC-licensed fund manager may invest offshore on behalf of a Resident client WITH DRB up to 50% of the total funds (aggregated at the Resident Entity's level) — 45% is within that limit.

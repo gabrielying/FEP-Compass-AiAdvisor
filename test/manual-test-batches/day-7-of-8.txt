@@ -1,0 +1,206 @@
+*FEP COMPASS — MANUAL TEST — DAY 7 of 8*
+Scenarios n7-01 → n7-20  (20 questions)
+Covers: N7 (Export of Goods)
+
+How to run: open Smart Tools → AI Compliance Analyst, enter each WHO/WHAT/AMOUNT into the form, run it, then compare the verdict + citation the AI gives against "Expected verdict" / "Expected citation" below.
+
+═══════════════════
+
+*Q121 [n7-01]* — Compliant export proceeds receipt
+WHO: Resident exporter
+WHAT: Receiving the full value of export proceeds within 4 months of shipment, credited into a Trade FCA maintained with a Licensed Onshore Bank
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, Para 1(a) OR Notice 7, Para 1(c)
+ℹ️ Why: Part A, Para 1(a)/(c): full-value receipt within 6 months into a Ringgit account or Trade FCA with a LOB is the standard compliant pattern.
+
+═══════════════════
+
+*Q122 [n7-02]* — Export proceeds overdue beyond 6 months, no approved exception
+WHO: Resident exporter
+WHAT: Export proceeds still not received 8 months after shipment date, and none of the approved Appendix C circumstances (buyer difficulties, disputes, consignment, testing) apply
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 7, Para 1(c)
+ℹ️ Why: Part A, Para 1(c): proceeds must be received within 6 months, extendable to 24 months ONLY in approved Appendix C circumstances — none apply here.
+
+═══════════════════
+
+*Q123 [n7-03]* — Large exporter has not filed the required report
+WHO: Resident exporter with annual gross exports of RM300 million in the preceding year
+WHAT: Has not submitted any report to the FEP Authority despite exceeding the RM250 million reporting threshold
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 7, Para 4
+ℹ️ Why: Part C, Para 4: exporters with annual gross exports above RM250 million must report to the FEP Authority as and when required — not having reported is non-compliant.
+
+═══════════════════
+
+*Q124 [n7-04]* — Outstanding proceeds beyond 24 months, not notified
+WHO: Resident exporter
+WHAT: Export proceeds still outstanding 25 months after shipment, and the exporter has not notified the FEP Authority of the outstanding amount
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 7, Para 5
+ℹ️ Why: Part C, Para 5: proceeds outstanding beyond 24 months must be notified to the FEP Authority within 21 days after year-end — failing to notify is non-compliant.
+
+═══════════════════
+
+*Q125 [n7-05]* — Boundary: export proceeds received exactly at the 6-month mark
+WHO: Resident exporter
+WHAT: Receiving the full value of export proceeds exactly 6 months after the shipment date, credited into a Ringgit account with a Licensed Onshore Bank
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, Para 1(c)
+ℹ️ Why: Part A, Para 1(c): the standard repatriation window is 6 months from shipment date — receipt exactly at 6 months is within (not exceeding) that window.
+
+═══════════════════
+
+*Q126 [n7-06]* — Boundary: export proceeds received one day past the 6-month mark, no approved exception
+WHO: Resident exporter
+WHAT: Receiving export proceeds 1 day after the standard 6-month repatriation window has lapsed, with none of the Appendix C circumstances applicable
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 7, Para 1(c)
+ℹ️ Why: Part A, Para 1(c): the 6-month standard window is exceeded by 1 day with no approved Appendix C exception in play — this is technically non-compliant absent an extension.
+
+═══════════════════
+
+*Q127 [n7-07]* — Extension to 24 months due to buyer financial difficulties
+WHO: Resident exporter
+WHAT: Export proceeds outstanding 14 months after shipment because the Non-Resident buyer is experiencing genuine financial difficulties, with documentary evidence
+
+✅ Expected verdict: PERMITTED OR CONDITIONAL
+📌 Expected citation: Notice 7, Para 1(c)
+ℹ️ Why: Part A, Para 1(c) and Appendix C(1): buyer financial difficulties is an approved circumstance extending the repatriation window up to 24 months — 14 months is within that extended window.
+
+═══════════════════
+
+*Q128 [n7-08]* — Boundary: export proceeds outstanding exactly at 24 months, buyer dispute ongoing
+WHO: Resident exporter
+WHAT: Export proceeds still outstanding exactly 24 months after shipment due to a genuine quality dispute raised by the Non-Resident buyer, with supporting documentation
+
+✅ Expected verdict: PERMITTED OR CONDITIONAL
+📌 Expected citation: Notice 7, Para 1(c)
+ℹ️ Why: Part A, Para 1(c) and Appendix C(1): a quality/quantity claim dispute is an approved circumstance, and the extension period maxes out at 24 months — exactly 24 months is within (not exceeding) that ceiling.
+
+═══════════════════
+
+*Q129 [n7-09]* — Boundary: export proceeds outstanding at 24 months and 1 day, dispute resolved, no notification made
+WHO: Resident exporter
+WHAT: Export proceeds still outstanding 24 months and 1 day after shipment; the underlying dispute has since been resolved, but the exporter has not notified the FEP Authority
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 7, Para 5
+ℹ️ Why: Part C, Para 5: once outstanding beyond 24 months, the exporter must notify the FEP Authority within 21 days after calendar year-end — not having notified breaches this obligation regardless of the underlying dispute being resolved.
+
+═══════════════════
+
+*Q130 [n7-10]* — Consignment sale with 24-month credit term, fully compliant
+WHO: Resident exporter
+WHAT: Exporting goods on a consignment sale basis with an agreed 24-month credit term to the Non-Resident consignee, receiving full proceeds within that 24-month window
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, Para 1(c)
+ℹ️ Why: Part A, Para 1(c) and Appendix C(2): consignment sale arrangements may have credit terms up to 24 months — receipt within that window is compliant.
+
+═══════════════════
+
+*Q131 [n7-11]* — Goods exported for testing and commissioning, proceeds received within 24 months
+WHO: Resident exporter (industrial equipment manufacturer)
+WHAT: Exporting machinery for overseas testing and commissioning under a 20-month credit term, receiving full proceeds within that period
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, Para 1(c)
+ℹ️ Why: Part A, Para 1(c) and Appendix C(2): goods exported for testing or commissioning may carry credit terms up to 24 months — 20 months is within that window.
+
+═══════════════════
+
+*Q132 [n7-12]* — Deduction of agency commission and freight from export proceeds
+WHO: Resident exporter
+WHAT: Receiving export proceeds net of agency commission, advertising expenses, and freight and insurance charges, in line with the sale contract
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, Para 1(b)
+ℹ️ Why: Part A, Para 1(b) and Appendix A(a)/(b): agency commission, advertising, handling, freight and insurance are approved deductions from full export proceeds value.
+
+═══════════════════
+
+*Q133 [n7-13]* — Deduction for a quantity/quality claim by the foreign buyer
+WHO: Resident exporter
+WHAT: Receiving export proceeds reduced by an agreed discount to settle the Non-Resident buyer's legitimate quality claim on a shipment
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, Para 1(b)
+ℹ️ Why: Part A, Para 1(b) and Appendix A(e): a deduction for a quality or quantity claim by the buyer is an approved deduction from the full export proceeds value.
+
+═══════════════════
+
+*Q134 [n7-14]* — Write-off of export proceeds where the Non-Resident buyer is under liquidation
+WHO: Resident exporter
+WHAT: Writing off export proceeds owed by a Non-Resident buyer that has since entered liquidation, with documentary evidence of the liquidation proceedings
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, Para 1(b)
+ℹ️ Why: Part A, Para 1(b) and Appendix A(j)/Appendix B(b): write-off is an approved offsetting arrangement where the buyer is under liquidation.
+
+═══════════════════
+
+*Q135 [n7-15]* — Goods not for sale: personal effects exported, exempt from receipt obligation
+WHO: Resident individual relocating overseas
+WHAT: Exporting personal effects and household items as part of relocation abroad, with no sale or export proceeds expected
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, Para 2
+ℹ️ Why: Part A, Para 2 and Appendix D(b): personal effects not for sale are exempt from the export-proceeds receipt obligation entirely.
+
+═══════════════════
+
+*Q136 [n7-16]* — Goods exported under a border trade agreement, exempt from receipt obligation
+WHO: Resident trader
+WHAT: Exporting goods to a neighbouring country under a recognised border trade agreement arrangement
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, Para 2
+ℹ️ Why: Part A, Para 2 and Appendix D(a): goods exported under a border trade agreement are exempt from the standard export-proceeds receipt obligation.
+
+═══════════════════
+
+*Q137 [n7-17]* — Goods exported for exhibition and reimported afterwards, exempt from receipt obligation
+WHO: Resident manufacturer
+WHAT: Exporting goods to an overseas trade exhibition with the clear intention of reimporting them into Malaysia after the exhibition concludes, no sale involved
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, Para 2
+ℹ️ Why: Part A, Para 2 and Appendix D(b): goods exported for exhibition and reimported are exempt from the export-proceeds receipt obligation.
+
+═══════════════════
+
+*Q138 [n7-18]* — Toll manufacturing arrangement treated as export of goods
+WHO: Resident toll manufacturer
+WHAT: Processing raw materials owned by a Non-Resident principal into finished goods, then shipping the goods overseas under a toll manufacturing arrangement
+
+✅ Expected verdict: PERMITTED OR CONDITIONAL
+📌 Expected citation: Notice 7, FAQ Q4
+ℹ️ Why: Notice 7 "Export of Goods" FAQ Q4: a toll manufacturing arrangement is treated as export of goods and is subject to the Notice 7 receipt and repatriation requirements.
+
+═══════════════════
+
+*Q139 [n7-19]* — Resident retaining export proceeds in a Trade FCA with no time limit
+WHO: Resident exporter
+WHAT: Retaining USD2 million of export proceeds in a Trade Foreign Currency Account with a Licensed Onshore Bank for over 3 years, without converting to Ringgit
+AMOUNT: USD 2,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, FAQ Q10
+ℹ️ Why: Notice 7 "Export of Goods" FAQ Q10: there is no time limit on retaining export proceeds in a Trade FCA once properly received within the repatriation window.
+
+═══════════════════
+
+*Q140 [n7-20]* — Resident exporter opening multiple Trade FCAs
+WHO: Resident exporter
+WHAT: Opening and maintaining three separate Trade Foreign Currency Accounts with different Licensed Onshore Banks for different export contracts
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, FAQ Q15
+ℹ️ Why: Notice 7 "Export of Goods" FAQ Q15: a Resident exporter may open multiple Trade FCAs.

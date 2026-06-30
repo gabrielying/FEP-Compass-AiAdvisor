@@ -1,0 +1,220 @@
+*FEP COMPASS — MANUAL TEST — DAY 2 of 8*
+Scenarios n2-11 → n2-30  (20 questions)
+Covers: N2 (Borrowing, Lending and Guarantee)
+
+How to run: open Smart Tools → AI Compliance Analyst, enter each WHO/WHAT/AMOUNT into the form, run it, then compare the verdict + citation the AI gives against "Expected verdict" / "Expected citation" below.
+
+═══════════════════
+
+*Q21 [n2-11]* — Individual refinancing existing approved Ringgit borrowing
+WHO: Resident individual
+WHAT: Refinancing the outstanding principal and accrued interest of a previously-approved RM1 million Ringgit borrowing from a Non-Resident friend, on the same terms
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 5
+ℹ️ Why: Part A, Para 5: a Resident Individual may refinance outstanding approved Borrowing under paragraphs 1 to 4, subject to compliance with the respective paragraph.
+
+═══════════════════
+
+*Q22 [n2-12]* — Entity Ringgit borrowing from a Non-Resident Direct Shareholder for Real Sector Activity
+WHO: Resident company
+WHAT: Borrowing RM50 million in Ringgit from its Non-Resident Direct Shareholder to finance a manufacturing plant expansion (Real Sector Activity) in Malaysia
+AMOUNT: RM 50,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 6
+🚫 Must NOT mention: RM1 million
+ℹ️ Why: Part B, Para 6: Ringgit borrowing from a Non-Resident within the Group (including a Direct Shareholder) to finance Real Sector Activity in Malaysia is unlimited.
+
+═══════════════════
+
+*Q23 [n2-13]* — Entity Ringgit borrowing via non-tradable Corporate Bond issued to an out-of-Group Non-Resident
+WHO: Resident company
+WHAT: Issuing a non-tradable Ringgit-denominated Corporate Bond to a Non-Resident Entity outside its Group (not a NRFI exemption)
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 2, Para 7
+ℹ️ Why: Part B, Para 7 excludes a non-tradable Ringgit Corporate Bond or Sukuk issued to a Non-Resident Entity outside the Resident Entity's Group (or a NRFI) from the general permission.
+
+═══════════════════
+
+*Q24 [n2-14]* — Entity Ringgit borrowing from an external Non-Resident, within RM1M cap
+WHO: Resident company
+WHAT: Borrowing RM900,000 in Ringgit for use in Malaysia from a Non-Resident company outside its Group, excluding a NRFI
+AMOUNT: RM 900,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 8
+ℹ️ Why: Part B, Para 8(a): a Resident Entity may borrow up to RM1 million in aggregate in Ringgit for use in Malaysia from a Non-Resident excluding a NRFI — RM900,000 is within that cap.
+
+═══════════════════
+
+*Q25 [n2-15]* — Entity Ringgit borrowing from a Multilateral Development Bank, unlimited
+WHO: Resident company
+WHAT: Borrowing RM200 million in Ringgit for use in Malaysia from a Multilateral Development Bank
+AMOUNT: RM 200,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 8
+🚫 Must NOT mention: RM1 million
+ℹ️ Why: Part B, Para 8(b): Ringgit borrowing in any amount from a Multilateral Development Bank or Qualified Development Financial Institution is unlimited.
+
+═══════════════════
+
+*Q26 [n2-16]* — Entity FCY borrowing from an Entity within its Group, unlimited
+WHO: Resident company
+WHAT: Borrowing USD60 million equivalent in Foreign Currency from a sister company within its Group (not a NRFI, not a SPV)
+AMOUNT: USD 60,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 9
+🚫 Must NOT mention: RM100 million
+ℹ️ Why: Part B, Para 9(b): FCY borrowing in any amount from an Entity within the Resident Entity's Group is unlimited (excluding a NRFI or out-of-Group SPV, which fall under the Para 10 cap instead).
+
+═══════════════════
+
+*Q27 [n2-17]* — Boundary: entity FCY borrowing exactly at the RM100M cap from an unrelated Non-Resident
+WHO: Resident company
+WHAT: Borrowing exactly RM100 million equivalent in aggregate in Foreign Currency from a Non-Resident outside its Group
+AMOUNT: RM 100,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 10
+ℹ️ Why: Part B, Para 10 caps FCY borrowing from outside the Group at RM100 million equivalent in aggregate — exactly RM100 million is within (not exceeding) that cap.
+
+═══════════════════
+
+*Q28 [n2-18]* — Entity FCY borrowing from a NRFI, exceeding RM100M cap
+WHO: Resident company
+WHAT: Borrowing RM150 million equivalent in Foreign Currency from a Non-Resident Financial Institution (NRFI)
+AMOUNT: RM 150,000,000
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 2, Para 10
+ℹ️ Why: Part B, Para 10(b) caps FCY borrowing from a NRFI at RM100 million equivalent in aggregate on a group basis — RM150 million exceeds it.
+
+═══════════════════
+
+*Q29 [n2-19]* — Entity refinancing outstanding approved FCY borrowing
+WHO: Resident company
+WHAT: Refinancing the outstanding principal and accrued profit of a previously-approved FCY borrowing from a LOB, subject to compliance with the original paragraph requirements
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 11
+ℹ️ Why: Part B, Para 11: a Resident Entity may refinance outstanding approved Borrowing under paragraphs 6 to 10, subject to compliance with the respective paragraph.
+
+═══════════════════
+
+*Q30 [n2-20]* — Debt swap: Ringgit debt into FCY debt with a LOB, FCY delivered for FCY-asset investment
+WHO: Resident company with Domestic Ringgit Borrowing
+WHAT: Swapping its existing Ringgit debt into Foreign Currency debt with a Licensed Onshore Bank, with FCY delivered at inception that is then used to invest in a Foreign Currency Asset
+
+✅ Expected verdict: CONDITIONAL
+📌 Expected citation: Notice 2, Para 12
+ℹ️ Why: Part C, Para 12: swapping Ringgit debt into FCY debt with a LOB is treated as FCY Borrowing, but any FCY delivered at inception and used for FCY Asset investment must comply with Notice 3 for a Resident with DRB.
+
+═══════════════════
+
+*Q31 [n2-21]* — Non-Resident individual borrowing Ringgit from Resident employer in Malaysia
+WHO: Non-Resident individual employee
+WHAT: Borrowing RM500,000 in Ringgit from his employer in Malaysia for use in Malaysia
+AMOUNT: RM 500,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 13
+ℹ️ Why: Part D, Para 13(c): a Non-Resident Individual may borrow Ringgit in any amount from an employer in Malaysia for use in Malaysia.
+
+═══════════════════
+
+*Q32 [n2-22]* — Non-Resident borrowing Ringgit from a Resident for Real Sector Activity
+WHO: Non-Resident company (not a NRFI)
+WHAT: Borrowing RM40 million in Ringgit from a Resident lender to finance Real Sector Activity (a manufacturing facility) in Malaysia
+AMOUNT: RM 40,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 14
+ℹ️ Why: Part D, Para 14(a): a Non-Resident excluding a NRFI may borrow Ringgit in any amount from a Resident to finance Real Sector Activity in Malaysia.
+
+═══════════════════
+
+*Q33 [n2-23]* — Non-Resident borrowing Ringgit from a Resident stockbroker for margin financing
+WHO: Non-Resident investor
+WHAT: Obtaining Ringgit margin financing from a Resident stockbroking company to purchase Bursa Malaysia-listed shares
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 14
+ℹ️ Why: Part D, Para 14(b): a Non-Resident may borrow Ringgit from a Resident stockbroker for margin financing on Bursa Malaysia.
+
+═══════════════════
+
+*Q34 [n2-24]* — Non-Resident overdraft from a LOB exceeding the 2-business-day limit
+WHO: Non-Resident custodian bank
+WHAT: Maintaining a Ringgit overdraft facility with a LOB for 5 business days to avoid a Bursa Malaysia settlement failure, with no roll-over requested
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 2, Para 16
+ℹ️ Why: Part D, Para 16(b) permits such an overdraft only up to a maximum of 2 business days with no roll-over — 5 business days exceeds the permitted window.
+
+═══════════════════
+
+*Q35 [n2-25]* — Non-Resident repo borrowing from a LOB, within RM10M cap
+WHO: Non-Resident investor
+WHAT: Borrowing RM7 million in Ringgit from a LOB via a repurchase agreement
+AMOUNT: RM 7,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 16
+ℹ️ Why: Part D, Para 16(c): a Non-Resident may borrow up to RM10 million via a repurchase or sale-buy-back agreement with a LOB — RM7 million is within that cap.
+
+═══════════════════
+
+*Q36 [n2-26]* — Non-Resident FCY borrowing from a Resident, beyond Notice 3 limits
+WHO: Non-Resident company
+WHAT: Borrowing RM60 million equivalent in Foreign Currency from a Resident entity that itself has Domestic Ringgit Borrowing and is subject to the RM50 million annual Notice 3 investment cap
+AMOUNT: RM 60,000,000
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 2, Para 17
+ℹ️ Why: Part D, Para 17(b): FCY borrowing by a Non-Resident from a Resident (other than a LOB or Immediate Family Member) is capped at the limits set out in Notice 3 Parts A/B — RM60 million exceeds the lending Resident's RM50 million annual cap.
+
+═══════════════════
+
+*Q37 [n2-27]* — LOB obtaining a Financial Guarantee for its own account, any amount
+WHO: Licensed Onshore Bank
+WHAT: Obtaining a Financial Guarantee of RM500 million in Ringgit for its own account from a Non-Resident bank
+AMOUNT: RM 500,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 20
+ℹ️ Why: Part G, Para 20(a): a LOB may obtain a Financial Guarantee in any amount in Ringgit or FCY for its own account.
+
+═══════════════════
+
+*Q38 [n2-28]* — Non-bank Resident guarantor giving a Financial Guarantee for a Non-Resident SPV borrowing, ultimately utilised by the guarantor
+WHO: Resident company (non-bank guarantor)
+WHAT: Giving a Financial Guarantee to secure FCY borrowing obtained by a Non-Resident SPV, where the borrowing proceeds are ultimately utilised by the Resident guarantor itself
+
+✅ Expected verdict: CONDITIONAL OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 2, Para 22
+ℹ️ Why: Part G, Para 22(a): where the underlying Borrowing secured by the Financial Guarantee is ultimately utilised by the Resident guarantor, it is deemed Borrowing by the Resident guarantor, subject to the Notice 2 external borrowing limits.
+
+═══════════════════
+
+*Q39 [n2-29]* — Resident giving a Non-Financial Guarantee (performance bond) to a Non-Resident, any amount
+WHO: Resident construction company
+WHAT: Giving a performance bond (Non-Financial Guarantee) of USD20 million to a Non-Resident project owner to secure supply of construction services
+AMOUNT: USD 20,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 25
+ℹ️ Why: Part G, Para 25: a Resident may give a Non-Financial Guarantee (e.g. a performance bond) in any amount in FCY or Ringgit to a Non-Resident.
+
+═══════════════════
+
+*Q40 [n2-30]* — Payment to a Non-Resident lender under a called-up Non-Financial Guarantee, paid in Ringgit
+WHO: Resident company
+WHAT: Paying a Non-Resident lender in Ringgit, instead of Foreign Currency, after its Non-Financial Guarantee is called upon (the guarantee was not issued for use in Malaysia)
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 2, Para 26
+ℹ️ Why: Part G, Para 26: payment to a Non-Resident under a Non-Financial Guarantee must be made in Foreign Currency, UNLESS the guarantee was for use in Malaysia (in which case Ringgit or FCY is allowed) — here it was not for use in Malaysia, so Ringgit payment is not permitted.

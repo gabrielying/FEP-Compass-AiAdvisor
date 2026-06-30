@@ -1,0 +1,219 @@
+*FEP COMPASS — MANUAL TEST — DAY 4 of 8*
+Scenarios n3-24 → n4-13  (20 questions)
+Covers: N3 (Investment in Foreign Currency Asset) + N4 (Payment and Receipt)
+
+How to run: open Smart Tools → AI Compliance Analyst, enter each WHO/WHAT/AMOUNT into the form, run it, then compare the verdict + citation the AI gives against "Expected verdict" / "Expected citation" below.
+
+═══════════════════
+
+*Q61 [n3-24]* — DRB combination edge case: one vehicle loan plus a sundry-expense credit card facility — still WITHOUT DRB
+WHO: Resident individual with exactly ONE outstanding vehicle loan and a credit card facility used solely for sundry office expenses, no other Ringgit borrowing
+WHAT: Converting RM3 million from Ringgit to invest in a foreign currency fixed deposit
+AMOUNT: RM 3,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, Para 1
+🚫 Must NOT mention: RM1 million
+ℹ️ Why: Notice 3 FAQ Q15 (entity DRB logic, applying the same sundry-expense exclusion via the DRB definition) and the DRB glossary: one vehicle loan plus a credit/financing facility used solely for sundry expenses does not constitute DRB — this Resident remains WITHOUT DRB under Part A, Para 1 (UNLIMITED).
+
+═══════════════════
+
+*Q62 [n3-25]* — DRB combination edge case: TWO vehicle loans (no housing loan) triggers DRB
+WHO: Resident individual with exactly TWO outstanding vehicle loans and no other Ringgit borrowing
+WHAT: Converting RM4 million from Ringgit to invest in foreign-listed stocks
+AMOUNT: RM 4,000,000
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 3, Para 2
+ℹ️ Why: Notice 3 FAQ Q3: having more than one (1) vehicle loan means the Resident individual is deemed to have DRB — this triggers the RM1 million/year cap (Para 2(c)), which RM4 million exceeds.
+
+═══════════════════
+
+*Q63 [n3-26]* — Resident entity deemed to have DRB via its parent-subsidiary Resident Group
+WHO: Resident subsidiary company with NO Ringgit borrowing of its own, but whose Resident parent (same parent-subsidiary Group) has Domestic Ringgit Borrowing
+WHAT: Converting RM60 million from Ringgit this calendar year to invest in foreign currency assets
+AMOUNT: RM 60,000,000
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 3, FAQ Q15
+ℹ️ Why: Notice 3 FAQ Q15: a Resident entity is deemed to have DRB when another Resident entity with which it has a parent-subsidiary relationship has DRB — the RM50 million/year aggregate cap therefore applies across the Group, and RM60 million exceeds it.
+
+═══════════════════
+
+*Q64 [n3-27]* — Resident entity borrowing from its Resident Direct Shareholder — excluded from DRB
+WHO: Resident company that has borrowed Ringgit solely from its Resident Direct Shareholder, and has no other Ringgit borrowing
+WHAT: Converting RM30 million from Ringgit to invest in foreign-listed equities
+AMOUNT: RM 30,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, FAQ Q15
+🚫 Must NOT mention: RM50 million
+ℹ️ Why: Notice 3 FAQ Q15(a): borrowing obtained from a Resident Direct Shareholder or another Resident entity with a parent-subsidiary relationship is NOT considered DRB — this Resident remains WITHOUT DRB and unlimited under Part B, Para 3.
+
+═══════════════════
+
+*Q65 [n3-28]* — Resident with DRB transferring digital assets from a registered DAX to an offshore wallet, within RM1M cap
+WHO: Resident individual with Domestic Ringgit Borrowing (two outstanding housing loans)
+WHAT: Transferring RM700,000 worth of digital assets from a registered Malaysian digital asset exchange (DAX) to an offshore digital wallet
+AMOUNT: RM 700,000
+
+✅ Expected verdict: PERMITTED OR CONDITIONAL
+📌 Expected citation: Notice 3, FAQ Q9
+ℹ️ Why: Notice 3 FAQ Q9: transferring digital assets from a registered DAX to an offshore wallet is subject to the investment in FC asset limit for a Resident with DRB — RM700,000 is within the RM1 million annual cap.
+
+═══════════════════
+
+*Q66 [n3-29]* — Resident purchasing digital assets on a registered DAX settled in Ringgit, no investment limit
+WHO: Resident individual with Domestic Ringgit Borrowing
+WHAT: Purchasing RM2 million worth of digital assets on a registered Malaysian digital asset exchange (DAX), settled entirely in Ringgit with no transfer offshore
+AMOUNT: RM 2,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, FAQ Q8
+🚫 Must NOT mention: RM1 million
+ℹ️ Why: Notice 3 FAQ Q8: a Resident is free to purchase digital assets on a registered DAX in Malaysia without any investment limit, as long as it is settled in Ringgit.
+
+═══════════════════
+
+*Q67 [n3-30]* — Resident individual with DRB investing in a non-exchange-rate derivative via margin account, near the cap
+WHO: Resident individual with Domestic Ringgit Borrowing (two outstanding vehicle loans)
+WHAT: Remitting RM950,000 this calendar year to a margin account with a Non-Resident futures broker to trade equity options (a non-exchange-rate derivative), with no other FC asset investment so far this year
+AMOUNT: RM 950,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 3, FAQ Q13
+ℹ️ Why: Notice 3 FAQ Q13: the investment amount for non-exchange-rate derivatives is computed on total remittance to the margin account, subject to the RM1 million annual aggregate limit — RM950,000 is within that cap.
+
+═══════════════════
+
+*Q68 [n4-01]* — FCY payment from Resident to Non-Resident for an import
+WHO: Resident company
+WHAT: Paying USD300,000 to a Non-Resident supplier in Foreign Currency to settle an import of goods
+AMOUNT: USD 300,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, Para 5
+ℹ️ Why: Part C, Para 5: a Resident may pay a Non-Resident in FCY for any purpose except a short list of derivative transactions — an import settlement is not on that list.
+
+═══════════════════
+
+*Q69 [n4-02]* — FCY payment between two Residents for an unlisted domestic purpose
+WHO: Resident individual
+WHAT: Paying another Resident individual in US Dollars for rental of a holiday home in Malaysia (both parties are Malaysian residents, no family relationship, no LOB or Global Supply Chain involvement)
+AMOUNT: USD 10,000
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 4, Para 4
+ℹ️ Why: Part C, Para 4 only permits FCY payment between Residents for a specific listed set of purposes (family, education/employment/migration abroad, LOB dealings, Global Supply Chain, etc.) — domestic holiday-home rent is not on that list.
+
+═══════════════════
+
+*Q70 [n4-03]* — Non-Resident repatriating Ringgit-asset divestment proceeds
+WHO: Non-Resident individual
+WHAT: Repatriating proceeds from the sale of a Ringgit-denominated asset out of Malaysia, converting the proceeds into Foreign Currency before transfer
+
+✅ Expected verdict: PERMITTED OR CONDITIONAL
+📌 Expected citation: Notice 4, Para 8
+ℹ️ Why: Part E, Para 8: a Non-Resident may repatriate funds from Malaysia provided repatriation is in FCY and the Ringgit-to-FCY conversion follows Notice 1 Part B.
+
+═══════════════════
+
+*Q71 [n4-04]* — Ringgit payment to a Non-Resident from a court judgement
+WHO: Resident company
+WHAT: Making a Ringgit payment to a Non-Resident in Malaysia arising from a court judgement, where the underlying transaction complies with the FEP Notices
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, Para 3
+ℹ️ Why: Part B, Para 3 permits Ringgit payment/receipt for a court judgement where the underlying transaction is FEP-compliant.
+
+═══════════════════
+
+*Q72 [n4-05]* — Non-Resident individual Ringgit payment to a Resident Immediate Family Member
+WHO: Non-Resident individual
+WHAT: Paying RM200,000 in Ringgit to his Resident sister (Immediate Family Member) in Malaysia for any purpose
+AMOUNT: RM 200,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, FAQ Q1
+ℹ️ Why: Notice 4 "Payment in Ringgit by Non-Resident" FAQ Q1: a Non-Resident individual may pay a Resident Immediate Family Member in Ringgit or FCY for any purpose.
+
+═══════════════════
+
+*Q73 [n4-06]* — Non-Resident receiving Ringgit payment without an External Account
+WHO: Non-Resident company
+WHAT: Attempting to receive a Ringgit payment from a Resident counterparty without maintaining an External Account
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 4, FAQ Q2
+ℹ️ Why: Notice 4 "Payment in Ringgit by Non-Resident" FAQ Q2: a Non-Resident must maintain an External Account to receive a Ringgit payment — without one, the receipt is not permitted.
+
+═══════════════════
+
+*Q74 [n4-07]* — Non-Resident transferring funds between two of its own External Accounts
+WHO: Non-Resident individual
+WHAT: Transferring RM500,000 in Ringgit from his External Account at one LOB to another External Account he holds at a different LOB
+AMOUNT: RM 500,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, FAQ Q3
+ℹ️ Why: Notice 4 "Payment in Ringgit by Non-Resident" FAQ Q3: a Non-Resident may transfer Ringgit between his own multiple External Accounts.
+
+═══════════════════
+
+*Q75 [n4-08]* — Resident Entity paying another Resident in FCY for education abroad of an employee's child
+WHO: Resident company
+WHAT: Paying a Resident education agent in Foreign Currency on behalf of an employee, for the employee's child's education abroad
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, Para 4
+ℹ️ Why: Part C, Para 4: FCY payment between Residents is permitted for purposes including education abroad of an Immediate Family Member.
+
+═══════════════════
+
+*Q76 [n4-09]* — Resident paying another Resident in FCY for a Global Supply Chain pass-through obligation
+WHO: Resident manufacturing company
+WHAT: Paying a Resident vendor in Foreign Currency for goods supplied as part of a Global Supply Chain arrangement, where the vendor itself has a FCY obligation to an upstream Non-Resident supplier
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, Para 4
+ℹ️ Why: Part C, Para 4 and footnote 2: a Resident may pay another Resident in FCY for Global Supply Chain pass-through payments where genuine upstream FCY obligations exist.
+
+═══════════════════
+
+*Q77 [n4-10]* — Resident paying a Resident vendor in FCY purely on preference, no FC obligation and locally-sourced goods
+WHO: Resident retail company
+WHAT: Paying a Resident vendor in US Dollars for locally-sourced goods, where the vendor has no Foreign Currency obligations of its own and the goods are not part of any cross-border supply chain
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 4, FAQ Q11
+ℹ️ Why: Notice 4 "Payment in Foreign Currency by Resident" FAQ Q11: where there are no underlying FC obligations and the goods are locally sourced, this does not qualify as Global Supply Chain — payment must be made in Ringgit.
+
+═══════════════════
+
+*Q78 [n4-11]* — Resident converting Ringgit to FCY specifically to pay under a Global Supply Chain arrangement
+WHO: Resident company
+WHAT: Converting Ringgit to US Dollars in order to make a payment to a Resident vendor under a Global Supply Chain arrangement
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 4, FAQ Q10
+ℹ️ Why: Notice 4 "Payment in Foreign Currency by Resident" FAQ Q10: a Resident cannot convert Ringgit to FCY to pay under Global Supply Chain — the FCY must come from a Trade FCA or FCY trade financing facility.
+
+═══════════════════
+
+*Q79 [n4-12]* — Resident paying for ancillary services in FCY where genuine FC obligations and FC proceeds exist
+WHO: Resident logistics company
+WHAT: Paying a Resident freight forwarder in Foreign Currency for ancillary logistics services, where the Resident company has genuine FC obligations abroad and holds FC proceeds from exports
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, FAQ Q12
+ℹ️ Why: Notice 4 "Payment in Foreign Currency by Resident" FAQ Q12: FCY settlement for ancillary services is allowed where FC obligations exist abroad and the payer has FC proceeds available.
+
+═══════════════════
+
+*Q80 [n4-13]* — Resident hedging a commodity exposure directly with a Non-Resident counterparty, within underlying exposure
+WHO: Resident commodity trading company
+WHAT: Entering a commodity derivative directly with a Non-Resident counterparty to hedge crude palm oil exposure, with the notional amount matching its underlying physical exposure
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, FAQ Q14
+ℹ️ Why: Notice 4 "Payment in Foreign Currency by Resident" FAQ Q14: a Resident may hedge commodity exposure via a Resident futures broker or directly with a Non-Resident counterparty, up to the underlying exposure.

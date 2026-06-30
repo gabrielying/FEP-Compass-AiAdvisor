@@ -1,0 +1,209 @@
+*FEP COMPASS — MANUAL TEST — DAY 5 of 8*
+Scenarios n4-14 → n4-33  (20 questions)
+Covers: N4 (Payment and Receipt)
+
+How to run: open Smart Tools → AI Compliance Analyst, enter each WHO/WHAT/AMOUNT into the form, run it, then compare the verdict + citation the AI gives against "Expected verdict" / "Expected citation" below.
+
+═══════════════════
+
+*Q81 [n4-14]* — Resident entity entering an FX contract directly with a Non-Resident counterparty
+WHO: Resident trading company
+WHAT: Entering a foreign exchange forward contract directly with a Non-Resident bank counterparty, bypassing any Licensed Onshore Bank or licensed money changer
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 4, FAQ Q16
+ℹ️ Why: Notice 4 "Payment in Foreign Currency by Resident" FAQ Q16: a Resident entity cannot enter an FX contract directly with a Non-Resident counterparty — it must transact via a LOB or licensed money changer (per Notice 1).
+
+═══════════════════
+
+*Q82 [n4-15]* — NRFI making a Ringgit payment on behalf of a customer under remittance business licence
+WHO: Non-Resident Financial Institution licensed for remittance business
+WHAT: Making a Ringgit payment in Malaysia on behalf of its remittance customer, under its remittance business licence
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, Para 7
+ℹ️ Why: Part D, Para 7: a person licensed for remittance business may make or receive a payment on behalf of its customers in the ordinary course of that licensed business.
+
+═══════════════════
+
+*Q83 [n4-16]* — NR Intermediary providing Ringgit financing to its NR client for Ringgit Asset purchase
+WHO: Non-Resident Intermediary (custodian)
+WHAT: Extending Ringgit financing to its Non-Resident client to fund the client's purchase of Ringgit-denominated securities
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 4, Para 12
+ℹ️ Why: Part F, Para 12: a NR Intermediary or NRFI is prohibited from providing Ringgit financing to its clients.
+
+═══════════════════
+
+*Q84 [n4-17]* — NRFI making Ringgit payment for NR client trade settlement via External Account
+WHO: Non-Resident Financial Institution
+WHAT: Making a Ringgit payment via its External Account to settle a Ringgit Asset trade on behalf of its Non-Resident client
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, Para 10
+ℹ️ Why: Part F, Para 10: a NRFI may make Ringgit payments for the purpose of settling its NR client's trade, via the External Account.
+
+═══════════════════
+
+*Q85 [n4-18]* — Resident individual maintaining a Foreign Currency Account jointly with a LOB
+WHO: Resident individual
+WHAT: Opening and maintaining a Foreign Currency Account jointly with his spouse, with a Licensed Onshore Bank
+
+✅ Expected verdict: PERMITTED OR CONDITIONAL
+📌 Expected citation: Notice 4, Para 14
+ℹ️ Why: Part F, Para 14: a Resident Individual may maintain a FCA with a LOB or NRFI, solely or jointly — but per footnote 5, if a joint accountholder has DRB, Notice 3 Part A applies to the joint funding.
+
+═══════════════════
+
+*Q86 [n4-19]* — Resident individual with DRB transferring FC funds between his own two FCAs
+WHO: Resident individual with Domestic Ringgit Borrowing
+WHAT: Transferring Foreign Currency funds from one of his own Foreign Currency Accounts to another of his own Foreign Currency Accounts
+
+✅ Expected verdict: PERMITTED OR CONDITIONAL
+📌 Expected citation: Notice 4, Para 15
+ℹ️ Why: Part F, Para 15: a Resident Individual may transfer FC funds between his own FCAs, subject to Notice 3 Part A where relevant (e.g. if the funds originated from Ringgit conversion and DRB applies).
+
+═══════════════════
+
+*Q87 [n4-20]* — Resident Entity maintaining a Foreign Currency Account, subject to Notice 3
+WHO: Resident company with Domestic Ringgit Borrowing
+WHAT: Maintaining a Foreign Currency Account funded via Ringgit conversion exceeding the RM50 million annual cap, without BNM approval
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 4, Para 16
+ℹ️ Why: Part F, Para 16: a Resident Entity's FCA is subject to Notice 3 Part B — funding it via Ringgit conversion beyond the RM50 million/year cap for an Entity with DRB is not permitted without approval.
+
+═══════════════════
+
+*Q88 [n4-21]* — Resident Intermediary failing to segregate Resident and Non-Resident client funds in its FCA
+WHO: Resident Intermediary (custodian/broker)
+WHAT: Commingling Resident and Non-Resident client funds within a single Foreign Currency Account, with no segregation
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 4, Para 17
+ℹ️ Why: Part F, Para 17: a Resident Intermediary must segregate Resident and Non-Resident client funds within its FCA — commingling is not permitted.
+
+═══════════════════
+
+*Q89 [n4-22]* — Non-Resident maintaining a Foreign Currency Account in Malaysia
+WHO: Non-Resident individual
+WHAT: Opening and maintaining a Foreign Currency Account with a Licensed Onshore Bank in Malaysia
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, Para 18
+ℹ️ Why: Part F, Para 18: a Non-Resident may maintain a Foreign Currency Account in Malaysia.
+
+═══════════════════
+
+*Q90 [n4-23]* — NR Intermediary custodian Ringgit payment for settlement of a Ringgit Asset, on behalf of NR client
+WHO: Non-Resident Intermediary acting as custodian
+WHAT: Making a Ringgit payment to settle the purchase of a Ringgit-denominated bond on behalf of its Non-Resident client
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, Para 11
+ℹ️ Why: Part F, Para 11: a NR Intermediary or NRFI acting as custodian may make Ringgit payments for the settlement of Ringgit Asset transactions on behalf of NR clients.
+
+═══════════════════
+
+*Q91 [n4-24]* — NR Intermediary custodian failing Appendix compliance requirements
+WHO: Non-Resident Intermediary acting as custodian
+WHAT: Making Ringgit payments for client trade settlement without complying with the recordkeeping and reporting requirements set out in the relevant Appendix
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 4, Para 13
+ℹ️ Why: Part F, Para 13: a NR Intermediary or NRFI custodian must comply with the Appendix requirements — failing to do so means the payment activity is not properly permitted.
+
+═══════════════════
+
+*Q92 [n4-25]* — External Account payment made without documentary evidence of FEP compliance
+WHO: Non-Resident individual
+WHAT: Making a payment from his External Account without providing the LOB any documentary evidence that the underlying transaction complies with the FEP Notices
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 4, Para 9
+ℹ️ Why: Part F, Para 9 and footnote 4: payments from an External Account require documentary evidence of compliance with the FEP Notices — without it, the payment should not proceed.
+
+═══════════════════
+
+*Q93 [n4-26]* — Resident entering a Ringgit-referenced derivative with a Non-Resident without Notice 1 approval
+WHO: Resident company
+WHAT: Entering a derivative contract with a Non-Resident counterparty that is referenced to the Ringgit exchange rate, without any approval or registration under Notice 1
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 4, Para 5
+ℹ️ Why: Part C, Para 5(b): FCY payment to/from a Non-Resident is excluded where it relates to a Ringgit-referenced derivative, unless approved — no approval exists here.
+
+═══════════════════
+
+*Q94 [n4-27]* — Non-Resident entering an Exchange Rate Derivative without Notice 1 approval
+WHO: Non-Resident hedge fund
+WHAT: Entering an Exchange Rate Derivative transaction and making an FCY payment in connection with it, without being registered or approved under Notice 1
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 4, Para 5
+ℹ️ Why: Part C, Para 5(c): FCY payment to/from a Non-Resident is excluded where it relates to an Exchange Rate Derivative by that Non-Resident, unless approved under Notice 1 — no such approval exists here.
+
+═══════════════════
+
+*Q95 [n4-28]* — Two Non-Residents making an FCY payment between each other, any purpose
+WHO: Two Non-Resident companies
+WHAT: Making a Foreign Currency payment of USD2 million between each other, for the purchase of equipment located overseas
+AMOUNT: USD 2,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, Para 6
+ℹ️ Why: Part C, Para 6: a Non-Resident may pay another Non-Resident in FCY for any purpose.
+
+═══════════════════
+
+*Q96 [n4-29]* — Resident individual receiving a misc-expense reimbursement abroad from a friend
+WHO: Resident individual travelling abroad
+WHAT: Receiving a Foreign Currency reimbursement of miscellaneous travel expenses from a friend who is also a Resident, while both are temporarily overseas
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, FAQ Q2
+ℹ️ Why: Notice 4 "Payment in Foreign Currency by Resident" FAQ Q2: a Resident may receive an FCY advance or reimbursement of miscellaneous expenses from another Resident while abroad.
+
+═══════════════════
+
+*Q97 [n4-30]* — Resident paying for a foreign currency unit trust subscription in the fund's base currency
+WHO: Resident individual investor
+WHAT: Paying subscription monies for a Foreign Currency-denominated unit trust fund, in the fund's base currency, to a Resident fund management company
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, FAQ Q4
+ℹ️ Why: Notice 4 "Payment in Foreign Currency by Resident" FAQ Q4: FC unit trust subscription, redemption and fee payments may be made in the fund's base currency.
+
+═══════════════════
+
+*Q98 [n4-31]* — Joint investment, one party has DRB — RM2M combined cap exceeded
+WHO: Two Resident individuals, joint accountholders; one has DRB (two outstanding vehicle loans), the other has none
+WHAT: Jointly converting RM2.5 million from their joint Ringgit account into a joint foreign currency fixed deposit
+AMOUNT: RM 2,500,000
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 4, FAQ Q7
+ℹ️ Why: Notice 4 "Payment in Foreign Currency by Resident" FAQ Q7: DRB in any one joint party caps the WHOLE joint investment at RM1M per person / RM2M combined for two parties — RM2.5 million exceeds it.
+
+═══════════════════
+
+*Q99 [n4-32]* — Joint individuals, both with DRB — RM2M combined cap, within limit
+WHO: Two Resident individuals, joint accountholders, BOTH of whom have Domestic Ringgit Borrowing (each has two outstanding housing loans)
+WHAT: Jointly converting RM1.8 million from their joint Ringgit account into a joint foreign currency fixed deposit this calendar year
+AMOUNT: RM 1,800,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, FAQ Q7
+ℹ️ Why: Notice 4 "Payment in Foreign Currency by Resident" FAQ Q7: DRB in a joint party caps the WHOLE joint investment at RM2 million combined for two parties — RM1.8 million is within that combined cap.
+
+═══════════════════
+
+*Q100 [n4-33]* — Boundary: joint investment with DRB, exactly at the RM2M combined cap
+WHO: Two Resident individuals, joint accountholders; one has DRB (two outstanding vehicle loans)
+WHAT: Jointly converting exactly RM2,000,000 from their joint Ringgit account into a joint foreign currency fixed deposit this calendar year
+AMOUNT: RM 2,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 4, FAQ Q7
+ℹ️ Why: Notice 4 FAQ Q7: the combined cap for a 2-party joint investment where one party has DRB is RM2 million — exactly RM2,000,000 is within (not exceeding) that combined threshold.

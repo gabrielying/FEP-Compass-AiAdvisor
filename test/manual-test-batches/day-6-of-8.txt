@@ -1,0 +1,215 @@
+*FEP COMPASS — MANUAL TEST — DAY 6 of 8*
+Scenarios n5-01 → n6-10  (20 questions)
+Covers: N5 (Securities and Financial Instruments) + N6 (Import and Export of Currency)
+
+How to run: open Smart Tools → AI Compliance Analyst, enter each WHO/WHAT/AMOUNT into the form, run it, then compare the verdict + citation the AI gives against "Expected verdict" / "Expected citation" below.
+
+═══════════════════
+
+*Q101 [n5-01]* — Resident issuing a Ringgit bond to a Non-Resident
+WHO: Resident company
+WHAT: Issuing a Ringgit-denominated corporate bond in Malaysia to a Non-Resident institutional investor
+
+✅ Expected verdict: PERMITTED OR CONDITIONAL
+📌 Expected citation: Notice 5, Para 1
+ℹ️ Why: Part A, Para 1(a): permitted, but as a debt security issuance it must also comply with Notice 2 borrowing limits.
+
+═══════════════════
+
+*Q102 [n5-02]* — Non-Resident issuing an FCY bond in Malaysia
+WHO: Non-Resident company
+WHAT: Issuing a Foreign Currency-denominated bond in Malaysia to any investor
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 5, Para 2
+ℹ️ Why: Part A, Para 2-3: a Non-Resident may issue an FCY-denominated security in Malaysia to any person.
+
+═══════════════════
+
+*Q103 [n5-03]* — Bursa Malaysia offering an exchange-rate-linked Ringgit instrument
+WHO: Bursa Malaysia
+WHAT: Offering a Non-Resident a Ringgit-denominated structured note whose payout is linked to the USD/MYR exchange rate
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 5, Para 8
+ℹ️ Why: Part B, Para 8 explicitly excludes exchange-rate-referenced financial instruments from what Bursa Malaysia may offer Non-Residents.
+
+═══════════════════
+
+*Q104 [n5-04]* — Resident subscribing to a Notice-5 security
+WHO: Resident individual
+WHAT: Subscribing to a Ringgit-denominated corporate bond issued under Notice 5, subject to compliance with Notices 2, 3 and 4
+
+✅ Expected verdict: PERMITTED OR CONDITIONAL
+📌 Expected citation: Notice 5, Para 9
+ℹ️ Why: Part C, Para 9-10: subscription is permitted subject to compliance with Notices 2, 3 and 4.
+
+═══════════════════
+
+*Q105 [n5-05]* — LOB issuing a Ringgit financial instrument to a Resident
+WHO: Licensed Onshore Bank
+WHAT: Issuing a Ringgit-denominated structured deposit (Financial Instrument) to a Resident individual client
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 5, Para 4
+ℹ️ Why: Part B, Para 4(a): a LOB may only issue a Ringgit-denominated Financial Instrument in Malaysia to a Non-Resident, not to a Resident.
+
+═══════════════════
+
+*Q106 [n5-06]* — LOB dealing in a Ringgit interest rate derivative with a Non-Resident
+WHO: Licensed Onshore Bank
+WHAT: Dealing in a Ringgit-denominated interest rate derivative with a Non-Resident counterparty directly (no exchange rate feature)
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 5, Para 5
+ℹ️ Why: Part B, Para 5: a LOB may deal in a Ringgit-denominated interest rate derivative or profit rate Islamic derivative with a Non-Resident counterparty.
+
+═══════════════════
+
+*Q107 [n5-07]* — Multilateral Development Bank issuing a Ringgit debt security in Malaysia
+WHO: Multilateral Development Bank
+WHAT: Issuing a Ringgit-denominated debt security in Malaysia to any investor, subject to compliance with Notice 2
+
+✅ Expected verdict: PERMITTED OR CONDITIONAL
+📌 Expected citation: Notice 5, Para 2
+ℹ️ Why: Part A, Para 2-3: a Multilateral Development Bank or Qualified DFI may issue a Ringgit debt security in Malaysia to any person, subject to Notice 2.
+
+═══════════════════
+
+*Q108 [n5-08]* — Resident licensed insurer offering a Ringgit insurance product linked to a Financial Instrument, to a Non-Resident
+WHO: Resident licensed insurer
+WHAT: Issuing an insurance product linked to a Ringgit-denominated Financial Instrument, offered to a Non-Resident
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 5, Para 7
+ℹ️ Why: Part B, Para 7: a Resident licensed insurer or takaful operator may issue or offer an insurance/takaful product linked to a Ringgit-denominated Financial Instrument to a Non-Resident.
+
+═══════════════════
+
+*Q109 [n5-09]* — Licensed international Islamic bank issuing an FCY Islamic Financial Instrument
+WHO: Licensed international Islamic bank
+WHAT: Issuing an Islamic Financial Instrument denominated in Foreign Currency to any person, not referenced to exchange rate
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 5, Para 6
+ℹ️ Why: Part B, Para 6: a licensed international Islamic bank may issue an FCY-denominated Islamic Financial Instrument to any person.
+
+═══════════════════
+
+*Q110 [n5-10]* — Non-Resident transferring a Notice-5 security in Malaysia without checking Notice 2/3/4 compliance
+WHO: Non-Resident institutional investor
+WHAT: Transferring a Ringgit-denominated security issued under Notice 5 to another Non-Resident, without regard to Notice 2, 3 or 4 compliance
+
+✅ Expected verdict: CONDITIONAL OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 5, Para 9
+ℹ️ Why: Part C, Para 9-10: subscription or transfer of a Notice-5 security is permitted only subject to compliance with Notices 2, 3 and 4 — it is not unconditional.
+
+═══════════════════
+
+*Q111 [n6-01]* — Strict cap: traveller exporting RM5,000 cash
+WHO: Traveller (Resident) leaving Malaysia
+WHAT: Carrying RM5,000 in Ringgit currency notes out of Malaysia on departure
+AMOUNT: RM 5,000
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 6 (no specific para asserted — judge against rationale below)
+ℹ️ Why: A traveller may take out at most RM1,000 in Ringgit notes per trip — amounts above that are NOT permitted under any circumstances (no approval pathway exists for this one).
+
+═══════════════════
+
+*Q112 [n6-02]* — Within cap: traveller exporting RM800 cash
+WHO: Traveller (Resident) leaving Malaysia
+WHAT: Carrying RM800 in Ringgit currency notes out of Malaysia on departure
+AMOUNT: RM 800
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 6 (no specific para asserted — judge against rationale below)
+ℹ️ Why: RM800 is within the RM1,000 per-trip cap on exporting Ringgit notes.
+
+═══════════════════
+
+*Q113 [n6-03]* — Undeclared Ringgit import above threshold
+WHO: Traveller entering Malaysia
+WHAT: Bringing RM15,000 in Ringgit currency notes into Malaysia without declaring it to Customs on arrival
+AMOUNT: RM 15,000
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 6 (no specific para asserted — judge against rationale below)
+ℹ️ Why: Import of Ringgit above RM10,000 must be declared to Customs — bringing it in undeclared is not permitted.
+
+═══════════════════
+
+*Q114 [n6-04]* — Undeclared FCY export above threshold
+WHO: Traveller (Resident) leaving Malaysia
+WHAT: Taking USD10,000 in foreign currency notes out of Malaysia without declaring it to the Royal Malaysian Customs Department
+AMOUNT: USD 10,000
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 6 (no specific para asserted — judge against rationale below)
+ℹ️ Why: Amounts exceeding RM30,000 equivalent in FCY must be declared to Customs; USD10,000 (well above that, at typical exchange rates) taken out undeclared is a violation.
+
+═══════════════════
+
+*Q115 [n6-05]* — Boundary: traveller exporting exactly RM1,000 cash
+WHO: Traveller (Resident) leaving Malaysia
+WHAT: Carrying exactly RM1,000 in Ringgit currency notes out of Malaysia on departure
+AMOUNT: RM 1,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 6 (no specific para asserted — judge against rationale below)
+ℹ️ Why: RM1,000 is exactly at the per-trip cap on exporting Ringgit notes, which is permitted (the cap is "up to RM1,000").
+
+═══════════════════
+
+*Q116 [n6-06]* — Boundary: traveller exporting RM1,001 cash
+WHO: Traveller (Resident) leaving Malaysia
+WHAT: Carrying RM1,001 in Ringgit currency notes out of Malaysia on departure
+AMOUNT: RM 1,001
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 6 (no specific para asserted — judge against rationale below)
+ℹ️ Why: RM1,001 is RM1 above the RM1,000 per-trip cap on exporting Ringgit notes — not permitted under any circumstances.
+
+═══════════════════
+
+*Q117 [n6-07]* — Boundary: traveller importing exactly RM10,000 cash, undeclared
+WHO: Traveller entering Malaysia
+WHAT: Bringing exactly RM10,000 in Ringgit currency notes into Malaysia without declaring it to Customs on arrival
+AMOUNT: RM 10,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 6 (no specific para asserted — judge against rationale below)
+ℹ️ Why: Declaration is only required for import of Ringgit ABOVE RM10,000 — exactly RM10,000 does not trigger the declaration requirement.
+
+═══════════════════
+
+*Q118 [n6-08]* — Boundary: traveller importing RM10,001 cash, undeclared
+WHO: Traveller entering Malaysia
+WHAT: Bringing RM10,001 in Ringgit currency notes into Malaysia without declaring it to Customs on arrival
+AMOUNT: RM 10,001
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 6 (no specific para asserted — judge against rationale below)
+ℹ️ Why: RM10,001 exceeds the RM10,000 declarable threshold for Ringgit import — bringing it in undeclared is not permitted.
+
+═══════════════════
+
+*Q119 [n6-09]* — Boundary: traveller exporting FCY just below the RM30,000-equivalent declaration threshold, undeclared
+WHO: Traveller (Resident) leaving Malaysia
+WHAT: Taking the equivalent of RM29,000 in foreign currency notes out of Malaysia without declaring it to the Royal Malaysian Customs Department
+AMOUNT: RM 29,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 6 (no specific para asserted — judge against rationale below)
+ℹ️ Why: Declaration is only mandatory above RM30,000 equivalent in Foreign Currency — RM29,000 equivalent taken out undeclared does not breach the threshold.
+
+═══════════════════
+
+*Q120 [n6-10]* — Boundary: traveller importing FCY just above the RM30,000-equivalent declaration threshold, declared
+WHO: Traveller entering Malaysia
+WHAT: Bringing in the equivalent of RM31,000 in foreign currency notes into Malaysia, properly declared to the Royal Malaysian Customs Department on arrival
+AMOUNT: RM 31,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 6 (no specific para asserted — judge against rationale below)
+ℹ️ Why: There is no upper limit on FCY import; declaration above RM30,000 equivalent is mandatory and has been properly made here, so the import is permitted.

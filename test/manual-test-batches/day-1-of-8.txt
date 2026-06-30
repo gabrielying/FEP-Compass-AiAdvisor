@@ -1,0 +1,223 @@
+*FEP COMPASS — MANUAL TEST — DAY 1 of 8*
+Scenarios n1-01 → n2-10  (20 questions)
+Covers: N1 (Dealings in Currency, Gold and Other Precious Metals) + N2 (Borrowing, Lending and Guarantee)
+
+How to run: open Smart Tools → AI Compliance Analyst, enter each WHO/WHAT/AMOUNT into the form, run it, then compare the verdict + citation the AI gives against "Expected verdict" / "Expected citation" below.
+
+═══════════════════
+
+*Q1 [n1-01]* — Spot FX with a LOB to settle an import payment
+WHO: Resident company (importer)
+WHAT: Buying USD against Ringgit on a spot basis with a Licensed Onshore Bank to settle an import payment
+AMOUNT: USD 500,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 1, Para 1
+ℹ️ Why: Part A, Para 1: a Resident may buy/sell FCY vs Ringgit on spot basis with a LOB for its own account.
+
+═══════════════════
+
+*Q2 [n1-02]* — Forward FX contract with an unlicensed money changer
+WHO: Resident trading company
+WHAT: Entering a 3-month forward contract to sell EUR against Ringgit with a local currency dealer that is NOT a Licensed Onshore Bank, to hedge an anticipated export receivable
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 1 (no specific para asserted — judge against rationale below)
+ℹ️ Why: Forward Basis transactions must be undertaken with a LOB (Part A, Para 1) — an unlicensed counterparty is not permitted for forwards.
+
+═══════════════════
+
+*Q3 [n1-03]* — Unregistered institutional investor using Dynamic Hedging
+WHO: Resident Institutional Investor (asset manager), NOT registered under the Dynamic Hedging Framework
+WHAT: Enter plain vanilla forward contracts to sell FCY against Ringgit, hedging up to 100% of its FCY-denominated securities, without documentary evidence
+
+✅ Expected verdict: REQUIRES_APPROVAL
+📌 Expected citation: Notice 1, Para 2
+ℹ️ Why: Part A, Para 2 requires one-off FEP Authority registration under the Dynamic Hedging Framework before this is allowed.
+
+═══════════════════
+
+*Q4 [n1-04]* — FCY-vs-FCY spot deal with a LOB
+WHO: Resident individual
+WHAT: Buying USD against EUR on a spot basis with a Licensed Onshore Bank
+AMOUNT: USD 20,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 1, Para 5
+ℹ️ Why: Part A, Para 5: a Resident may buy/sell FCY against another FCY with a LOB.
+
+═══════════════════
+
+*Q5 [n1-05]* — Resident unwinding a Forward Basis contract whose Firm Commitment was a Portfolio Investment
+WHO: Resident asset management company
+WHAT: Attempting to unwind a Forward Basis transaction with a Licensed Onshore Bank where the underlying Firm Commitment is a Portfolio Investment (tradable equity holding below 10%)
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 1, Para 1
+ℹ️ Why: Part A, Para 1(2): a Resident may unwind a Forward Basis transaction with any LOB EXCEPT where the Firm Commitment is a Portfolio Investment — that specific unwind is excluded.
+
+═══════════════════
+
+*Q6 [n1-06]* — Registered Resident Institutional Investor unwinding a Dynamic Hedging forward
+WHO: Resident Institutional Investor, registered under the Dynamic Hedging Framework
+WHAT: Unwinding a plain vanilla forward contract entered under the Dynamic Hedging Framework, with a Licensed Onshore Bank
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 1, Para 2
+ℹ️ Why: Part A, Para 2(2): a registered Resident Institutional Investor may unwind its Para 2(1) Dynamic Hedging forward contract with any LOB.
+
+═══════════════════
+
+*Q7 [n1-07]* — Spot FX deal with a Licensed Money Changer, within MSBA scope
+WHO: Resident individual traveller
+WHAT: Buying USD against Ringgit on a spot basis with a Licensed Money Changer in accordance with the MSBA
+AMOUNT: USD 3,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 1, Para 14
+ℹ️ Why: Part C, Para 14: a Resident or Non-Resident may buy/sell FCY against Ringgit on Spot Basis with a Licensed Money Changer per the MSBA.
+
+═══════════════════
+
+*Q8 [n1-08]* — Resident Entity transacting FX on behalf of a Group entity that is a Financial Institution
+WHO: Resident Entity (treasury centre) acting for a Group entity that is itself a licensed bank
+WHAT: Buying Foreign Currency against Ringgit with a LOB on behalf of a Group entity that is a Financial Institution
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 1, Para 3
+ℹ️ Why: Part A, Para 3 only permits a Resident Entity to transact FX on behalf of a Group Principal that is NOT a Financial Institution or NRFI — here the Principal is a Financial Institution, so the exemption does not apply.
+
+═══════════════════
+
+*Q9 [n1-09]* — Non-Resident Institutional Investor exceeding the Dynamic Hedging buy-side threshold
+WHO: Non-Resident Institutional Investor, registered under the Dynamic Hedging Framework
+WHAT: Buying FCY against Ringgit forward contracts amounting to 40% of its Ringgit-denominated asset exposure (which only permits up to 25% on the buy side)
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 1, Para 7
+ℹ️ Why: Part B, Para 7: a registered Non-Resident Institutional Investor may buy FCY against Ringgit up to only 25% of its Ringgit-asset exposure (selling is capped at 100%) — 40% exceeds the buy-side limit.
+
+═══════════════════
+
+*Q10 [n1-10]* — Importing gold bars into Malaysia
+WHO: Resident bullion trading company
+WHAT: Importing gold bars into Malaysia for resale
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 1, Para 16
+ℹ️ Why: Part D, Para 16(b): a person is allowed to import gold or other precious metals.
+
+═══════════════════
+
+*Q11 [n2-01]* — Individual Ringgit borrowing from a Non-Resident friend, within RM1M cap
+WHO: Resident individual
+WHAT: Borrowing RM800,000 in Ringgit from a Non-Resident friend (not an immediate family member or employer)
+AMOUNT: RM 800,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 2
+🚫 Must NOT mention: RM10 million, RM100 million
+ℹ️ Why: Part A, Para 2 allows a Resident Individual to borrow up to RM1 million in aggregate in Ringgit from a Non-Resident (excl. NRFI) — RM800,000 is within that cap.
+
+═══════════════════
+
+*Q12 [n2-02]* — Individual Ringgit borrowing from a Non-Resident friend, exceeding RM1M cap
+WHO: Resident individual
+WHAT: Borrowing RM1.5 million in Ringgit from a Non-Resident friend (not an immediate family member or employer)
+AMOUNT: RM 1,500,000
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 2, Para 2
+ℹ️ Why: Part A, Para 2 caps such Ringgit borrowing at RM1 million aggregate — RM1.5 million exceeds it.
+
+═══════════════════
+
+*Q13 [n2-03]* — Entity FCY borrowing from its Direct Shareholder
+WHO: Resident company
+WHAT: Borrowing USD80 million equivalent in Foreign Currency from its Non-Resident Direct Shareholder (parent company)
+AMOUNT: USD 80,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 9
+🚫 Must NOT mention: RM100 million
+ℹ️ Why: Part B, Para 9(b): FCY borrowing from a Direct Shareholder is unlimited — the RM100 million cap (Para 10) only applies to borrowing from outside the Group/NRFI/out-of-group SPV.
+
+═══════════════════
+
+*Q14 [n2-04]* — Entity FCY borrowing from an unrelated Non-Resident, exceeding RM100M cap
+WHO: Resident company
+WHAT: Borrowing USD120 million equivalent in Foreign Currency from a Non-Resident company outside its Group (not a LOB, not a Direct Shareholder, not a Group entity)
+AMOUNT: USD 120,000,000
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 2, Para 10
+ℹ️ Why: Part B, Para 10 caps FCY borrowing from outside the Group at RM100 million equivalent on a group basis — USD120 million well exceeds it.
+
+═══════════════════
+
+*Q15 [n2-05]* — Individual Ringgit borrowing from an immediate family member
+WHO: Resident individual
+WHAT: Borrowing RM2 million in Ringgit from his Non-Resident spouse
+AMOUNT: RM 2,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 1
+🚫 Must NOT mention: RM1 million
+ℹ️ Why: Part A, Para 1: Ringgit borrowing from a Non-Resident Immediate Family Member is unlimited — the RM1 million cap (Para 2) does not apply here.
+
+═══════════════════
+
+*Q16 [n2-06]* — Individual Ringgit borrowing from employer in Malaysia
+WHO: Resident individual employee
+WHAT: Borrowing RM3 million in Ringgit from his employer in Malaysia for use in Malaysia, per the employment contract terms
+AMOUNT: RM 3,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 1
+🚫 Must NOT mention: RM1 million
+ℹ️ Why: Part A, Para 1(b): Ringgit borrowing from an employer in Malaysia for use in Malaysia is unlimited, subject to employment contract terms.
+
+═══════════════════
+
+*Q17 [n2-07]* — Boundary: individual Ringgit borrowing exactly at the RM1M cap
+WHO: Resident individual
+WHAT: Borrowing exactly RM1,000,000 in aggregate in Ringgit from a Non-Resident friend (not immediate family, not employer, not NRFI)
+AMOUNT: RM 1,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 2
+ℹ️ Why: Part A, Para 2 allows up to RM1 million in aggregate — exactly RM1,000,000 is within (not exceeding) that cap.
+
+═══════════════════
+
+*Q18 [n2-08]* — Individual FCY borrowing from immediate family member, unlimited
+WHO: Resident individual
+WHAT: Borrowing USD5 million equivalent in Foreign Currency from his Immediate Family Member (brother)
+AMOUNT: USD 5,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 3
+🚫 Must NOT mention: RM10 million
+ℹ️ Why: Part A, Para 3: FCY borrowing from an Immediate Family Member is unlimited — the RM10 million cap (Para 4) does not apply.
+
+═══════════════════
+
+*Q19 [n2-09]* — Individual FCY borrowing from a LOB, within RM10M cap
+WHO: Resident individual
+WHAT: Borrowing RM8 million equivalent in Foreign Currency from a Licensed Onshore Bank
+AMOUNT: RM 8,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 2, Para 4
+ℹ️ Why: Part A, Para 4: a Resident Individual may borrow up to RM10 million equivalent in aggregate in FCY from a LOB or Non-Resident — RM8 million is within that cap.
+
+═══════════════════
+
+*Q20 [n2-10]* — Individual FCY borrowing from a Non-Resident, exceeding RM10M cap
+WHO: Resident individual
+WHAT: Borrowing USD15 million equivalent in Foreign Currency from a Non-Resident business partner (not family, not a LOB)
+AMOUNT: USD 15,000,000
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 2, Para 4
+ℹ️ Why: Part A, Para 4 caps FCY borrowing by a Resident Individual at RM10 million equivalent in aggregate — USD15 million equivalent exceeds it.

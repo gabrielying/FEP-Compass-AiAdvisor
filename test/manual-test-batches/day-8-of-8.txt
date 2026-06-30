@@ -1,0 +1,113 @@
+*FEP COMPASS — MANUAL TEST — DAY 8 of 8*
+Scenarios n7-21 → n7-30  (10 questions)
+Covers: N7 (Export of Goods)
+
+How to run: open Smart Tools → AI Compliance Analyst, enter each WHO/WHAT/AMOUNT into the form, run it, then compare the verdict + citation the AI gives against "Expected verdict" / "Expected citation" below.
+
+═══════════════════
+
+*Q141 [n7-21]* — Trade FCA funds used for Foreign Currency Asset investment, subject to Notice 3
+WHO: Resident exporter with Domestic Ringgit Borrowing
+WHAT: Using retained Trade FCA export proceeds of RM3 million equivalent to invest in foreign-listed equities, with no other FC asset investment so far this year
+AMOUNT: RM 3,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, FAQ Q16
+ℹ️ Why: Notice 7 "Export of Goods" FAQ Q16: export proceeds retained in FC may be used to invest in FC assets, but remain subject to the Notice 3 investment limit for a Resident with DRB — here the funds are FCY-sourced (not Ringgit-converted), so the cap does not bite this transaction.
+
+═══════════════════
+
+*Q142 [n7-22]* — Resident without export proceeds converting Ringgit to FCY for an import obligation
+WHO: Resident company with no export proceeds of its own
+WHAT: Converting Ringgit to US Dollars with a Licensed Onshore Bank to settle an outstanding import payment obligation
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, FAQ Q17
+ℹ️ Why: Notice 7 "Export of Goods" FAQ Q17: a Resident without export proceeds may still convert Ringgit to FCY for import payment or FCY Borrowing repayment obligations.
+
+═══════════════════
+
+*Q143 [n7-23]* — Fund transfer from Trade FCA to Investment FCA, subject to Notice 3
+WHO: Resident exporter with Domestic Ringgit Borrowing
+WHAT: Transferring RM55 million equivalent from a Trade FCA into an Investment FCA this calendar year, exceeding the RM50 million annual conversion cap with no approval
+AMOUNT: RM 55,000,000
+
+✅ Expected verdict: NOT_PERMITTED OR REQUIRES_APPROVAL
+📌 Expected citation: Notice 7, FAQ Q18
+ℹ️ Why: Notice 7 "Export of Goods" FAQ Q18: transfer from a Trade FCA to an Investment FCA is subject to the Notice 3 investment limit — RM55 million exceeds the RM50 million annual cap for an Entity with DRB.
+
+═══════════════════
+
+*Q144 [n7-24]* — Fund transfer from Investment FCA back to Trade FCA, unrestricted
+WHO: Resident exporter with Domestic Ringgit Borrowing
+WHAT: Transferring RM80 million equivalent from an Investment FCA back into a Trade FCA
+AMOUNT: RM 80,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, FAQ Q18
+🚫 Must NOT mention: RM50 million
+ℹ️ Why: Notice 7 "Export of Goods" FAQ Q18: transfer from an Investment FCA back to a Trade FCA is unrestricted, unlike the reverse direction.
+
+═══════════════════
+
+*Q145 [n7-25]* — Offsetting export proceeds against import payment obligations
+WHO: Resident trading company that both exports and imports goods
+WHAT: Offsetting RM4 million of export proceeds receivable against RM4 million of import payments owed to the same overseas counterparty group, with supporting documentation
+AMOUNT: RM 4,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, Para 1(b)
+ℹ️ Why: Part A, Para 1(b) and Appendix B(a): offsetting export proceeds against import payment obligations is an approved arrangement.
+
+═══════════════════
+
+*Q146 [n7-26]* — Offsetting export proceeds against an anticipated future FC obligation not yet incurred
+WHO: Resident exporter
+WHAT: Offsetting export proceeds against an FC obligation that has not yet been incurred, but is merely anticipated for a future transaction
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 7, FAQ Q12
+ℹ️ Why: Notice 7 "Export of Goods" FAQ Q12: offsetting is only permitted against FC obligations already incurred under a Firm Commitment — not merely anticipated future obligations.
+
+═══════════════════
+
+*Q147 [n7-27]* — Offsetting export proceeds directly against an overseas investment
+WHO: Resident exporter
+WHAT: Attempting to offset export proceeds receivable directly against the cost of an overseas property investment, without any LOB-facilitated trade financing arrangement
+
+✅ Expected verdict: NOT_PERMITTED
+📌 Expected citation: Notice 7, FAQ Q14
+ℹ️ Why: Notice 7 "Export of Goods" FAQ Q14: export proceeds cannot be offset against overseas investments or direct commodity hedging with a Non-Resident counterparty.
+
+═══════════════════
+
+*Q148 [n7-28]* — Offsetting export proceeds against FCY Borrowing repayment via Trade Master Card-style global offsetting
+WHO: Resident exporter within a multinational Group
+WHAT: Offsetting export proceeds against the repayment of FCY Borrowing obtained under Notice 2, using a global offsetting arrangement administered by the Group treasury centre
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, FAQ Q11
+ℹ️ Why: Notice 7 "Export of Goods" FAQ Q11: detailed approved offsetting arrangements include offsetting against FCY Borrowing repayment under Notice 2, including via global offsetting / TMC structures.
+
+═══════════════════
+
+*Q149 [n7-29]* — Export of services mistakenly treated as subject to the 6-month repatriation rule
+WHO: Resident IT consulting company
+WHAT: Providing consulting services to an overseas client and receiving payment 9 months after invoicing, with no goods shipment involved
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, FAQ Q3
+🚫 Must NOT mention: 6 months, 24 months
+ℹ️ Why: Notice 7 "Export of Goods" FAQ Q3: the repatriation timeline obligations under Notice 7 apply only to export of goods, not export of services or merchanting trade — there is no 6-month deadline for this service payment.
+
+═══════════════════
+
+*Q150 [n7-30]* — Boundary: exporter with annual gross exports just under the RM250M reporting threshold
+WHO: Resident exporter with annual gross exports of exactly RM249 million in the preceding year
+WHAT: Not having submitted any report to the FEP Authority regarding its export activities
+AMOUNT: RM 249,000,000
+
+✅ Expected verdict: PERMITTED
+📌 Expected citation: Notice 7, FAQ Q19
+🚫 Must NOT mention: RM250 million
+ℹ️ Why: Notice 7 "Export of Goods" FAQ Q19: the reporting obligation is triggered only for exporters with annual gross exports ABOVE RM250 million — RM249 million does not trigger the requirement.
