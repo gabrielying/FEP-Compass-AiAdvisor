@@ -208,8 +208,7 @@
                   </label>
                   <label class="field">
                     <span class="field-lbl">What is the transaction?</span>
-                    <button type="button" class="chip-field placeholder" id="af-what-trigger" aria-haspopup="dialog" data-placeholder="Select type…"></button>
-                    <input type="hidden" id="af-what">
+                    <select id="af-what" class="af-select"></select>
                   </label>
                 </div>
                 <p class="form-hint" id="af-req-hint"></p>
@@ -217,17 +216,23 @@
 
               <div class="form-sec">
                 <div class="sec-hdr">Cross-border details</div>
+                <label class="field field-full mb-12">
+                  <span class="field-lbl">From <small>(originating country)</small></span>
+                  <select id="af-from" class="af-select"></select>
+                  <div class="other-input-row hidden">
+                    <input type="text" id="af-from-other" class="other-input" maxlength="60" placeholder="Type country name…">
+                  </div>
+                  <p class="form-hint" id="af-from-other-hint"></p>
+                </label>
+                <label class="field field-full mb-12">
+                  <span class="field-lbl">To <small>(destination country)</small></span>
+                  <select id="af-to" class="af-select"></select>
+                  <div class="other-input-row hidden">
+                    <input type="text" id="af-to-other" class="other-input" maxlength="60" placeholder="Type country name…">
+                  </div>
+                  <p class="form-hint" id="af-to-other-hint"></p>
+                </label>
                 <div class="form-grid">
-                  <label class="field">
-                    <span class="field-lbl">From <small>(originating country)</small></span>
-                    <button type="button" class="chip-field placeholder" id="af-from-trigger" aria-haspopup="dialog" data-placeholder="Select country…"></button>
-                    <input type="hidden" id="af-from">
-                  </label>
-                  <label class="field">
-                    <span class="field-lbl">To <small>(destination country)</small></span>
-                    <button type="button" class="chip-field placeholder" id="af-to-trigger" aria-haspopup="dialog" data-placeholder="Select country…"></button>
-                    <input type="hidden" id="af-to">
-                  </label>
                   <label class="field">
                     <span class="field-lbl">Why? <small>(purpose, max 160 chars)</small></span>
                     <input id="af-why" maxlength="160" placeholder="e.g. investing in overseas property for education">
@@ -235,12 +240,14 @@
                   <label class="field">
                     <span class="field-lbl">Amount</span>
                     <div class="amount-row">
-                      <select id="af-ccy">
-                        <option>MYR</option><option>USD</option><option>EUR</option><option>GBP</option>
-                        <option>SGD</option><option>JPY</option><option>CNY</option><option>AUD</option><option>Other</option>
-                      </select>
+                      <select id="af-ccy"></select>
                       <input id="af-amt" type="text" inputmode="decimal" placeholder="0.00">
                     </div>
+                    <div class="other-input-row hidden">
+                      <input type="text" id="af-ccy-other" class="other-input" maxlength="30" placeholder="e.g. USD, HKD, Singapore Dollar…">
+                    </div>
+                    <p class="form-hint" id="af-ccy-other-hint"></p>
+                    <p class="form-hint" id="af-fx-estimate"></p>
                   </label>
                 </div>
               </div>
@@ -369,48 +376,6 @@
       <button type="button" class="modal-close" data-close="who-overlay"><i class="ti ti-x"></i></button>
     </div>
     <div class="modal-body" id="who-sheet-body"></div>
-  </div>
-</div>
-
-<!-- ════════ ANALYST — WHAT PICKER SHEET ════════ -->
-<div class="overlay" id="what-overlay">
-  <div class="modal modal-sm" role="dialog" aria-modal="true">
-    <div class="modal-head">
-      <div>
-        <div class="modal-tag">AI COMPLIANCE ANALYST</div>
-        <div class="modal-name">What is the transaction?</div>
-      </div>
-      <button type="button" class="modal-close" data-close="what-overlay"><i class="ti ti-x"></i></button>
-    </div>
-    <div class="modal-body" id="what-sheet-body"></div>
-  </div>
-</div>
-
-<!-- ════════ ANALYST — FROM COUNTRY PICKER SHEET ════════ -->
-<div class="overlay" id="from-overlay">
-  <div class="modal modal-sm" role="dialog" aria-modal="true">
-    <div class="modal-head">
-      <div>
-        <div class="modal-tag">AI COMPLIANCE ANALYST</div>
-        <div class="modal-name">From (originating country)</div>
-      </div>
-      <button type="button" class="modal-close" data-close="from-overlay"><i class="ti ti-x"></i></button>
-    </div>
-    <div class="modal-body" id="from-sheet-body"></div>
-  </div>
-</div>
-
-<!-- ════════ ANALYST — TO COUNTRY PICKER SHEET ════════ -->
-<div class="overlay" id="to-overlay">
-  <div class="modal modal-sm" role="dialog" aria-modal="true">
-    <div class="modal-head">
-      <div>
-        <div class="modal-tag">AI COMPLIANCE ANALYST</div>
-        <div class="modal-name">To (destination country)</div>
-      </div>
-      <button type="button" class="modal-close" data-close="to-overlay"><i class="ti ti-x"></i></button>
-    </div>
-    <div class="modal-body" id="to-sheet-body"></div>
   </div>
 </div>
 
