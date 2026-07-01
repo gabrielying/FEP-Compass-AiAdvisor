@@ -55,17 +55,89 @@ const AF_WHO_OPTIONS = [
   'Licensed Onshore Bank (LOB)',
 ];
 const AF_WHAT_GROUPS = [
+  { group:'Other', items:['Other'] },
   { group:'FX dealing', items:['Buy / sell foreign currency', 'Forward / hedging contract'] },
   { group:'Borrowing & lending', items:['Borrowing', 'Lending', 'Financial guarantee'] },
   { group:'Investment', items:['Investment in foreign currency asset', 'Issue securities / financial instrument'] },
   { group:'Cross-border movement', items:['Payment or receipt', 'Carry cash across the border', 'Export of goods (proceeds)'] },
-  { group:'Other', items:['Other'] },
 ];
 const FX_COUNTRIES = [
-  'Malaysia', 'Australia', 'Brunei', 'Cambodia', 'Canada', 'China', 'Germany', 'Hong Kong',
+  'Other', 'Malaysia', 'Australia', 'Brunei', 'Cambodia', 'Canada', 'China', 'Germany', 'Hong Kong',
   'India', 'Indonesia', 'Japan', 'Laos', 'Myanmar', 'Netherlands', 'New Zealand', 'Philippines',
   'Singapore', 'South Korea', 'Switzerland', 'Taiwan', 'Thailand', 'United Arab Emirates',
-  'United Kingdom', 'United States', 'Vietnam', 'Other',
+  'United Kingdom', 'United States', 'Vietnam',
+];
+/* AI Compliance Analyst — currency select options; 'Other' reveals a free-text/ISO-code fallback */
+const AF_CCY_OPTIONS = ['Other', 'MYR', 'USD', 'EUR', 'GBP', 'SGD', 'JPY', 'CNY', 'AUD'];
+
+/* Static, curated reference rates to MYR — NOT live. The CSP connect-src in index.html
+   forbids any live FX-rate API call, so this table is manually maintained and must be
+   updated by hand if rates drift materially from these indicative values. */
+const FX_RATES_TO_MYR = { MYR:1, USD:4.70, EUR:5.10, GBP:5.95, SGD:3.48, JPY:0.031, CNY:0.65, AUD:3.10 };
+
+/* Standard ISO-4217 alpha-3 currency codes (active list) — used to validate the
+   currency "Other" free-text fallback. */
+const ISO_CURRENCY_CODES = [
+  'AED','AFN','ALL','AMD','ANG','AOA','ARS','AUD','AWG','AZN',
+  'BAM','BBD','BDT','BGN','BHD','BIF','BMD','BND','BOB','BRL','BSD','BTN','BWP','BYN','BZD',
+  'CAD','CDF','CHF','CLP','CNY','COP','CRC','CUP','CVE','CZK',
+  'DJF','DKK','DOP','DZD',
+  'EGP','ERN','ETB','EUR',
+  'FJD','FKP',
+  'GBP','GEL','GHS','GIP','GMD','GNF','GTQ','GYD',
+  'HKD','HNL','HTG','HUF',
+  'IDR','ILS','INR','IQD','IRR','ISK',
+  'JMD','JOD','JPY',
+  'KES','KGS','KHR','KMF','KPW','KRW','KWD','KYD','KZT',
+  'LAK','LBP','LKR','LRD','LSL','LYD',
+  'MAD','MDL','MGA','MKD','MMK','MNT','MOP','MRU','MUR','MVR','MWK','MXN','MYR','MZN',
+  'NAD','NGN','NIO','NOK','NPR','NZD',
+  'OMR',
+  'PAB','PEN','PGK','PHP','PKR','PLN','PYG',
+  'QAR',
+  'RON','RSD','RUB','RWF',
+  'SAR','SBD','SCR','SDG','SEK','SGD','SHP','SLE','SOS','SRD','SSP','STN','SYP','SZL',
+  'THB','TJS','TMT','TND','TOP','TRY','TTD','TWD','TZS',
+  'UAH','UGX','USD','UYU','UZS',
+  'VES','VND','VUV',
+  'WST',
+  'XAF','XCD','XOF','XPF',
+  'YER',
+  'ZAR','ZMW','ZWL',
+];
+/* Common lowercase currency names/nicknames -> ISO code, for the "Other" free-text fallback */
+const CURRENCY_NAME_ALIASES = {
+  'ringgit':'MYR', 'dollar':'USD', 'us dollar':'USD', 'pound':'GBP', 'sterling':'GBP',
+  'euro':'EUR', 'yen':'JPY', 'yuan':'CNY', 'renminbi':'CNY', 'sing dollar':'SGD',
+  'singapore dollar':'SGD', 'aussie dollar':'AUD',
+};
+
+/* ~195 UN-recognized country names (standard English short names) — used to validate
+   the From/To country "Other" free-text fallback. */
+const WORLD_COUNTRIES = [
+  'Afghanistan','Albania','Algeria','Andorra','Angola','Antigua and Barbuda','Argentina','Armenia',
+  'Australia','Austria','Azerbaijan','Bahamas','Bahrain','Bangladesh','Barbados','Belarus','Belgium',
+  'Belize','Benin','Bhutan','Bolivia','Bosnia and Herzegovina','Botswana','Brazil','Brunei','Bulgaria',
+  'Burkina Faso','Burundi','Cabo Verde','Cambodia','Cameroon','Canada','Central African Republic','Chad',
+  'Chile','China','Colombia','Comoros','Congo','Costa Rica',"Cote d'Ivoire",'Croatia','Cuba','Cyprus',
+  'Czechia','Democratic Republic of the Congo','Denmark','Djibouti','Dominica','Dominican Republic',
+  'Ecuador','Egypt','El Salvador','Equatorial Guinea','Eritrea','Estonia','Eswatini','Ethiopia','Fiji',
+  'Finland','France','Gabon','Gambia','Georgia','Germany','Ghana','Greece','Grenada','Guatemala','Guinea',
+  'Guinea-Bissau','Guyana','Haiti','Honduras','Hong Kong','Hungary','Iceland','India','Indonesia','Iran',
+  'Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kiribati','Kuwait',
+  'Kyrgyzstan','Laos','Latvia','Lebanon','Lesotho','Liberia','Libya','Liechtenstein','Lithuania',
+  'Luxembourg','Madagascar','Malawi','Malaysia','Maldives','Mali','Malta','Marshall Islands','Mauritania',
+  'Mauritius','Mexico','Micronesia','Moldova','Monaco','Mongolia','Montenegro','Morocco','Mozambique',
+  'Myanmar','Namibia','Nauru','Nepal','Netherlands','New Zealand','Nicaragua','Niger','Nigeria',
+  'North Korea','North Macedonia','Norway','Oman','Pakistan','Palau','Panama','Papua New Guinea',
+  'Paraguay','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda',
+  'Saint Kitts and Nevis','Saint Lucia','Saint Vincent and the Grenadines','Samoa','San Marino',
+  'Sao Tome and Principe','Saudi Arabia','Senegal','Serbia','Seychelles','Sierra Leone','Singapore',
+  'Slovakia','Slovenia','Solomon Islands','Somalia','South Africa','South Korea','South Sudan','Spain',
+  'Sri Lanka','Sudan','Suriname','Sweden','Switzerland','Syria','Taiwan','Tajikistan','Tanzania',
+  'Thailand','Timor-Leste','Togo','Tonga','Trinidad and Tobago','Tunisia','Turkey','Turkmenistan',
+  'Tuvalu','Uganda','Ukraine','United Arab Emirates','United Kingdom','United States','Uruguay',
+  'Uzbekistan','Vanuatu','Vatican City','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe',
 ];
 /* Static, curated quick-fill scenarios — deliberately NOT derived from the fep_activity log,
    which is unstructured free text users are told to keep PII out of. */
@@ -98,6 +170,37 @@ function mkEl(tag, cls, html) {
   if (cls) el.className = cls;
   if (html !== undefined) el.innerHTML = html;
   return el;
+}
+
+/* Levenshtein edit distance between two strings (case-insensitive). Used for
+   lightweight, non-blocking "did you mean…" suggestions on free-text fallback inputs. */
+function levenshtein(a, b) {
+  a = String(a||'').toLowerCase(); b = String(b||'').toLowerCase();
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  let prev = Array.from({length:n+1}, (_,j) => j);
+  for (let i=1; i<=m; i++) {
+    const cur = [i];
+    for (let j=1; j<=n; j++) {
+      cur[j] = a[i-1] === b[j-1] ? prev[j-1] : 1 + Math.min(prev[j-1], prev[j], cur[j-1]);
+    }
+    prev = cur;
+  }
+  return prev[n];
+}
+/* Returns the candidate in `candidates` closest to `input` (case-insensitive) if within
+   maxDistance edits, else null. Exact case-insensitive matches return immediately. */
+function suggestClosest(input, candidates, maxDistance) {
+  const needle = String(input||'').trim().toLowerCase();
+  if (!needle) return null;
+  const exact = candidates.find(c => String(c).toLowerCase() === needle);
+  if (exact) return exact;
+  let best = null, bestDist = Infinity;
+  candidates.forEach(c => {
+    const d = levenshtein(needle, c);
+    if (d < bestDist) { bestDist = d; best = c; }
+  });
+  return bestDist <= maxDistance ? best : null;
 }
 function toast(msg) {
   const t = $('toast');
@@ -659,130 +762,59 @@ document.querySelectorAll('.tool-tab').forEach(b => b.addEventListener('click', 
 
 /* ━━━ AI compliance analyst ━━━ */
 
-/* Renders a flat array of option strings, or an array of {group, items}, as tappable chips
-   into the given sheet body. Highlights currentValue and calls onPick(text) on selection. */
-function renderChipSheet(bodyId, options, currentValue, onPick) {
-  const body = $(bodyId);
-  body.innerHTML = '';
-  const renderGrid = items => {
-    const grid = mkEl('div', 'chip-grid');
-    items.forEach(item => {
-      const on = item === currentValue;
-      const chip = mkEl('button', 'chip-pick' + (on ? ' on' : ''), esc(item));
-      chip.type = 'button';
-      chip.setAttribute('aria-pressed', on ? 'true' : 'false');
-      chip.addEventListener('click', () => { onPick(item); closeOverlays(); });
-      grid.appendChild(chip);
-      /* force "Lending" onto its own row, directly under "Borrowing" */
-      if (item === 'Borrowing') grid.appendChild(mkEl('div', 'chip-break'));
-    });
-    return grid;
-  };
-  if (options.length && typeof options[0] === 'object') {
-    options.forEach(({ group, items }) => {
-      body.appendChild(mkEl('div', 'sec-hdr', esc(group)));
-      body.appendChild(renderGrid(items));
-    });
-  } else {
-    body.appendChild(renderGrid(options));
-  }
-}
-
-/* Country picker: same chip-grid look as renderChipSheet, but "Other" reveals a free-text
-   input instead of immediately picking the literal word "Other" — lets users name a country
-   that isn't in the curated FX_COUNTRIES list. */
-function renderCountrySheet(bodyId, currentValue, onPick) {
-  const body = $(bodyId);
-  body.innerHTML = '';
-  const isCustom = !!currentValue && !FX_COUNTRIES.includes(currentValue);
-
-  const otherInput = document.createElement('input');
-  otherInput.type = 'text';
-  otherInput.className = 'other-input';
-  otherInput.maxLength = 60;
-  otherInput.placeholder = 'Type country name…';
-  if (isCustom) otherInput.value = currentValue;
-
-  const confirmBtn = mkEl('button', 'btn primary', 'Use');
-  confirmBtn.type = 'button';
-  const applyOther = () => {
-    const val = otherInput.value.trim().slice(0, 60);
-    if (val) { onPick(val); closeOverlays(); }
-  };
-  confirmBtn.addEventListener('click', applyOther);
-  otherInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyOther(); } });
-
-  const otherRow = mkEl('div', 'other-input-row' + (isCustom ? '' : ' hidden'));
-  otherRow.appendChild(otherInput);
-  otherRow.appendChild(confirmBtn);
-
-  const grid = mkEl('div', 'chip-grid');
-  FX_COUNTRIES.forEach(item => {
-    const on = item === currentValue || (item === 'Other' && isCustom);
-    const chip = mkEl('button', 'chip-pick' + (on ? ' on' : ''), esc(item));
-    chip.type = 'button';
-    chip.setAttribute('aria-pressed', on ? 'true' : 'false');
-    chip.addEventListener('click', () => {
-      if (item === 'Other') { otherRow.classList.remove('hidden'); otherInput.focus(); }
-      else { onPick(item); closeOverlays(); }
-    });
-    grid.appendChild(chip);
-  });
-
-  body.appendChild(grid);
-  body.appendChild(otherRow);
-}
-
-/* Renders a chip-field trigger's label + trailing chevron icon, falling back to its
-   data-placeholder attribute (and the "placeholder" style class) when val is empty. */
-function setChipFieldValue(trigger, val) {
-  const text = val || trigger.dataset.placeholder || '';
-  trigger.innerHTML = `<span>${esc(text)}</span><i class="ti ti-chevron-down"></i>`;
-  trigger.classList.toggle('placeholder', !val);
-}
-
-function openWhoSheet() {
-  renderChipSheet('who-sheet-body', AF_WHO_OPTIONS, $('af-who').value, selectWho);
-  openOverlay('who-overlay');
-}
-function openWhatSheet() {
-  renderChipSheet('what-sheet-body', AF_WHAT_GROUPS, $('af-what').value, selectWhat);
-  openOverlay('what-overlay');
-}
 function selectWho(val) {
   $('af-who').value = val;
-  setChipFieldValue($('af-who-trigger'), val);
   updateAfSummary();
   updateAfReqHint();
 }
+/* selectFrom/selectTo/selectWhat remain the canonical value-setters — applyQuickfill()
+   calls them directly, and the native <select>/"Other" text-input change listeners below
+   also route through them so every code path keeps .value in sync with the summary/hint. */
 function selectWhat(val) {
   $('af-what').value = val;
-  setChipFieldValue($('af-what-trigger'), val);
   updateAfSummary();
   updateAfReqHint();
-}
-function openFromSheet() {
-  renderCountrySheet('from-sheet-body', $('af-from').value, selectFrom);
-  openOverlay('from-overlay');
-}
-function openToSheet() {
-  renderCountrySheet('to-sheet-body', $('af-to').value, selectTo);
-  openOverlay('to-overlay');
 }
 function selectFrom(val) {
   $('af-from').value = val;
-  setChipFieldValue($('af-from-trigger'), val);
   updateAfSummary();
 }
 function selectTo(val) {
   $('af-to').value = val;
-  setChipFieldValue($('af-to-trigger'), val);
   updateAfSummary();
+}
+
+/* Resolved custom "Other" currency text — kept out of $('af-ccy').value (which stays the
+   literal string 'Other' while that option is selected) so downstream code can tell "Other,
+   unresolved" apart from a fully-typed custom code. */
+let afCcyCustomValue = '';
+/* Resolved custom "Other" From/To country text — same rationale as afCcyCustomValue above:
+   assigning an arbitrary string to a <select>'s .value is a no-op per the HTML spec unless
+   that string matches an existing <option> value, so a user-typed custom country must be
+   tracked separately rather than written back into $('af-from'/'af-to').value. */
+let afFromCustomValue = '';
+let afToCustomValue = '';
+/* Returns the effective currency code to use in the query/summary/submit: the select's
+   value unless it's the literal 'Other', in which case the resolved custom text (or the
+   literal 'Other' if nothing has been typed yet). */
+function effectiveCcy() {
+  const v = $('af-ccy').value;
+  return v === 'Other' ? (afCcyCustomValue || 'Other') : v;
+}
+/* Returns the effective From/To country to use in the query/summary/submit — mirrors
+   effectiveCcy() above. */
+function effectiveFrom() {
+  const v = $('af-from').value;
+  return v === 'Other' ? (afFromCustomValue || 'Other') : v;
+}
+function effectiveTo() {
+  const v = $('af-to').value;
+  return v === 'Other' ? (afToCustomValue || 'Other') : v;
 }
 
 function updateAfSummary() {
   const who = $('af-who').value, what = $('af-what').value;
-  const ccy = $('af-ccy').value, amtRaw = $('af-amt').value.replace(/,/g, '');
+  const ccy = effectiveCcy(), amtRaw = $('af-amt').value.replace(/,/g, '');
   const parts = [];
   if (who) parts.push(who);
   if (what) parts.push(what);
@@ -793,6 +825,175 @@ function updateAfSummary() {
   const summary = $('af-summary');
   summary.textContent = parts.join(' · ');
   summary.classList.toggle('hidden', parts.length === 0);
+}
+
+/* Indicative RM-equivalent display next to the Amount field — uses only the static
+   FX_RATES_TO_MYR table (no live rate lookups; see comment above that constant). */
+function updateAfFxEstimate() {
+  const el = $('af-fx-estimate'); if (!el) return;
+  const ccy = effectiveCcy();
+  const amtRaw = $('af-amt').value.replace(/,/g, '');
+  const rate = FX_RATES_TO_MYR[ccy];
+  const n = Number(amtRaw);
+  if (amtRaw && Number.isFinite(n) && n > 0 && rate) {
+    const rm = n * rate;
+    el.textContent = `≈ RM ${rm.toLocaleString('en-MY', { maximumFractionDigits:2 })} (indicative)`;
+    el.classList.remove('hidden');
+  } else {
+    el.textContent = '';
+    el.classList.add('hidden');
+  }
+}
+
+/* ── init-time <select> renderers for Who / What / From / To / Currency ── */
+function renderWhoSelect() {
+  const sel = $('af-who'); if (!sel) return;
+  sel.innerHTML = '';
+  AF_WHO_OPTIONS.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item; opt.textContent = item;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', function () { selectWho(this.value); });
+}
+function renderWhatSelect() {
+  const sel = $('af-what'); if (!sel) return;
+  sel.innerHTML = '';
+  AF_WHAT_GROUPS.forEach(({ group, items }) => {
+    const og = document.createElement('optgroup');
+    og.label = group;
+    items.forEach(item => {
+      const opt = document.createElement('option');
+      opt.value = item; opt.textContent = item;
+      og.appendChild(opt);
+    });
+    sel.appendChild(og);
+  });
+  sel.addEventListener('change', function () { selectWhat(this.value); });
+}
+function renderCcySelect() {
+  const sel = $('af-ccy'); if (!sel) return;
+  sel.innerHTML = '';
+  AF_CCY_OPTIONS.forEach(code => {
+    const opt = document.createElement('option');
+    opt.value = code; opt.textContent = code;
+    sel.appendChild(opt);
+  });
+}
+/* Shared renderer for the From/To country <select>s. */
+function renderCountrySelect(selectId) {
+  const sel = $(selectId); if (!sel) return;
+  sel.innerHTML = '';
+  FX_COUNTRIES.forEach(country => {
+    const opt = document.createElement('option');
+    opt.value = country; opt.textContent = country;
+    sel.appendChild(opt);
+  });
+}
+
+/* Wires a From/To country <select> + its "Other" free-text fallback row. `setCustom` persists
+   the user-typed custom country text (see afFromCustomValue/afToCustomValue above) since
+   assigning it back into the <select>'s .value would silently no-op. */
+function wireCountryField(selectId, otherInputId, otherHintId, selectFn, setCustom) {
+  const sel = $(selectId), otherRow = sel ? sel.parentElement.querySelector('.other-input-row') : null;
+  const otherInput = $(otherInputId), hint = $(otherHintId);
+  if (!sel || !otherInput || !hint) return;
+  sel.addEventListener('change', function () {
+    if (this.value === 'Other') {
+      otherRow?.classList.remove('hidden');
+      otherInput.focus();
+    } else {
+      otherRow?.classList.add('hidden');
+      hint.textContent = '';
+      setCustom('');
+      selectFn(this.value);
+    }
+  });
+  otherInput.addEventListener('input', function () {
+    const val = this.value.trim().slice(0, 60);
+    setCustom(val);
+    updateAfSummary();
+    if (!val) { hint.textContent = ''; return; }
+    const exact = WORLD_COUNTRIES.find(c => c.toLowerCase() === val.toLowerCase());
+    if (exact) { hint.textContent = ''; hint.classList.remove('warn'); return; }
+    const suggestion = suggestClosest(val, WORLD_COUNTRIES, 2);
+    if (suggestion) {
+      hint.innerHTML = '';
+      hint.classList.add('warn');
+      hint.append('Did you mean ');
+      const link = mkEl('button', 'form-hint-link', esc(suggestion));
+      link.type = 'button';
+      link.addEventListener('click', () => {
+        otherInput.value = suggestion;
+        setCustom(suggestion);
+        updateAfSummary();
+        hint.textContent = ''; hint.classList.remove('warn');
+      });
+      hint.appendChild(link);
+      hint.append('?');
+    } else {
+      hint.textContent = 'Unrecognized country name — please check the spelling';
+      hint.classList.add('warn');
+    }
+  });
+}
+
+/* Wires the Currency <select> + its "Other" free-text fallback row (ISO code / common name). */
+function wireCcyField() {
+  const sel = $('af-ccy'), otherRow = sel ? sel.parentElement.parentElement.querySelector('.other-input-row') : null;
+  const otherInput = $('af-ccy-other'), hint = $('af-ccy-other-hint');
+  if (!sel || !otherInput || !hint) return;
+  sel.addEventListener('change', function () {
+    if (this.value === 'Other') {
+      otherRow?.classList.remove('hidden');
+      otherInput.focus();
+    } else {
+      otherRow?.classList.add('hidden');
+      hint.textContent = '';
+      afCcyCustomValue = '';
+      updateAfSummary();
+      updateAfFxEstimate();
+    }
+  });
+  otherInput.addEventListener('input', function () {
+    const typed = this.value.trim();
+    const upper = typed.toUpperCase();
+    let resolved = '';
+    if (ISO_CURRENCY_CODES.includes(upper)) {
+      resolved = upper;
+      hint.textContent = ''; hint.classList.remove('warn');
+    } else if (CURRENCY_NAME_ALIASES[typed.toLowerCase()]) {
+      resolved = CURRENCY_NAME_ALIASES[typed.toLowerCase()];
+      hint.textContent = ''; hint.classList.remove('warn');
+    } else {
+      resolved = typed;
+      if (!typed) { hint.textContent = ''; hint.classList.remove('warn'); }
+      else {
+        const suggestion = suggestClosest(upper, ISO_CURRENCY_CODES, 1);
+        if (suggestion) {
+          hint.innerHTML = '';
+          hint.classList.add('warn');
+          hint.append('Did you mean ');
+          const link = mkEl('button', 'form-hint-link', esc(suggestion));
+          link.type = 'button';
+          link.addEventListener('click', () => {
+            otherInput.value = suggestion;
+            afCcyCustomValue = suggestion;
+            hint.textContent = ''; hint.classList.remove('warn');
+            updateAfSummary(); updateAfFxEstimate();
+          });
+          hint.appendChild(link);
+          hint.append('?');
+        } else {
+          hint.textContent = 'Unrecognized currency — please check the code/name';
+          hint.classList.add('warn');
+        }
+      }
+    }
+    afCcyCustomValue = resolved;
+    updateAfSummary();
+    updateAfFxEstimate();
+  });
 }
 
 function updateAfReqHint() {
@@ -818,19 +1019,39 @@ function renderQuickfillChips() {
     row.appendChild(chip);
   });
 }
+/* Reflects a value into a From/To <select> plus its "Other" free-text row (if present), then
+   calls the matching canonical setter — keeps the visible select/other-row in sync with
+   quick-fill scenarios exactly as the old chip-sheet flow did. A literal 'Other' scenario
+   value (see QUICKFILL_SCENARIOS) reveals the other-row with the text input left empty,
+   matching old chip-sheet behavior — it does not fabricate a country name. Since `value` is
+   always a known option (a real country or the literal 'Other') for every quick-fill
+   scenario, any previously-typed custom text is stale and is cleared via `setCustom('')` —
+   the visible "Other" text <input> and its hint are cleared too, so no stale typed text
+   lingers alongside the reset internal tracker. */
+function applyFieldValue(selectId, value, selectFn, setCustom, otherInputId, otherHintId) {
+  const sel = $(selectId);
+  const otherRow = sel ? sel.parentElement.querySelector('.other-input-row') : null;
+  if (sel) {
+    const known = [...sel.options].some(o => o.value === value);
+    sel.value = known ? value : 'Other';
+    if (otherRow) otherRow.classList.toggle('hidden', known && value !== 'Other');
+  }
+  const otherInput = otherInputId ? $(otherInputId) : null;
+  const hint = otherHintId ? $(otherHintId) : null;
+  if (otherInput) otherInput.value = '';
+  if (hint) { hint.textContent = ''; hint.classList.remove('warn'); }
+  setCustom('');
+  selectFn(value);
+}
 function applyQuickfill(scenario) {
   selectWho(scenario.who);
   selectWhat(scenario.what);
-  selectFrom(scenario.from);
-  selectTo(scenario.to);
+  applyFieldValue('af-from', scenario.from, selectFrom, v => { afFromCustomValue = v; }, 'af-from-other', 'af-from-other-hint');
+  applyFieldValue('af-to', scenario.to, selectTo, v => { afToCustomValue = v; }, 'af-to-other', 'af-to-other-hint');
   updateAfSummary();
 }
 
-$('af-who-trigger').addEventListener('click', openWhoSheet);
-$('af-what-trigger').addEventListener('click', openWhatSheet);
-$('af-from-trigger').addEventListener('click', openFromSheet);
-$('af-to-trigger').addEventListener('click', openToSheet);
-$('af-ccy').addEventListener('change', updateAfSummary);
+wireCcyField();
 
 /* Live thousands-separator formatting for the amount field, e.g. 800000 -> 800,000.00 */
 $('af-amt').addEventListener('input', e => {
@@ -845,15 +1066,16 @@ $('af-amt').addEventListener('input', e => {
   const pos = Math.max(0, el.value.length - cursorFromEnd);
   el.setSelectionRange(pos, pos);
   updateAfSummary();
+  updateAfFxEstimate();
 });
 
 $('analyst-form').addEventListener('submit', async e => {
   e.preventDefault();
   const who = $('af-who').value, what = $('af-what').value;
-  const from = $('af-from').value.trim().slice(0, 60), to = $('af-to').value.trim().slice(0, 60);
+  const from = effectiveFrom().trim().slice(0, 60), to = effectiveTo().trim().slice(0, 60);
   const where = from && to ? `${from} → ${to}` : (from || to || '');
   const why = $('af-why').value.trim().slice(0, 160);
-  const ccy = $('af-ccy').value, ctx = $('af-ctx').value.trim().slice(0, 1000);
+  const ccy = effectiveCcy(), ctx = $('af-ctx').value.trim().slice(0, 1000);
   if (!who || !what) return toast('Please select who is transacting and the transaction type');
 
   let amt = $('af-amt').value.replace(/,/g, '');
@@ -1311,10 +1533,13 @@ renderAdvisorEmpty();
 renderSettings();
 buildBM25();
 renderQuickfillChips();
-setChipFieldValue($('af-who-trigger'), $('af-who').value);
-setChipFieldValue($('af-what-trigger'), $('af-what').value);
-setChipFieldValue($('af-from-trigger'), $('af-from').value);
-setChipFieldValue($('af-to-trigger'), $('af-to').value);
+renderWhoSelect();
+renderWhatSelect();
+renderCcySelect();
+renderCountrySelect('af-from');
+renderCountrySelect('af-to');
+wireCountryField('af-from', 'af-from-other', 'af-from-other-hint', selectFrom, v => { afFromCustomValue = v; });
+wireCountryField('af-to', 'af-to-other', 'af-to-other-hint', selectTo, v => { afToCustomValue = v; });
 updateAfReqHint();
 initOnboarding();
 initFirstRunGuide();
