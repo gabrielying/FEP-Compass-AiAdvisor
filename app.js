@@ -1043,13 +1043,27 @@ function afFieldsReady() {
   if (!why) missing.push('why (purpose)');
   if (!ccyOk) missing.push('the currency');
   if (!amtOk) missing.push('the amount');
-  return { ready: missing.length === 0, missing };
+  return {
+    ready: missing.length === 0,
+    missing,
+    fields: { who: !!who, what: !!what, from: fromOk, to: toOk, why: !!why, amount: ccyOk && amtOk },
+  };
+}
+
+/* Hides a field's red "required" asterisk once it's been filled in, so the * is only ever
+   shown for fields the user still needs to complete — see afFieldsReady() for the per-field
+   filled/unfilled state this reflects. */
+function updateAfReqMarks(fields) {
+  Object.entries(fields).forEach(([key, filled]) => {
+    const mark = $(`af-req-${key}`);
+    if (mark) mark.classList.toggle('hidden', filled);
+  });
 }
 
 function updateAfReqHint() {
-  const { ready, missing } = afFieldsReady();
+  const { ready, missing, fields } = afFieldsReady();
   const hint = $('af-req-hint');
-  const runBtn = $('analyst-run');
+  updateAfReqMarks(fields);
   if (ready) {
     hint.textContent = 'Ready to run the compliance health-check';
     hint.classList.add('ok');
@@ -1057,7 +1071,6 @@ function updateAfReqHint() {
     hint.classList.remove('ok');
     hint.textContent = 'Still need: ' + missing.join(', ');
   }
-  if (runBtn) runBtn.disabled = !ready;
 }
 
 function renderQuickfillChips() {
@@ -1180,6 +1193,7 @@ $('analyst-form').addEventListener('submit', async e => {
     out.appendChild(aiFallbackBlock(err, chunks));
     logActivity('analyst', `Compliance check: ${who} — ${what} → AI unavailable, showed reference provisions`);
   } finally {
+    $('analyst-run').disabled = false;
     updateAfReqHint();
     out.scrollIntoView({ behavior:'smooth', block:'nearest' });
   }
