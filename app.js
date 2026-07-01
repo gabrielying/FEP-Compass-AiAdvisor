@@ -778,10 +778,12 @@ function selectWhat(val) {
 function selectFrom(val) {
   $('af-from').value = val;
   updateAfSummary();
+  updateAfReqHint();
 }
 function selectTo(val) {
   $('af-to').value = val;
   updateAfSummary();
+  updateAfReqHint();
 }
 
 /* Resolved custom "Other" currency text — kept out of $('af-ccy').value (which stays the
@@ -846,19 +848,29 @@ function updateAfFxEstimate() {
 }
 
 /* ── init-time <select> renderers for Who / What / From / To / Currency ── */
+/* Every analyst-form <select> starts on this disabled placeholder — none of them
+   pre-select a real option (e.g. the first list entry), so the field stays genuinely
+   empty until the user actively picks something. */
+function addPlaceholderOption(sel, text) {
+  const opt = document.createElement('option');
+  opt.value = ''; opt.textContent = text; opt.disabled = true; opt.selected = true;
+  sel.appendChild(opt);
+}
 function renderWhoSelect() {
   const sel = $('af-who'); if (!sel) return;
   sel.innerHTML = '';
+  addPlaceholderOption(sel, 'Select party…');
   AF_WHO_OPTIONS.forEach(item => {
     const opt = document.createElement('option');
     opt.value = item; opt.textContent = item;
     sel.appendChild(opt);
   });
-  sel.addEventListener('change', function () { selectWho(this.value); });
+  sel.addEventListener('change', function () { selectWho(this.value); updateAfReqHint(); });
 }
 function renderWhatSelect() {
   const sel = $('af-what'); if (!sel) return;
   sel.innerHTML = '';
+  addPlaceholderOption(sel, 'Select type…');
   AF_WHAT_GROUPS.forEach(({ group, items }) => {
     const og = document.createElement('optgroup');
     og.label = group;
@@ -869,11 +881,12 @@ function renderWhatSelect() {
     });
     sel.appendChild(og);
   });
-  sel.addEventListener('change', function () { selectWhat(this.value); });
+  sel.addEventListener('change', function () { selectWhat(this.value); updateAfReqHint(); });
 }
 function renderCcySelect() {
   const sel = $('af-ccy'); if (!sel) return;
   sel.innerHTML = '';
+  addPlaceholderOption(sel, 'Currency…');
   AF_CCY_OPTIONS.forEach(code => {
     const opt = document.createElement('option');
     opt.value = code; opt.textContent = code;
@@ -884,6 +897,7 @@ function renderCcySelect() {
 function renderCountrySelect(selectId) {
   const sel = $(selectId); if (!sel) return;
   sel.innerHTML = '';
+  addPlaceholderOption(sel, 'Select country…');
   FX_COUNTRIES.forEach(country => {
     const opt = document.createElement('option');
     opt.value = country; opt.textContent = country;
@@ -902,6 +916,8 @@ function wireCountryField(selectId, otherInputId, otherHintId, selectFn, setCust
     if (this.value === 'Other') {
       otherRow?.classList.remove('hidden');
       otherInput.focus();
+      setCustom('');
+      updateAfReqHint();
     } else {
       otherRow?.classList.add('hidden');
       hint.textContent = '';
@@ -913,6 +929,7 @@ function wireCountryField(selectId, otherInputId, otherHintId, selectFn, setCust
     const val = this.value.trim().slice(0, 60);
     setCustom(val);
     updateAfSummary();
+    updateAfReqHint();
     if (!val) { hint.textContent = ''; return; }
     const exact = WORLD_COUNTRIES.find(c => c.toLowerCase() === val.toLowerCase());
     if (exact) { hint.textContent = ''; hint.classList.remove('warn'); return; }
@@ -927,6 +944,7 @@ function wireCountryField(selectId, otherInputId, otherHintId, selectFn, setCust
         otherInput.value = suggestion;
         setCustom(suggestion);
         updateAfSummary();
+        updateAfReqHint();
         hint.textContent = ''; hint.classList.remove('warn');
       });
       hint.appendChild(link);
@@ -947,12 +965,15 @@ function wireCcyField() {
     if (this.value === 'Other') {
       otherRow?.classList.remove('hidden');
       otherInput.focus();
+      afCcyCustomValue = '';
+      updateAfReqHint();
     } else {
       otherRow?.classList.add('hidden');
       hint.textContent = '';
       afCcyCustomValue = '';
       updateAfSummary();
       updateAfFxEstimate();
+      updateAfReqHint();
     }
   });
   otherInput.addEventListener('input', function () {
@@ -980,7 +1001,7 @@ function wireCcyField() {
             otherInput.value = suggestion;
             afCcyCustomValue = suggestion;
             hint.textContent = ''; hint.classList.remove('warn');
-            updateAfSummary(); updateAfFxEstimate();
+            updateAfSummary(); updateAfFxEstimate(); updateAfReqHint();
           });
           hint.appendChild(link);
           hint.append('?');
@@ -993,21 +1014,50 @@ function wireCcyField() {
     afCcyCustomValue = resolved;
     updateAfSummary();
     updateAfFxEstimate();
+    updateAfReqHint();
   });
 }
 
+/* Every field on the analyst form is required before the health-check can run — a field
+   left on its "Other" option with no typed text yet does not count as filled, mirroring
+   the effectiveCcy/effectiveFrom/effectiveTo fallback-to-literal-'Other' behavior. */
+function afFieldsReady() {
+  const who = $('af-who').value;
+  const what = $('af-what').value;
+  const fromSel = $('af-from').value;
+  const fromOk = !!fromSel && (fromSel !== 'Other' || !!afFromCustomValue.trim());
+  const toSel = $('af-to').value;
+  const toOk = !!toSel && (toSel !== 'Other' || !!afToCustomValue.trim());
+  const why = $('af-why').value.trim();
+  const ccySel = $('af-ccy').value;
+  const ccyOk = !!ccySel && (ccySel !== 'Other' || !!afCcyCustomValue.trim());
+  const amtRaw = $('af-amt').value.replace(/,/g, '');
+  const amtN = Number(amtRaw);
+  const amtOk = amtRaw !== '' && Number.isFinite(amtN) && amtN >= 0;
+
+  const missing = [];
+  if (!who) missing.push('who is transacting');
+  if (!what) missing.push('the transaction type');
+  if (!fromOk) missing.push('the originating country (From)');
+  if (!toOk) missing.push('the destination country (To)');
+  if (!why) missing.push('why (purpose)');
+  if (!ccyOk) missing.push('the currency');
+  if (!amtOk) missing.push('the amount');
+  return { ready: missing.length === 0, missing };
+}
+
 function updateAfReqHint() {
-  const who = $('af-who').value, what = $('af-what').value;
+  const { ready, missing } = afFieldsReady();
   const hint = $('af-req-hint');
-  if (who && what) {
-    hint.textContent = 'Ready to run — add From/To/Why/Amount for a more precise check';
+  const runBtn = $('analyst-run');
+  if (ready) {
+    hint.textContent = 'Ready to run the compliance health-check';
     hint.classList.add('ok');
   } else {
     hint.classList.remove('ok');
-    if (!who && !what) hint.textContent = 'Select who is transacting and the transaction type to continue';
-    else if (!who) hint.textContent = 'Still need: who is transacting';
-    else hint.textContent = 'Still need: the transaction type';
+    hint.textContent = 'Still need: ' + missing.join(', ');
   }
+  if (runBtn) runBtn.disabled = !ready;
 }
 
 function renderQuickfillChips() {
@@ -1067,23 +1117,26 @@ $('af-amt').addEventListener('input', e => {
   el.setSelectionRange(pos, pos);
   updateAfSummary();
   updateAfFxEstimate();
+  updateAfReqHint();
 });
+
+$('af-why').addEventListener('input', updateAfReqHint);
 
 $('analyst-form').addEventListener('submit', async e => {
   e.preventDefault();
+  const { ready, missing } = afFieldsReady();
+  if (!ready) {
+    updateAfReqHint();
+    return toast('Please complete all fields before running the check — still need: ' + missing.join(', '));
+  }
   const who = $('af-who').value, what = $('af-what').value;
   const from = effectiveFrom().trim().slice(0, 60), to = effectiveTo().trim().slice(0, 60);
   const where = from && to ? `${from} → ${to}` : (from || to || '');
   const why = $('af-why').value.trim().slice(0, 160);
   const ccy = effectiveCcy(), ctx = $('af-ctx').value.trim().slice(0, 1000);
-  if (!who || !what) return toast('Please select who is transacting and the transaction type');
 
   let amt = $('af-amt').value.replace(/,/g, '');
-  if (amt) {
-    const n = Number(amt);
-    if (!Number.isFinite(n) || n < 0) return toast('Please enter a valid, non-negative amount');
-    amt = Math.min(n, 1e15);
-  }
+  amt = Math.min(Number(amt), 1e15);
 
   const parts = [`WHO: ${who}`];
   parts.push(`WHAT: ${what}`);
@@ -1127,7 +1180,7 @@ $('analyst-form').addEventListener('submit', async e => {
     out.appendChild(aiFallbackBlock(err, chunks));
     logActivity('analyst', `Compliance check: ${who} — ${what} → AI unavailable, showed reference provisions`);
   } finally {
-    $('analyst-run').disabled = false;
+    updateAfReqHint();
     out.scrollIntoView({ behavior:'smooth', block:'nearest' });
   }
 });
