@@ -62,13 +62,13 @@ const AF_WHAT_GROUPS = [
   { group:'Cross-border movement', items:['Payment or receipt', 'Carry cash across the border', 'Export of goods (proceeds)'] },
 ];
 const FX_COUNTRIES = [
-  'Malaysia', 'Other', 'Australia', 'Brunei', 'Cambodia', 'Canada', 'China', 'Germany', 'Hong Kong',
+  'Other', 'Malaysia', 'Australia', 'Brunei', 'Cambodia', 'Canada', 'China', 'Germany', 'Hong Kong',
   'India', 'Indonesia', 'Japan', 'Laos', 'Myanmar', 'Netherlands', 'New Zealand', 'Philippines',
   'Singapore', 'South Korea', 'Switzerland', 'Taiwan', 'Thailand', 'United Arab Emirates',
   'United Kingdom', 'United States', 'Vietnam',
 ];
 /* AI Compliance Analyst — currency select options; 'Other' reveals a free-text/ISO-code fallback */
-const AF_CCY_OPTIONS = ['MYR', 'Other', 'USD', 'EUR', 'GBP', 'SGD', 'JPY', 'CNY', 'AUD'];
+const AF_CCY_OPTIONS = ['Other', 'MYR', 'USD', 'EUR', 'GBP', 'SGD', 'JPY', 'CNY', 'AUD'];
 
 /* Static, curated reference rates to MYR — NOT live. The CSP connect-src in index.html
    forbids any live FX-rate API call, so this table is manually maintained and must be
@@ -762,50 +762,8 @@ document.querySelectorAll('.tool-tab').forEach(b => b.addEventListener('click', 
 
 /* ━━━ AI compliance analyst ━━━ */
 
-/* Renders a flat array of option strings, or an array of {group, items}, as tappable chips
-   into the given sheet body. Highlights currentValue and calls onPick(text) on selection. */
-function renderChipSheet(bodyId, options, currentValue, onPick) {
-  const body = $(bodyId);
-  body.innerHTML = '';
-  const renderGrid = items => {
-    const grid = mkEl('div', 'chip-grid');
-    items.forEach(item => {
-      const on = item === currentValue;
-      const chip = mkEl('button', 'chip-pick' + (on ? ' on' : ''), esc(item));
-      chip.type = 'button';
-      chip.setAttribute('aria-pressed', on ? 'true' : 'false');
-      chip.addEventListener('click', () => { onPick(item); closeOverlays(); });
-      grid.appendChild(chip);
-      /* force "Lending" onto its own row, directly under "Borrowing" */
-      if (item === 'Borrowing') grid.appendChild(mkEl('div', 'chip-break'));
-    });
-    return grid;
-  };
-  if (options.length && typeof options[0] === 'object') {
-    options.forEach(({ group, items }) => {
-      body.appendChild(mkEl('div', 'sec-hdr', esc(group)));
-      body.appendChild(renderGrid(items));
-    });
-  } else {
-    body.appendChild(renderGrid(options));
-  }
-}
-
-/* Renders a chip-field trigger's label + trailing chevron icon, falling back to its
-   data-placeholder attribute (and the "placeholder" style class) when val is empty. */
-function setChipFieldValue(trigger, val) {
-  const text = val || trigger.dataset.placeholder || '';
-  trigger.innerHTML = `<span>${esc(text)}</span><i class="ti ti-chevron-down"></i>`;
-  trigger.classList.toggle('placeholder', !val);
-}
-
-function openWhoSheet() {
-  renderChipSheet('who-sheet-body', AF_WHO_OPTIONS, $('af-who').value, selectWho);
-  openOverlay('who-overlay');
-}
 function selectWho(val) {
   $('af-who').value = val;
-  setChipFieldValue($('af-who-trigger'), val);
   updateAfSummary();
   updateAfReqHint();
 }
@@ -887,7 +845,17 @@ function updateAfFxEstimate() {
   }
 }
 
-/* ── init-time <select> renderers for What / From / To / Currency ── */
+/* ── init-time <select> renderers for Who / What / From / To / Currency ── */
+function renderWhoSelect() {
+  const sel = $('af-who'); if (!sel) return;
+  sel.innerHTML = '';
+  AF_WHO_OPTIONS.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item; opt.textContent = item;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', function () { selectWho(this.value); });
+}
 function renderWhatSelect() {
   const sel = $('af-what'); if (!sel) return;
   sel.innerHTML = '';
@@ -1083,7 +1051,6 @@ function applyQuickfill(scenario) {
   updateAfSummary();
 }
 
-$('af-who-trigger').addEventListener('click', openWhoSheet);
 wireCcyField();
 
 /* Live thousands-separator formatting for the amount field, e.g. 800000 -> 800,000.00 */
@@ -1566,13 +1533,13 @@ renderAdvisorEmpty();
 renderSettings();
 buildBM25();
 renderQuickfillChips();
+renderWhoSelect();
 renderWhatSelect();
 renderCcySelect();
 renderCountrySelect('af-from');
 renderCountrySelect('af-to');
 wireCountryField('af-from', 'af-from-other', 'af-from-other-hint', selectFrom, v => { afFromCustomValue = v; });
 wireCountryField('af-to', 'af-to-other', 'af-to-other-hint', selectTo, v => { afToCustomValue = v; });
-setChipFieldValue($('af-who-trigger'), $('af-who').value);
 updateAfReqHint();
 initOnboarding();
 initFirstRunGuide();

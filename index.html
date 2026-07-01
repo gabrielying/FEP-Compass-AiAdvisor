@@ -203,8 +203,7 @@
                 <div class="form-grid">
                   <label class="field">
                     <span class="field-lbl">Who is transacting? <button type="button" class="term" data-term="Resident">?</button></span>
-                    <button type="button" class="chip-field placeholder" id="af-who-trigger" aria-haspopup="dialog" data-placeholder="Select party…"></button>
-                    <input type="hidden" id="af-who">
+                    <select id="af-who" class="af-select"></select>
                   </label>
                   <label class="field">
                     <span class="field-lbl">What is the transaction?</span>
@@ -365,19 +364,6 @@
   </div>
 </div>
 
-<!-- ════════ ANALYST — WHO PICKER SHEET ════════ -->
-<div class="overlay" id="who-overlay">
-  <div class="modal modal-sm" role="dialog" aria-modal="true">
-    <div class="modal-head">
-      <div>
-        <div class="modal-tag">AI COMPLIANCE ANALYST</div>
-        <div class="modal-name">Who is transacting?</div>
-      </div>
-      <button type="button" class="modal-close" data-close="who-overlay"><i class="ti ti-x"></i></button>
-    </div>
-    <div class="modal-body" id="who-sheet-body"></div>
-  </div>
-</div>
 
 <!-- ════════ AI ACKNOWLEDGEMENT GATE (first AI verdict) ════════ -->
 <div class="overlay" id="ack-overlay">

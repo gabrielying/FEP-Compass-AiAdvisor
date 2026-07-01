@@ -133,10 +133,10 @@ h1, h2, h3 { letter-spacing: -.02em; }
   display: flex; align-items: center; gap: 12px;
   padding: 11px 14px; border: none; border-radius: var(--radius-sm);
   background: transparent; color: #9fb3cf; font-size: 13.5px; font-weight: 600;
-  transition: background .18s var(--ease), color .18s, transform .18s var(--ease);
+  transition: background .13s var(--ease), color .13s;
 }
 .side-link i { font-size: 19px; }
-.side-link:hover { background: rgba(255,255,255,.07); color: #fff; transform: translateX(3px); }
+.side-link:hover { background: rgba(255,255,255,.07); color: #fff; }
 .side-link.active { background: rgba(79,209,187,.14); color: #4fd1bb; }
 
 .side-foot { font-size: var(--fs-xs); color: #6f86a6; line-height: 1.55; }
@@ -400,10 +400,6 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 #firstrun-overlay { align-items: center; padding: 16px; }
 #firstrun-overlay .modal { border-radius: 22px; }
 
-/* who chip-sheet: centered dialog on every viewport, not a bottom sheet */
-#who-overlay { align-items: center; padding: 16px; }
-#who-overlay .modal { border-radius: 22px; }
-
 /* notice modal Provisions/FAQs tabs */
 .nm-tabs { display: flex; gap: 6px; margin-bottom: 6px; }
 .nm-tabs .npill { flex: 1; text-align: center; }
@@ -516,31 +512,6 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 /* native <select> for What / From / To — reuses .field select styling automatically;
    .af-select exists as a hook in case of future analyst-form-specific tweaks */
 .af-select {}
-
-/* chip-field trigger (replaces native <select> for Who) */
-.chip-field {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  padding: 11px 13px; border: 1.5px solid var(--bdr); border-radius: var(--radius-sm);
-  background: var(--surf2); font-size: var(--fs-sm); width: 100%; text-align: left;
-  color: var(--ink); font-family: inherit; cursor: pointer;
-  transition: border-color .15s, box-shadow .15s;
-}
-.chip-field span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.chip-field i { color: var(--ink3); flex-shrink: 0; font-size: 15px; }
-.chip-field:hover { border-color: var(--ink3); }
-.chip-field:focus-visible { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,148,136,.12); outline: none; }
-.chip-field.placeholder { color: var(--ink3); }
-
-/* picker sheet chip grids */
-.chip-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-.chip-pick {
-  padding: 11px 16px; border-radius: 20px; border: 1px solid var(--bdr);
-  background: var(--surf); color: var(--ink2); font-size: var(--fs-sm); font-weight: 600;
-  white-space: nowrap; transition: all .13s var(--ease);
-}
-.chip-pick:hover { border-color: var(--blue-bdr); color: var(--blue); }
-.chip-pick.on { background: var(--grad-brand); border-color: transparent; color: #fff; }
-.chip-break { flex-basis: 100%; height: 0; }
 
 /* "Other" free-text row inside the country picker sheets */
 .other-input-row { display: flex; gap: 8px; }
@@ -738,7 +709,7 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
   .tool-tab span { display: none; }
   .tool-tab .tt-short { display: inline; }
   /* 16px inputs prevent iOS focus-zoom */
-  .search-box input, .field input, .field select, .field textarea, .set-inp, .chip-field, .other-input { font-size: 16px; }
+  .search-box input, .field input, .field select, .field textarea, .set-inp, .other-input { font-size: 16px; }
   /* comfortable touch targets */
   .btn { padding: 11px 16px; }
   .prov-head { padding: 14px 15px; }
