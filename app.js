@@ -1085,7 +1085,7 @@ function updateAfReqHint() {
   const hint = $('af-req-hint');
   updateAfReqMarks(fields);
   if (ready) {
-    hint.textContent = 'Ready to run the compliance health-check';
+    hint.textContent = 'Ready to check compliance';
     hint.classList.add('ok');
   } else {
     hint.classList.remove('ok');
@@ -1235,6 +1235,26 @@ $('analyst-form').addEventListener('submit', async e => {
     out.scrollIntoView({ behavior:'smooth', block:'nearest' });
   }
 });
+
+/* Resets every analyst-form field (and its saved draft) back to empty — leaves the chat
+   draft (a separate, unrelated field on ST.draft) untouched. */
+function clearAnalystForm() {
+  ['af-who', 'af-what', 'af-from', 'af-to', 'af-ccy'].forEach(id => { $(id).value = ''; });
+  ['af-why', 'af-amt', 'af-ctx', 'af-from-other', 'af-to-other', 'af-ccy-other'].forEach(id => { $(id).value = ''; });
+  ['af-from-other-hint', 'af-to-other-hint', 'af-ccy-other-hint'].forEach(id => {
+    const hint = $(id); hint.textContent = ''; hint.classList.remove('warn');
+  });
+  document.querySelectorAll('#analyst-form .other-input-row').forEach(row => row.classList.add('hidden'));
+  afFromCustomValue = ''; afToCustomValue = ''; afCcyCustomValue = '';
+  updateAfSummary();
+  updateAfFxEstimate();
+  updateAfReqHint();
+  $('analyst-out').innerHTML = '';
+  Object.assign(ST.draft, DEFAULT_DRAFT, { chat: ST.draft.chat });
+  saveDraft();
+  toast('Form cleared');
+}
+$('analyst-clear').addEventListener('click', clearAnalystForm);
 
 /* ━━━ ADVISOR CHAT ━━━ */
 function renderAdvisorPills() {
