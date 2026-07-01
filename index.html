@@ -33,6 +33,18 @@
 </head>
 <body>
 
+<!-- Full-screen loader shown on first paint and on every reload (F5 or mobile pull-to-refresh),
+     hidden once app.js finishes its initial render -->
+<div id="app-loader" class="app-loader" role="status" aria-label="Loading FEP Compass">
+  <img src="icon.svg" class="app-loader-compass" alt="">
+</div>
+
+<!-- Custom pull-to-refresh indicator (mobile) — the app shell has overscroll-behavior:
+     contain so the browser's native pull-to-refresh never fires; see initPullToRefresh() -->
+<div id="ptr-indicator" class="ptr-indicator" aria-hidden="true">
+  <img src="icon.svg" class="ptr-compass" id="ptr-compass" alt="">
+</div>
+
 <div class="shell">
 
   <!-- ════════ SIDEBAR (desktop / tablet) ════════ -->
