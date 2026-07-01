@@ -52,6 +52,12 @@ const DEFAULT_DRAFT = {
   why:'', ccy:'', ccyOther:'', amt:'', ctx:'', chat:'',
 };
 
+/* Last tab/tool the user was viewing — a reload returns here by default (Smart Tools /
+   Analyst is the fallback for a brand-new visitor with nothing saved yet). An in-progress
+   draft (see DEFAULT_DRAFT above) still overrides this in restoreDraft(), since showing the
+   user their unsaved work takes priority over returning them to their last-viewed tab. */
+const DEFAULT_NAV = { tab:'tools', toolTab:'analyst' };
+
 /* ━━━ AI COMPLIANCE ANALYST — picker options ━━━ */
 const AF_WHO_OPTIONS = [
   'Resident Individual',
@@ -159,18 +165,20 @@ const QUICKFILL_SCENARIOS = [
 /* timestamp of this page load — used only to scope "this session" dashboard stats; not persisted */
 const APP_LOAD_TS = Date.now();
 
+const NAV_RESTORE = { ...DEFAULT_NAV, ...JSON.parse(localStorage.getItem('fep_nav')||'{}') };
 const ST = {
-  tab:'tools',
+  tab: NAV_RESTORE.tab,
   cfg: { ...DEFAULT_CFG, ...JSON.parse(localStorage.getItem('fep_cfg')||'{}') },
   sessions: JSON.parse(localStorage.getItem('fep_sess')||'[]'),
   activity: JSON.parse(localStorage.getItem('fep_activity')||'[]'),
   draft: { ...DEFAULT_DRAFT, ...JSON.parse(localStorage.getItem('fep_draft')||'{}') },
   activityFilter:'all', activitySearch:'',
   msgs: [], loading:false, advisorFilter:'all',
-  toolTab:'analyst', modalNotice:null,
+  toolTab: NAV_RESTORE.toolTab, modalNotice:null,
 };
 const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
 const saveDraft = () => save('fep_draft', ST.draft);
+const saveNav = () => save('fep_nav', { tab: ST.tab, toolTab: ST.toolTab });
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtRM = n => 'RM ' + Number(n||0).toLocaleString('en-MY');
@@ -531,6 +539,7 @@ function switchTab(tab) {
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-'+tab));
   document.querySelectorAll('.side-link, .bb-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   if (tab === 'dashboard') renderDashboard();
+  saveNav();
 }
 document.querySelectorAll('.side-link, .bb-tab').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
 document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
@@ -767,6 +776,7 @@ function switchTool(tool) {
   ST.toolTab = tool;
   document.querySelectorAll('.tool-tab').forEach(b => b.classList.toggle('active', b.dataset.tool === tool));
   document.querySelectorAll('.tool-panel').forEach(p => p.classList.toggle('active', p.id === 'tool-'+tool));
+  saveNav();
 }
 document.querySelectorAll('.tool-tab').forEach(b => b.addEventListener('click', () => switchTool(b.dataset.tool)));
 
@@ -1504,7 +1514,7 @@ function renderSettings() {
       setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.innerHTML = '<i class="ti ti-trash"></i> Clear all local data'; }, 3500);
       return;
     }
-    ['fep_cfg','fep_sess','fep_limits','fep_decls','fep_activity','fep_draft','fep_onboarded','fep_ai_ack','fep_setup_guide_seen'].forEach(k => localStorage.removeItem(k));
+    ['fep_cfg','fep_sess','fep_limits','fep_decls','fep_activity','fep_draft','fep_nav','fep_onboarded','fep_ai_ack','fep_setup_guide_seen'].forEach(k => localStorage.removeItem(k));
     location.reload();
   });
 }
@@ -1749,6 +1759,11 @@ renderCountrySelect('af-from');
 renderCountrySelect('af-to');
 wireCountryField('af-from', 'af-from-other', 'af-from-other-hint', selectFrom, v => { afFromCustomValue = v; });
 wireCountryField('af-to', 'af-to-other', 'af-to-other-hint', selectTo, v => { afToCustomValue = v; });
+// sync the DOM to whichever tab/tool was last visited (the baked-in HTML default is just the
+// fallback for a brand-new visitor) — restoreDraft() below may still override this if there's
+// an in-progress draft, since showing unsaved work takes priority over the last-viewed tab
+switchTab(ST.tab);
+switchTool(ST.toolTab);
 restoreDraft();
 initOnboarding();
 initFirstRunGuide();
