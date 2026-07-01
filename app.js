@@ -44,6 +44,14 @@ const QUICKCHECK = {
 /* ━━━ STATE ━━━ */
 const DEFAULT_CFG = { provider:'gemini', apiKey:'', model:'gemini-2.5-flash', ollamaUrl:'http://localhost:11434', ollamaModel:'qwen2.5:7b' };
 
+/* In-progress analyst-form + chat-input text — a page reload (F5, or the mobile
+   pull-to-refresh in initPullToRefresh()) must not discard anything a user typed but
+   hadn't submitted yet, so this mirrors the form fields into localStorage on every edit. */
+const DEFAULT_DRAFT = {
+  who:'', what:'', from:'', fromOther:'', to:'', toOther:'',
+  why:'', ccy:'', ccyOther:'', amt:'', ctx:'', chat:'',
+};
+
 /* ━━━ AI COMPLIANCE ANALYST — picker options ━━━ */
 const AF_WHO_OPTIONS = [
   'Resident Individual',
@@ -156,11 +164,13 @@ const ST = {
   cfg: { ...DEFAULT_CFG, ...JSON.parse(localStorage.getItem('fep_cfg')||'{}') },
   sessions: JSON.parse(localStorage.getItem('fep_sess')||'[]'),
   activity: JSON.parse(localStorage.getItem('fep_activity')||'[]'),
+  draft: { ...DEFAULT_DRAFT, ...JSON.parse(localStorage.getItem('fep_draft')||'{}') },
   activityFilter:'all', activitySearch:'',
   msgs: [], loading:false, advisorFilter:'all',
   toolTab:'analyst', modalNotice:null,
 };
 const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+const saveDraft = () => save('fep_draft', ST.draft);
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtRM = n => 'RM ' + Number(n||0).toLocaleString('en-MY');
@@ -1116,6 +1126,23 @@ function applyQuickfill(scenario) {
 
 wireCcyField();
 
+/* Mirrors every analyst-form field into ST.draft/localStorage on each edit — see
+   DEFAULT_DRAFT above and restoreDraft() near INIT for the read side. */
+function persistAnalystDraft() {
+  Object.assign(ST.draft, {
+    who: $('af-who').value, what: $('af-what').value,
+    from: $('af-from').value, fromOther: $('af-from-other').value,
+    to: $('af-to').value, toOther: $('af-to-other').value,
+    why: $('af-why').value,
+    ccy: $('af-ccy').value, ccyOther: $('af-ccy-other').value,
+    amt: $('af-amt').value,
+    ctx: $('af-ctx').value,
+  });
+  saveDraft();
+}
+$('analyst-form').addEventListener('input', persistAnalystDraft);
+$('analyst-form').addEventListener('change', persistAnalystDraft);
+
 /* Live thousands-separator formatting for the amount field, e.g. 800000 -> 800,000.00 */
 $('af-amt').addEventListener('input', e => {
   const el = e.target;
@@ -1346,7 +1373,11 @@ async function sendChat() {
   }
 }
 ST.sessId = Date.now().toString();
-$('chat-inp').addEventListener('input', e => { $('send-btn').disabled = !e.target.value.trim(); });
+$('chat-inp').addEventListener('input', e => {
+  $('send-btn').disabled = !e.target.value.trim();
+  ST.draft.chat = e.target.value;
+  saveDraft();
+});
 $('chat-inp').addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
 $('send-btn').addEventListener('click', sendChat);
 $('new-chat-btn').addEventListener('click', () => { ST.msgs = []; ST.sessId = Date.now().toString(); renderAdvisorEmpty(); });
@@ -1473,7 +1504,7 @@ function renderSettings() {
       setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.innerHTML = '<i class="ti ti-trash"></i> Clear all local data'; }, 3500);
       return;
     }
-    ['fep_cfg','fep_sess','fep_limits','fep_decls','fep_activity','fep_onboarded','fep_ai_ack','fep_setup_guide_seen'].forEach(k => localStorage.removeItem(k));
+    ['fep_cfg','fep_sess','fep_limits','fep_decls','fep_activity','fep_draft','fep_onboarded','fep_ai_ack','fep_setup_guide_seen'].forEach(k => localStorage.removeItem(k));
     location.reload();
   });
 }
@@ -1590,6 +1621,116 @@ if ('serviceWorker' in navigator &&
   navigator.serviceWorker.register('sw.js').catch(() => {/* file:// or unsupported — app still works online */});
 }
 
+/* ━━━ APP LOADER — hides once the initial render below has finished, with a short minimum
+   display time (against APP_LOAD_TS, set at the very top of this file) so the spin is
+   actually visible even when init runs in a few milliseconds ━━━ */
+function hideAppLoader() {
+  const loader = $('app-loader');
+  if (!loader) return;
+  const wait = Math.max(0, 400 - (Date.now() - APP_LOAD_TS));
+  setTimeout(() => {
+    loader.classList.add('loaded');
+    loader.addEventListener('transitionend', () => loader.remove(), { once:true });
+  }, wait);
+}
+
+/* ━━━ PULL-TO-REFRESH (mobile) — the app shell (.view) has overscroll-behavior:contain,
+   so the browser's native pull-to-refresh never reaches the document; this reproduces it
+   with a real location.reload(), which restoreDraft() below makes safe to do mid-form. ━━━ */
+function initPullToRefresh() {
+  const PULL_MAX = 90, PULL_TRIGGER = 55;
+  const wrap = $('ptr-indicator'), compass = $('ptr-compass');
+  if (!wrap || !compass) return;
+  let startY = 0, dragging = false, ready = false;
+
+  function scrollerAtTop() {
+    const view = document.querySelector('.view.active');
+    if (!view) return false;
+    const msgs = view.querySelector('.msgs');
+    const scroller = (msgs && msgs.offsetParent !== null) ? msgs : view;
+    return scroller.scrollTop <= 0;
+  }
+  function reset() {
+    wrap.classList.remove('visible', 'ready', 'spin');
+    wrap.style.transform = ''; compass.style.transform = '';
+  }
+
+  document.addEventListener('touchstart', e => {
+    dragging = window.matchMedia('(max-width: 860px)').matches &&
+      e.touches.length === 1 && !document.querySelector('.overlay.open') && scrollerAtTop();
+    if (dragging) { startY = e.touches[0].clientY; ready = false; }
+  }, { passive:true });
+
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    if (!scrollerAtTop()) { dragging = false; reset(); return; }
+    const dy = e.touches[0].clientY - startY;
+    if (dy <= 0) { reset(); return; }
+    const pull = Math.min(dy * 0.5, PULL_MAX);
+    ready = pull >= PULL_TRIGGER;
+    wrap.classList.add('visible');
+    wrap.classList.toggle('ready', ready);
+    wrap.style.transform = `translate(-50%, ${pull - 60}px)`;
+    compass.style.transform = `rotate(${dy}deg)`;
+  }, { passive:true });
+
+  document.addEventListener('touchend', () => {
+    if (!dragging) return;
+    dragging = false;
+    if (ready) {
+      wrap.classList.add('spin');
+      compass.style.transform = '';
+      setTimeout(() => location.reload(), 300);
+    } else {
+      reset();
+    }
+  });
+}
+
+/* ━━━ DRAFT RESTORE — repopulates the analyst form + chat input from ST.draft; must run
+   after the <select>s below are populated so their values can actually be set ━━━ */
+function restoreOtherField(selectId, otherInputId, value, otherValue, setCustom) {
+  if (!value) return;
+  const sel = $(selectId);
+  sel.value = value;
+  if (value === 'Other') {
+    sel.parentElement.querySelector('.other-input-row')?.classList.remove('hidden');
+    if (otherValue) { $(otherInputId).value = otherValue; setCustom(otherValue); }
+  }
+}
+function restoreCcyField(value, otherValue) {
+  if (!value) return;
+  const sel = $('af-ccy');
+  sel.value = value;
+  if (value === 'Other') {
+    sel.parentElement.parentElement.querySelector('.other-input-row')?.classList.remove('hidden');
+    if (otherValue) { $('af-ccy-other').value = otherValue; afCcyCustomValue = otherValue; }
+  }
+}
+function hasAnalystDraft(d) {
+  return !!(d.who || d.what || d.from || d.to || d.why || d.ccy || d.amt || d.ctx);
+}
+function restoreDraft() {
+  const d = ST.draft;
+  if (d.who) $('af-who').value = d.who;
+  if (d.what) $('af-what').value = d.what;
+  if (d.why) $('af-why').value = d.why;
+  if (d.amt) $('af-amt').value = d.amt;
+  if (d.ctx) $('af-ctx').value = d.ctx;
+  restoreOtherField('af-from', 'af-from-other', d.from, d.fromOther, v => { afFromCustomValue = v; });
+  restoreOtherField('af-to', 'af-to-other', d.to, d.toOther, v => { afToCustomValue = v; });
+  restoreCcyField(d.ccy, d.ccyOther);
+  updateAfSummary();
+  updateAfFxEstimate();
+  updateAfReqHint();
+
+  if (d.chat) { $('chat-inp').value = d.chat; $('send-btn').disabled = !d.chat.trim(); }
+
+  // jump back to wherever the in-progress draft actually lives, so restoring it is visible
+  if (hasAnalystDraft(d)) { switchTab('tools'); switchTool('analyst'); }
+  else if (d.chat && d.chat.trim()) { switchTab('tools'); switchTool('advisor'); }
+}
+
 /* ━━━ INIT ━━━ */
 renderDashboard();
 renderDashNotices();
@@ -1607,6 +1748,8 @@ renderCountrySelect('af-from');
 renderCountrySelect('af-to');
 wireCountryField('af-from', 'af-from-other', 'af-from-other-hint', selectFrom, v => { afFromCustomValue = v; });
 wireCountryField('af-to', 'af-to-other', 'af-to-other-hint', selectTo, v => { afToCustomValue = v; });
-updateAfReqHint();
+restoreDraft();
 initOnboarding();
 initFirstRunGuide();
+initPullToRefresh();
+hideAppLoader();
