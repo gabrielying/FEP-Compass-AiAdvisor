@@ -160,7 +160,7 @@ const QUICKFILL_SCENARIOS = [
 const APP_LOAD_TS = Date.now();
 
 const ST = {
-  tab:'notices',
+  tab:'tools',
   cfg: { ...DEFAULT_CFG, ...JSON.parse(localStorage.getItem('fep_cfg')||'{}') },
   sessions: JSON.parse(localStorage.getItem('fep_sess')||'[]'),
   activity: JSON.parse(localStorage.getItem('fep_activity')||'[]'),
@@ -1640,7 +1640,8 @@ function hideAppLoader() {
 function initPullToRefresh() {
   const PULL_MAX = 90, PULL_TRIGGER = 55;
   const wrap = $('ptr-indicator'), compass = $('ptr-compass');
-  if (!wrap || !compass) return;
+  const needle = compass ? compass.querySelector('.ptr-needle') : null;
+  if (!wrap || !compass || !needle) return;
   let startY = 0, dragging = false, ready = false;
 
   function scrollerAtTop() {
@@ -1652,7 +1653,7 @@ function initPullToRefresh() {
   }
   function reset() {
     wrap.classList.remove('visible', 'ready', 'spin');
-    wrap.style.transform = ''; compass.style.transform = '';
+    wrap.style.transform = ''; needle.style.transform = '';
   }
 
   document.addEventListener('touchstart', e => {
@@ -1671,7 +1672,7 @@ function initPullToRefresh() {
     wrap.classList.add('visible');
     wrap.classList.toggle('ready', ready);
     wrap.style.transform = `translate(-50%, ${pull - 60}px)`;
-    compass.style.transform = `rotate(${dy}deg)`;
+    needle.style.transform = `rotate(${dy}deg)`;
   }, { passive:true });
 
   document.addEventListener('touchend', () => {
@@ -1679,7 +1680,7 @@ function initPullToRefresh() {
     dragging = false;
     if (ready) {
       wrap.classList.add('spin');
-      compass.style.transform = '';
+      needle.style.transform = '';
       setTimeout(() => location.reload(), 300);
     } else {
       reset();

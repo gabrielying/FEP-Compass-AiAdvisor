@@ -36,13 +36,39 @@
 <!-- Full-screen loader shown on first paint and on every reload (F5 or mobile pull-to-refresh),
      hidden once app.js finishes its initial render -->
 <div id="app-loader" class="app-loader" role="status" aria-label="Loading FEP Compass">
-  <img src="icon.svg" class="app-loader-compass" alt="">
+  <svg viewBox="0 0 512 512" class="app-loader-compass" aria-hidden="true">
+    <defs>
+      <linearGradient id="g-loader" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#12305b"/>
+        <stop offset="1" stop-color="#0d9488"/>
+      </linearGradient>
+    </defs>
+    <rect width="512" height="512" rx="112" fill="url(#g-loader)"/>
+    <circle cx="256" cy="256" r="150" fill="none" stroke="#ffffff" stroke-opacity=".85" stroke-width="26"/>
+    <g class="loader-needle">
+      <path d="M 332 180 L 282 282 L 180 332 L 230 230 Z" fill="#ffffff"/>
+      <circle cx="256" cy="256" r="22" fill="#0d9488"/>
+    </g>
+  </svg>
 </div>
 
 <!-- Custom pull-to-refresh indicator (mobile) — the app shell has overscroll-behavior:
      contain so the browser's native pull-to-refresh never fires; see initPullToRefresh() -->
 <div id="ptr-indicator" class="ptr-indicator" aria-hidden="true">
-  <img src="icon.svg" class="ptr-compass" id="ptr-compass" alt="">
+  <svg id="ptr-compass" class="ptr-compass" viewBox="0 0 512 512" aria-hidden="true">
+    <defs>
+      <linearGradient id="g-ptr" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#12305b"/>
+        <stop offset="1" stop-color="#0d9488"/>
+      </linearGradient>
+    </defs>
+    <rect width="512" height="512" rx="112" fill="url(#g-ptr)"/>
+    <circle cx="256" cy="256" r="150" fill="none" stroke="#ffffff" stroke-opacity=".85" stroke-width="26"/>
+    <g class="ptr-needle">
+      <path d="M 332 180 L 282 282 L 180 332 L 230 230 Z" fill="#ffffff"/>
+      <circle cx="256" cy="256" r="22" fill="#0d9488"/>
+    </g>
+  </svg>
 </div>
 
 <div class="shell">
@@ -58,9 +84,9 @@
     </button>
 
     <nav class="side-nav" aria-label="Primary">
-      <button class="side-link" data-tab="tools"><i class="ti ti-sparkles"></i><span>Smart Tools</span></button>
+      <button class="side-link active" data-tab="tools"><i class="ti ti-sparkles"></i><span>Smart Tools</span></button>
       <button class="side-link" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
-      <button class="side-link active" data-tab="notices"><i class="ti ti-books"></i><span>FEP Notices</span></button>
+      <button class="side-link" data-tab="notices"><i class="ti ti-books"></i><span>FEP Notices</span></button>
       <button class="side-link" data-tab="settings"><i class="ti ti-settings"></i><span>Settings</span></button>
     </nav>
 
@@ -91,7 +117,7 @@
     <main id="views">
 
       <!-- ──────── FEP NOTICES (Educational Hub) ──────── -->
-      <section id="view-notices" class="view active" aria-label="FEP Notices">
+      <section id="view-notices" class="view" aria-label="FEP Notices">
         <div class="page">
           <header class="page-head">
             <h1>FEP Notices — Educational Hub</h1>
@@ -192,7 +218,7 @@
       </section>
 
       <!-- ──────── SMART TOOLS ──────── -->
-      <section id="view-tools" class="view" aria-label="Smart Tools">
+      <section id="view-tools" class="view active" aria-label="Smart Tools">
         <div class="page">
           <header class="page-head">
             <h1>Smart Tools</h1>
@@ -325,9 +351,9 @@
 
     <!-- Mobile bottom navigation -->
     <nav class="bottombar" aria-label="Primary mobile">
-      <button class="bb-tab" data-tab="tools"><i class="ti ti-sparkles"></i><span>Tools</span></button>
+      <button class="bb-tab active" data-tab="tools"><i class="ti ti-sparkles"></i><span>Tools</span></button>
       <button class="bb-tab" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
-      <button class="bb-tab active" data-tab="notices"><i class="ti ti-books"></i><span>Notices</span></button>
+      <button class="bb-tab" data-tab="notices"><i class="ti ti-books"></i><span>Notices</span></button>
       <button class="bb-tab" data-tab="settings"><i class="ti ti-settings"></i><span>More</span></button>
     </nav>
   </div>
