@@ -527,6 +527,7 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 
 /* sticky submit bar */
 .af-sticky-bar { margin-top: 18px; }
+.af-clear-btn { margin-top: 10px; }
 
 /* verdict card (analyst + advisor) */
 .vcard { border: 1px solid var(--bdr); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); background: var(--surf); }
