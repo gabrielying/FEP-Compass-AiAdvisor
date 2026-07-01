@@ -480,10 +480,12 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
   transition: border-color .15s, box-shadow .15s;
 }
 .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,148,136,.12); background: var(--surf); }
+.field select:invalid { color: var(--ink3); }
+.req-mark { color: var(--red); font-weight: 700; }
 .field textarea { resize: vertical; }
 .field-full { grid-column: 1 / -1; }
 .amount-row { display: flex; gap: 8px; }
-.amount-row select { width: 92px; flex-shrink: 0; }
+.amount-row select { width: 118px; flex-shrink: 0; }
 
 /* quick-fill scenario chips */
 .qf-row { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 10px; scrollbar-width: none; }

@@ -202,12 +202,12 @@
                 <div class="sec-hdr">Parties &amp; transaction</div>
                 <div class="form-grid">
                   <label class="field">
-                    <span class="field-lbl">Who is transacting? <button type="button" class="term" data-term="Resident">?</button></span>
-                    <select id="af-who" class="af-select"></select>
+                    <span class="field-lbl">Who is transacting? <span class="req-mark">*</span> <button type="button" class="term" data-term="Resident">?</button></span>
+                    <select id="af-who" class="af-select" required></select>
                   </label>
                   <label class="field">
-                    <span class="field-lbl">What is the transaction?</span>
-                    <select id="af-what" class="af-select"></select>
+                    <span class="field-lbl">What is the transaction? <span class="req-mark">*</span></span>
+                    <select id="af-what" class="af-select" required></select>
                   </label>
                 </div>
                 <p class="form-hint" id="af-req-hint"></p>
@@ -216,16 +216,16 @@
               <div class="form-sec">
                 <div class="sec-hdr">Cross-border details</div>
                 <label class="field field-full mb-12">
-                  <span class="field-lbl">From <small>(originating country)</small></span>
-                  <select id="af-from" class="af-select"></select>
+                  <span class="field-lbl">From <small>(originating country)</small> <span class="req-mark">*</span></span>
+                  <select id="af-from" class="af-select" required></select>
                   <div class="other-input-row hidden">
                     <input type="text" id="af-from-other" class="other-input" maxlength="60" placeholder="Type country name…">
                   </div>
                   <p class="form-hint" id="af-from-other-hint"></p>
                 </label>
                 <label class="field field-full mb-12">
-                  <span class="field-lbl">To <small>(destination country)</small></span>
-                  <select id="af-to" class="af-select"></select>
+                  <span class="field-lbl">To <small>(destination country)</small> <span class="req-mark">*</span></span>
+                  <select id="af-to" class="af-select" required></select>
                   <div class="other-input-row hidden">
                     <input type="text" id="af-to-other" class="other-input" maxlength="60" placeholder="Type country name…">
                   </div>
@@ -233,14 +233,14 @@
                 </label>
                 <div class="form-grid">
                   <label class="field">
-                    <span class="field-lbl">Why? <small>(purpose, max 160 chars)</small></span>
-                    <input id="af-why" maxlength="160" placeholder="e.g. investing in overseas property for education">
+                    <span class="field-lbl">Why? <small>(purpose, max 160 chars)</small> <span class="req-mark">*</span></span>
+                    <input id="af-why" maxlength="160" required placeholder="e.g. investing in overseas property for education">
                   </label>
                   <label class="field">
-                    <span class="field-lbl">Amount</span>
+                    <span class="field-lbl">Amount <span class="req-mark">*</span></span>
                     <div class="amount-row">
-                      <select id="af-ccy"></select>
-                      <input id="af-amt" type="text" inputmode="decimal" placeholder="0.00">
+                      <select id="af-ccy" required></select>
+                      <input id="af-amt" type="text" inputmode="decimal" required placeholder="0.00">
                     </div>
                     <div class="other-input-row hidden">
                       <input type="text" id="af-ccy-other" class="other-input" maxlength="30" placeholder="e.g. USD, HKD, Singapore Dollar…">
@@ -267,7 +267,7 @@
                 Do not enter customer-identifying or other confidential data. On the cloud (Gemini) provider your input is sent to Google; use local Ollama if such data must stay on-device.</p>
             </form>
             <div class="af-sticky-bar" id="af-sticky-bar">
-              <button class="btn primary lg" id="analyst-run" type="submit" form="analyst-form">
+              <button class="btn primary lg" id="analyst-run" type="submit" form="analyst-form" disabled>
                 <i class="ti ti-checkup-list"></i> Run Compliance Health-Check
               </button>
             </div>
