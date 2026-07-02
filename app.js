@@ -816,6 +816,16 @@ let afCcyCustomValue = '';
    tracked separately rather than written back into $('af-from'/'af-to').value. */
 let afFromCustomValue = '';
 let afToCustomValue = '';
+/* True once the user has attempted to submit the analyst form at least once while it was
+   incomplete — drives the inline per-field "required" error UI (see updateAfFieldErrors()
+   below) so errors only appear after a failed submit, not while the user is still filling
+   the form in for the first time. Reset back to false once every required field is filled,
+   and explicitly by clearAnalystForm(). */
+let afSubmitAttempted = false;
+/* Maps each afFieldsReady().fields key to the id of the DOM input that should receive focus
+   / the has-error styling for that field — af-err-<key> holds the matching inline message,
+   see updateAfFieldErrors()/setAfFieldError(). */
+const AF_FIELD_INPUT_IDS = { who: 'af-who', what: 'af-what', from: 'af-from', to: 'af-to', why: 'af-why', amount: 'af-amt' };
 /* Returns the effective currency code to use in the query/summary/submit: the select's
    value unless it's the literal 'Other', in which case the resolved custom text (or the
    literal 'Other' if nothing has been typed yet). */
@@ -1084,13 +1094,46 @@ function updateAfReqHint() {
   const { ready, missing, fields } = afFieldsReady();
   const hint = $('af-req-hint');
   updateAfReqMarks(fields);
+  updateAfFieldErrors(fields);
   if (ready) {
     hint.textContent = 'Ready to check compliance';
     hint.classList.add('ok');
+  } else if (afSubmitAttempted) {
+    // The banner + per-field "This field is required." messages already cover this —
+    // avoid showing the same list a third time mid-form.
+    hint.textContent = '';
+    hint.classList.remove('ok');
   } else {
     hint.classList.remove('ok');
     hint.textContent = 'Still need: ' + missing.join(', ');
   }
+}
+
+/* Toggles the has-error styling + inline "This field is required." message on a single
+   analyst-form field, keyed the same way as afFieldsReady().fields — see AF_FIELD_INPUT_IDS. */
+function setAfFieldError(key, hasError) {
+  const input = $(AF_FIELD_INPUT_IDS[key]);
+  const wrap = input ? input.closest('.field') : null;
+  if (wrap) wrap.classList.toggle('has-error', hasError);
+  const msg = $('af-err-' + key);
+  if (msg) msg.classList.toggle('hidden', !hasError);
+}
+
+/* Drives the inline per-field "required" error UI (banner + per-field has-error/message)
+   from the current afFieldsReady() fields snapshot. Only shows anything once the user has
+   attempted a submit while the form was incomplete (afSubmitAttempted) — runs unconditionally
+   (not gated by an early return) so stale error state is correctly cleared as the user fixes
+   fields one by one. */
+function updateAfFieldErrors(fields) {
+  const missingKeys = Object.keys(fields).filter(k => !fields[k]);
+  const showErrors = afSubmitAttempted && missingKeys.length > 0;
+  const banner = $('af-error-banner');
+  if (banner) banner.classList.toggle('hidden', !showErrors);
+  Object.keys(AF_FIELD_INPUT_IDS).forEach(key => {
+    const isError = showErrors && missingKeys.includes(key);
+    setAfFieldError(key, isError);
+  });
+  if (missingKeys.length === 0) afSubmitAttempted = false;
 }
 
 function renderQuickfillChips() {
@@ -1174,10 +1217,14 @@ $('af-why').addEventListener('input', updateAfReqHint);
 
 $('analyst-form').addEventListener('submit', async e => {
   e.preventDefault();
-  const { ready, missing } = afFieldsReady();
+  const { ready, fields } = afFieldsReady();
   if (!ready) {
+    afSubmitAttempted = true;
     updateAfReqHint();
-    return toast('Please complete all fields before running the check — still need: ' + missing.join(', '));
+    const firstInvalidKey = Object.keys(fields).find(k => !fields[k]);
+    if (firstInvalidKey) $(AF_FIELD_INPUT_IDS[firstInvalidKey])?.focus();
+    $('af-error-banner')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return;
   }
   const who = $('af-who').value, what = $('af-what').value;
   const from = effectiveFrom().trim().slice(0, 60), to = effectiveTo().trim().slice(0, 60);
@@ -1248,6 +1295,7 @@ function clearAnalystForm() {
   afFromCustomValue = ''; afToCustomValue = ''; afCcyCustomValue = '';
   updateAfSummary();
   updateAfFxEstimate();
+  afSubmitAttempted = false;
   updateAfReqHint();
   $('analyst-out').innerHTML = '';
   Object.assign(ST.draft, DEFAULT_DRAFT, { chat: ST.draft.chat });

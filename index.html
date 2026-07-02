@@ -234,6 +234,10 @@
           <div id="tool-analyst" class="tool-panel active">
             <div class="qf-row" id="qf-row"></div>
             <form id="analyst-form" class="analyst-form" novalidate>
+              <div class="af-error-banner hidden" id="af-error-banner" role="alert">
+                <i class="ti ti-alert-triangle"></i>
+                <span>There was a problem with your submission. Please review the fields below.</span>
+              </div>
               <div class="af-summary hidden" id="af-summary"></div>
 
               <div class="form-sec">
@@ -242,10 +246,12 @@
                   <label class="field">
                     <span class="field-lbl">Who is transacting? <span class="req-mark" id="af-req-who">*</span> <button type="button" class="term" data-term="Resident">?</button></span>
                     <select id="af-who" class="af-select" required></select>
+                    <p class="field-error-msg hidden" id="af-err-who">This field is required.</p>
                   </label>
                   <label class="field">
                     <span class="field-lbl">What is the transaction? <span class="req-mark" id="af-req-what">*</span></span>
                     <select id="af-what" class="af-select" required></select>
+                    <p class="field-error-msg hidden" id="af-err-what">This field is required.</p>
                   </label>
                 </div>
                 <p class="form-hint" id="af-req-hint"></p>
@@ -260,6 +266,7 @@
                     <input type="text" id="af-from-other" class="other-input" maxlength="60" placeholder="Type country name…">
                   </div>
                   <p class="form-hint" id="af-from-other-hint"></p>
+                  <p class="field-error-msg hidden" id="af-err-from">This field is required.</p>
                 </label>
                 <label class="field field-full mb-12">
                   <span class="field-lbl">To <small>(destination country)</small> <span class="req-mark" id="af-req-to">*</span></span>
@@ -268,11 +275,13 @@
                     <input type="text" id="af-to-other" class="other-input" maxlength="60" placeholder="Type country name…">
                   </div>
                   <p class="form-hint" id="af-to-other-hint"></p>
+                  <p class="field-error-msg hidden" id="af-err-to">This field is required.</p>
                 </label>
                 <div class="form-grid">
                   <label class="field">
                     <span class="field-lbl">Why? <small>(purpose, max 160 chars)</small> <span class="req-mark" id="af-req-why">*</span></span>
                     <input id="af-why" maxlength="160" required placeholder="e.g. investing in overseas property for education">
+                    <p class="field-error-msg hidden" id="af-err-why">This field is required.</p>
                   </label>
                   <label class="field">
                     <span class="field-lbl">Amount <span class="req-mark" id="af-req-amount">*</span></span>
@@ -285,6 +294,7 @@
                     </div>
                     <p class="form-hint" id="af-ccy-other-hint"></p>
                     <p class="form-hint" id="af-fx-estimate"></p>
+                    <p class="field-error-msg hidden" id="af-err-amount">This field is required.</p>
                   </label>
                 </div>
               </div>

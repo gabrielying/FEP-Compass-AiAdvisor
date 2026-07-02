@@ -25,6 +25,7 @@
   --red: #b42318;
   --red-bg: #fef3f2;
   --red-bdr: #fecdc9;
+  --red-glow: rgba(180,35,24,.35);
   --amber: #b54708;
   --amber-bg: #fffaec;
   --amber-bdr: #fce4ae;
@@ -75,6 +76,7 @@
     --red: #ff8a80;
     --red-bg: #3a1210;
     --red-bdr: #6e2420;
+    --red-glow: rgba(255,138,128,.35);
     --amber: #ffc46b;
     --amber-bg: #33210a;
     --amber-bdr: #6b4a17;
@@ -486,6 +488,54 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 .field-full { grid-column: 1 / -1; }
 .amount-row { display: flex; gap: 8px; }
 .amount-row select { width: 118px; flex-shrink: 0; }
+
+/* inline required-field validation (post-submit-attempt) — see afSubmitAttempted /
+   updateAfFieldErrors() in app.js. .field is padding-less by default (see .field above), so
+   .has-error deliberately avoids adding padding — an inset box-shadow + background tint only,
+   so toggling the class never changes the field's box height/width and can't jitter
+   .form-grid/.amount-row row heights. */
+.af-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  margin-bottom: 16px;
+  background: var(--red-bg);
+  border: 1px solid var(--red-bdr);
+  border-radius: var(--radius-sm);
+  color: var(--red);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.field.has-error {
+  background: var(--red-bg);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 1.5px var(--red-bdr) inset;
+}
+
+.field.has-error input,
+.field.has-error select,
+.field.has-error textarea {
+  border-color: var(--red);
+  background: var(--surf);
+}
+
+.field.has-error input:focus,
+.field.has-error select:focus,
+.field.has-error textarea:focus {
+  box-shadow: 0 0 0 3px var(--red-glow);
+}
+
+.field-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--red);
+  margin-top: 4px;
+}
 
 /* quick-fill scenario chips */
 .qf-row { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 10px; scrollbar-width: none; }
