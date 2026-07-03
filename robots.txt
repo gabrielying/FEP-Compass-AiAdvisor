@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://gabrielying.github.io/FEP-Compass-AiAdvisor/sitemap.xml
+Sitemap: https://fep-compass-ai-advisor.vercel.app/sitemap.xml
