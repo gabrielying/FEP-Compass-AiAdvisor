@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#0a1628">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FEP Compass">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="description" content="FEP Compass (No-AI edition) — Malaysia's Foreign Exchange Policy (FEP) advisor for banking officers. Notices 1–7, a deterministic rules-based compliance analyst and local reference search. No AI, no network calls.">
+<title>FEP Compass · Malaysia's Foreign Exchange Policy Advisor</title>
+<!--
+  FEP COMPASS — No-AI edition  (fork of FEP Compass v2.0 for testing)
+  ────────────────────────────────────────────────────
+  NO AI, NO NETWORK: verdicts come from a deterministic rules engine
+  (rules.js) authored from the FEP Notice text; lookups use local BM25
+  search (kb.js). There are no API keys and no external service calls.
+
+  FEP NOTICES: N1–N7 (effective 1 October 2025)
+  SOURCE: Official Malaysia FEP Notice PDFs — https://www.bnm.gov.my/fep/policies/notices (see Settings)
+  DISCLAIMER: Educational guidance only. Verify complex cases with the FEP Authority.
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self' https://cdn.jsdelivr.net blob:; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.9.0/tabler-icons.min.css" rel="stylesheet" integrity="sha384-QvR1GM9u92ZefTDtJJHYYhMpBNVcTCxfWikeZRuqdGO3n81PA6sjSDn6GjBQ07rh" crossorigin="anonymous">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Full-screen loader shown on first paint and on every reload (F5 or mobile pull-to-refresh),
+     hidden once app.js finishes its initial render -->
+<div id="app-loader" class="app-loader" role="status" aria-label="Loading FEP Compass">
+  <svg viewBox="0 0 512 512" class="app-loader-compass" aria-hidden="true">
+    <defs>
+      <linearGradient id="g-loader" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#12305b"/>
+        <stop offset="1" stop-color="#0d9488"/>
+      </linearGradient>
+    </defs>
+    <rect width="512" height="512" rx="112" fill="url(#g-loader)"/>
+    <circle cx="256" cy="256" r="150" fill="none" stroke="#ffffff" stroke-opacity=".85" stroke-width="26"/>
+    <g class="loader-needle">
+      <path d="M 332 180 L 282 282 L 180 332 L 230 230 Z" fill="#ffffff"/>
+      <circle cx="256" cy="256" r="22" fill="#0d9488"/>
+    </g>
+  </svg>
+</div>
+
+<!-- Custom pull-to-refresh indicator (mobile) — the app shell has overscroll-behavior:
+     contain so the browser's native pull-to-refresh never fires; see initPullToRefresh() -->
+<div id="ptr-indicator" class="ptr-indicator" aria-hidden="true">
+  <svg id="ptr-compass" class="ptr-compass" viewBox="0 0 512 512" aria-hidden="true">
+    <defs>
+      <linearGradient id="g-ptr" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#12305b"/>
+        <stop offset="1" stop-color="#0d9488"/>
+      </linearGradient>
+    </defs>
+    <rect width="512" height="512" rx="112" fill="url(#g-ptr)"/>
+    <circle cx="256" cy="256" r="150" fill="none" stroke="#ffffff" stroke-opacity=".85" stroke-width="26"/>
+    <g class="ptr-needle">
+      <path d="M 332 180 L 282 282 L 180 332 L 230 230 Z" fill="#ffffff"/>
+      <circle cx="256" cy="256" r="22" fill="#0d9488"/>
+    </g>
+  </svg>
+</div>
+
+<div class="shell">
+
+  <!-- ════════ SIDEBAR (desktop / tablet) ════════ -->
+  <aside class="sidebar">
+    <button type="button" class="brand" id="brand-jump-sidebar">
+      <div class="brand-mark"><svg class="brand-svg" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="170" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="30"/><path d="M344 168 L286 286 L168 344 L226 226 Z" fill="#fff"/><circle cx="256" cy="256" r="26" fill="#0d9488"/></svg></div>
+      <div>
+        <div class="brand-name">FEP <span>Compass</span></div>
+        <div class="brand-sub">Malaysia's FX Policy Advisor</div>
+      </div>
+    </button>
+
+    <nav class="side-nav" aria-label="Primary">
+      <button class="side-link active" data-tab="tools"><i class="ti ti-sparkles"></i><span>Smart Tools</span></button>
+      <button class="side-link" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
+      <button class="side-link" data-tab="notices"><i class="ti ti-books"></i><span>FEP Notices</span></button>
+      <button class="side-link" data-tab="settings"><i class="ti ti-settings"></i><span>Settings</span></button>
+    </nav>
+
+    <div class="side-foot">
+      <div class="side-foot-badge"><i class="ti ti-shield-check"></i> Notices N1–N7 · effective 1 Oct 2025</div>
+      <p>Educational guidance only — not legal advice. Verify complex cases with the FEP Authority — official source linked in
+        <button class="side-foot-link" data-go="settings">Settings</button>.</p>
+      <a class="side-foot-legal" href="legal.html" target="_blank" rel="noopener"><i class="ti ti-file-text"></i> Legal &amp; Policies</a>
+    </div>
+  </aside>
+
+  <!-- ════════ MAIN COLUMN ════════ -->
+  <div class="main">
+
+    <!-- Mobile topbar -->
+    <header class="topbar">
+      <div class="topbar-row">
+        <button type="button" class="brand brand-sm" id="brand-jump-topbar">
+          <div class="brand-mark"><svg class="brand-svg" viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="170" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="30"/><path d="M344 168 L286 286 L168 344 L226 226 Z" fill="#fff"/><circle cx="256" cy="256" r="26" fill="#0d9488"/></svg></div>
+          <div class="brand-name">FEP <span>Compass</span></div>
+        </button>
+        <div class="topbar-badge">N1–N7 · Oct 2025</div>
+      </div>
+      <p class="topbar-disclaimer">Educational guidance only — not legal advice. Verify complex cases with the FEP Authority.</p>
+      <a class="topbar-legal-link" href="legal.html" target="_blank" rel="noopener">Legal &amp; Policies</a>
+    </header>
+
+    <main id="views">
+
+      <!-- ──────── FEP NOTICES (Educational Hub) ──────── -->
+      <section id="view-notices" class="view" aria-label="FEP Notices">
+        <div class="page">
+          <header class="page-head">
+            <h1>FEP Notices — Educational Hub</h1>
+            <p class="page-sub">Malaysia's Foreign Exchange Policy (FEP) Notices 1–7, broken down into plain-language provisions.</p>
+          </header>
+
+          <section class="card onboarding-card hidden" id="onboarding-card">
+            <div class="card-head">
+              <h2><i class="ti ti-sparkles"></i> New here? Start with these</h2>
+              <button class="modal-close" id="onboarding-dismiss" title="Dismiss"><i class="ti ti-x"></i></button>
+            </div>
+            <div class="onboarding-steps">
+              <button class="onboarding-step" data-step="explore">
+                <i class="ti ti-book-2"></i>
+                <div><strong>Explore a Notice</strong><span>Tap "Explore" on any FEP Notice card below to see its provisions in plain language.</span></div>
+              </button>
+              <button class="onboarding-step" data-step="check">
+                <i class="ti ti-help-hexagon"></i>
+                <div><strong>Try "Am I Affected?"</strong><span>Answer 2–3 quick questions for an instant compliance read on a transaction.</span></div>
+              </button>
+              <button class="onboarding-step" data-step="analyst">
+                <i class="ti ti-checkup-list"></i>
+                <div><strong>Run a Compliance Check</strong><span>Fill in the structured form under Smart Tools and answer a few yes/no questions — a deterministic rules engine (no AI) returns a verdict with the exact FEP provision it is based on.</span></div>
+              </button>
+            </div>
+          </section>
+
+          <div class="search-box" id="notices-search">
+            <i class="ti ti-search search-icon"></i>
+            <input id="notices-q" type="search" placeholder="Search all provisions — e.g. “export proceeds 6 months”, “RM10 million borrowing”…" autocomplete="off">
+            <button class="search-clear" id="notices-clear" title="Clear"><i class="ti ti-x"></i></button>
+          </div>
+
+          <div id="notices-results"></div>
+          <div id="notices-cards" class="notice-cards"></div>
+
+          <section class="card glossary-card">
+            <div class="card-head"><h2><i class="ti ti-vocabulary"></i> Key Terms Glossary</h2>
+              <span class="card-hint">Tap a term for its FEP definition</span></div>
+            <div id="glossary" class="glossary"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ──────── DASHBOARD ──────── -->
+      <section id="view-dashboard" class="view" aria-label="Dashboard">
+        <div class="page">
+          <header class="page-head">
+            <h1 id="greeting">Good day</h1>
+            <p class="page-sub">Your FX compliance workspace — quick actions, notices and recent activity.</p>
+          </header>
+
+          <div id="dash-stats" class="dash-stats"></div>
+
+          <div class="dash-grid">
+
+            <!-- Quick actions -->
+            <article class="card span-2">
+              <div class="card-head"><h2><i class="ti ti-bolt"></i> Quick Actions</h2></div>
+              <div class="qa-grid">
+                <button class="qa" data-go="tools" data-tool="advisor"><i class="ti ti-list-search"></i>Reference Search</button>
+                <button class="qa" data-go="tools" data-tool="analyst"><i class="ti ti-checkup-list"></i>Compliance Check</button>
+                <button class="qa" data-go="notices"><i class="ti ti-books"></i>Browse Notices</button>
+              </div>
+            </article>
+
+            <!-- Notices at a glance -->
+            <article class="card span-2">
+              <div class="card-head">
+                <h2><i class="ti ti-books"></i> Notices at a Glance</h2>
+                <button class="ghost-btn" data-go="notices">View all <i class="ti ti-arrow-right"></i></button>
+              </div>
+              <div id="dash-notices" class="dash-notices"></div>
+            </article>
+
+            <!-- Recent activity / audit log -->
+            <article class="card span-2">
+              <div class="card-head">
+                <h2><i class="ti ti-history"></i> Recent Activity</h2>
+                <div class="card-head-actions">
+                  <button class="ghost-btn" id="activity-export"><i class="ti ti-download"></i> Export</button>
+                  <button class="ghost-btn" id="activity-clear"><i class="ti ti-trash"></i> Clear</button>
+                </div>
+              </div>
+              <p class="card-hint">A local audit trail of advisor queries, compliance checks and notices browsed — kept on this device only.</p>
+              <div class="activity-controls">
+                <div class="search-box sm" id="activity-search-box">
+                  <i class="ti ti-search search-icon"></i>
+                  <input id="activity-search" type="search" placeholder="Search activity…" autocomplete="off">
+                </div>
+                <div id="activity-filters" class="activity-filters"></div>
+              </div>
+              <ul id="activity-list" class="activity-list"></ul>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────── SMART TOOLS ──────── -->
+      <section id="view-tools" class="view active" aria-label="Smart Tools">
+        <div class="page">
+          <header class="page-head">
+            <h1>Smart Tools</h1>
+            <p class="page-sub">Run an instant, structured compliance health-check or search the Notices — both work entirely offline against Notices 1–7 and cite exact paragraphs. No AI involved.</p>
+          </header>
+
+          <div class="tool-tabs" role="tablist">
+            <button class="tool-tab active" data-tool="analyst" role="tab"><i class="ti ti-checkup-list"></i><span>Compliance Analyst</span><span class="tt-short">Analyst</span></button>
+            <button class="tool-tab" data-tool="advisor" role="tab"><i class="ti ti-list-search"></i><span>Reference Search</span><span class="tt-short">Search</span></button>
+          </div>
+
+          <!-- AI analyst -->
+          <div id="tool-analyst" class="tool-panel active">
+            <div class="qf-row" id="qf-row"></div>
+            <form id="analyst-form" class="analyst-form" novalidate>
+              <div class="af-error-banner hidden" id="af-error-banner" role="alert">
+                <i class="ti ti-alert-triangle"></i>
+                <span>There was a problem with your submission. Please review the fields below.</span>
+              </div>
+              <div class="af-summary hidden" id="af-summary"></div>
+
+              <div class="form-sec">
+                <div class="sec-hdr">Parties &amp; transaction</div>
+                <div class="form-grid">
+                  <label class="field">
+                    <span class="field-lbl">Who is transacting? <span class="req-mark" id="af-req-who">*</span> <button type="button" class="term" data-term="Resident">?</button></span>
+                    <select id="af-who" class="af-select" required></select>
+                    <p class="field-error-msg hidden" id="af-err-who">This field is required.</p>
+                  </label>
+                  <label class="field">
+                    <span class="field-lbl">What is the transaction? <span class="req-mark" id="af-req-what">*</span></span>
+                    <select id="af-what" class="af-select" required></select>
+                    <p class="field-error-msg hidden" id="af-err-what">This field is required.</p>
+                  </label>
+                </div>
+                <p class="form-hint" id="af-req-hint"></p>
+              </div>
+
+              <div class="form-sec">
+                <div class="sec-hdr">Cross-border details</div>
+                <label class="field field-full mb-12">
+                  <span class="field-lbl">From <small>(originating country)</small> <span class="req-mark" id="af-req-from">*</span></span>
+                  <select id="af-from" class="af-select" required></select>
+                  <div class="other-input-row hidden">
+                    <input type="text" id="af-from-other" class="other-input" maxlength="60" placeholder="Type country name…">
+                  </div>
+                  <p class="form-hint" id="af-from-other-hint"></p>
+                  <p class="field-error-msg hidden" id="af-err-from">This field is required.</p>
+                </label>
+                <label class="field field-full mb-12">
+                  <span class="field-lbl">To <small>(destination country)</small> <span class="req-mark" id="af-req-to">*</span></span>
+                  <select id="af-to" class="af-select" required></select>
+                  <div class="other-input-row hidden">
+                    <input type="text" id="af-to-other" class="other-input" maxlength="60" placeholder="Type country name…">
+                  </div>
+                  <p class="form-hint" id="af-to-other-hint"></p>
+                  <p class="field-error-msg hidden" id="af-err-to">This field is required.</p>
+                </label>
+                <div class="form-grid">
+                  <label class="field">
+                    <span class="field-lbl">Why? <small>(purpose, max 160 chars)</small> <span class="req-mark" id="af-req-why">*</span></span>
+                    <input id="af-why" maxlength="160" required placeholder="e.g. investing in overseas property for education">
+                    <p class="field-error-msg hidden" id="af-err-why">This field is required.</p>
+                  </label>
+                  <label class="field">
+                    <span class="field-lbl">Amount <span class="req-mark" id="af-req-amount">*</span></span>
+                    <div class="amount-row">
+                      <select id="af-ccy" required></select>
+                      <input id="af-amt" type="text" inputmode="decimal" required placeholder="0.00">
+                    </div>
+                    <div class="other-input-row hidden">
+                      <input type="text" id="af-ccy-other" class="other-input" maxlength="30" placeholder="e.g. USD, HKD, Singapore Dollar…">
+                    </div>
+                    <p class="form-hint" id="af-ccy-other-hint"></p>
+                    <p class="form-hint" id="af-fx-estimate"></p>
+                    <p class="field-error-msg hidden" id="af-err-amount">This field is required.</p>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-sec">
+                <div class="sec-hdr">Notes</div>
+                <div class="form-grid">
+                  <label class="field">
+                    <span class="field-lbl">Additional context <small>(optional, max 1000 chars)</small></span>
+                    <textarea id="af-ctx" maxlength="1000" rows="2" placeholder="e.g. the individual has an existing housing loan in Ringgit…"></textarea>
+                  </label>
+                </div>
+              </div>
+
+              <p class="micro-note"><i class="ti ti-database-search"></i>
+                Structured fields feed a deterministic rules engine — the verdict cites the exact FEP provision it is based on, and the same inputs always give the same answer.</p>
+              <p class="pii-note"><i class="ti ti-shield-lock"></i>
+                Everything runs locally in this browser — no AI, no network calls, and nothing you enter leaves this device. Still, avoid entering customer-identifying data.</p>
+            </form>
+            <div class="af-sticky-bar" id="af-sticky-bar">
+              <button class="btn primary lg" id="analyst-run" type="submit" form="analyst-form">
+                <i class="ti ti-checkup-list"></i> Check Compliance
+              </button>
+            </div>
+            <button type="button" class="ghost-btn af-clear-btn" id="analyst-clear">
+              <i class="ti ti-eraser"></i> Clear All Fields
+            </button>
+            <div id="analyst-out"></div>
+          </div>
+
+          <!-- AI advisor chat -->
+          <div id="tool-advisor" class="tool-panel view-chat">
+            <div class="chat-shell">
+              <div class="notice-bar" id="advisor-pills"></div>
+              <div class="advisor-hdr">
+                <span class="advisor-scope" id="advisor-scope">Scope: All Notices</span>
+                <div class="advisor-hdr-actions">
+                  <button class="ghost-btn" id="history-btn"><i class="ti ti-history"></i> History</button>
+                  <button class="ghost-btn" id="new-chat-btn"><i class="ti ti-plus"></i> New Chat</button>
+                </div>
+              </div>
+              <div class="msgs" id="msgs"></div>
+              <p class="pii-note"><i class="ti ti-shield-lock"></i>
+                Local keyword search over the FEP knowledge base — no AI, no network calls, and nothing you type leaves this device.</p>
+              <div class="chat-bar">
+                <textarea id="chat-inp" rows="2" maxlength="600"
+                  placeholder="Search the Notices — e.g. export proceeds 6 months, carry cash to Bangkok, RM10 million borrowing…"></textarea>
+                <button class="send-btn" id="send-btn" disabled><i class="ti ti-send-2"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────── SETTINGS ──────── -->
+      <section id="view-settings" class="view" aria-label="Settings">
+        <div class="page narrow">
+          <header class="page-head">
+            <h1>Settings</h1>
+            <p class="page-sub">This edition runs with no AI and no external services — there is nothing to connect. Manage your local data below.</p>
+          </header>
+          <div id="settings-content"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Mobile bottom navigation -->
+    <nav class="bottombar" aria-label="Primary mobile">
+      <button class="bb-tab active" data-tab="tools"><i class="ti ti-sparkles"></i><span>Tools</span></button>
+      <button class="bb-tab" data-tab="dashboard"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
+      <button class="bb-tab" data-tab="notices"><i class="ti ti-books"></i><span>Notices</span></button>
+      <button class="bb-tab" data-tab="settings"><i class="ti ti-settings"></i><span>More</span></button>
+    </nav>
+  </div>
+</div>
+
+<!-- ════════ NOTICE DETAIL MODAL ════════ -->
+<div class="overlay" id="notice-overlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <div class="modal-tag" id="nm-tag"></div>
+        <div class="modal-name" id="nm-name"></div>
+      </div>
+      <button class="modal-close" data-close="notice-overlay"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="nm-body"></div>
+    <div class="modal-foot">
+      <button class="btn" id="nm-check"><i class="ti ti-help-hexagon"></i> Am I Affected?</button>
+      <button class="btn primary" id="nm-ask"><i class="ti ti-list-search"></i> Search Provisions</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ QUICK-CHECK WIZARD ════════ -->
+<div class="overlay" id="qc-overlay">
+  <div class="modal modal-sm" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <div class="modal-tag" id="qc-tag">AM I AFFECTED?</div>
+        <div class="modal-name" id="qc-name"></div>
+      </div>
+      <button class="modal-close" data-close="qc-overlay"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="qc-body"></div>
+  </div>
+</div>
+
+<!-- ════════ HISTORY SHEET ════════ -->
+<div class="overlay" id="hist-overlay">
+  <div class="modal modal-sm" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div><div class="modal-tag">ADVISOR</div><div class="modal-name">Chat History</div></div>
+      <button class="modal-close" data-close="hist-overlay"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="hist-body"></div>
+  </div>
+</div>
+
+
+<!-- ════════ FIRST-RUN SETUP GUIDE ════════ -->
+<div class="overlay" id="firstrun-overlay">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="fr-title">
+    <div class="modal-head">
+      <div>
+        <div class="modal-tag" id="fr-tag">SETUP GUIDE</div>
+        <div class="modal-name" id="fr-title">Welcome to FEP Compass</div>
+      </div>
+    </div>
+    <div class="modal-body">
+
+      <div class="fr-step" data-fr-step="welcome">
+        <p>FEP Compass gives Malaysian banking officers plain-language guidance on Malaysia's Foreign Exchange Policy Notices 1–7. This edition uses <strong>no AI</strong>: verdicts come from a deterministic rules engine authored from the actual Notice text, and every citation is checked against the real provisions.</p>
+        <p>Nothing to connect, nothing to configure — the app runs entirely in this browser and works offline. One quick confirmation and you're in.</p>
+      </div>
+
+      <div class="fr-step hidden" data-fr-step="consent">
+        <p>Please read before continuing: FEP Compass stores everything locally in this browser and sends nothing anywhere — there is no AI provider and no network call. Still, avoid entering customer-identifying or other confidential data. All guidance is educational only, not legal advice — verify complex cases with the FEP Authority.</p>
+        <p><a href="legal.html" target="_blank" rel="noopener">Read full Legal &amp; Policies</a> for complete Terms, Privacy/PDPA and AI-disclosure text.</p>
+        <label class="fr-consent-row">
+          <input type="checkbox" id="fr-consent-check">
+          <span>I have read and agree to the above, and to the full Legal &amp; Policies.</span>
+        </label>
+      </div>
+
+      <div class="fr-step hidden" data-fr-step="done">
+        <p id="fr-done-msg">You're all set — no keys, no setup.</p>
+        <p>You can replay this guide anytime from Settings → Data &amp; About.</p>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn primary hidden" id="fr-next">Next</button>
+      <button class="btn primary hidden" id="fr-agree" disabled>I agree &amp; continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ TERM POPOVER ════════ -->
+<div id="term-pop" class="term-pop hidden" role="tooltip">
+  <div class="term-pop-name" id="tp-name"></div>
+  <div class="term-pop-def" id="tp-def"></div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<!-- ════════ PRINT AREA (verdict card "Save as PDF") ════════ -->
+<div id="print-area"></div>
+
+<script src="kb.js" defer></script>
+<script src="rules.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,1630 @@
+/* ════════════════════════════════════════════════════════════════════
+   FEP COMPASS (No-AI edition) — application logic
+   Knowledge base · BM25 retrieval · deterministic rules engine (rules.js)
+   No AI provider, no network calls — everything runs in the browser.
+   ════════════════════════════════════════════════════════════════════ */
+'use strict';
+
+/* ━━━ QUICK-CHECK DECISION TREES (“Am I Affected?”) ━━━ */
+const QUICKCHECK = {
+  1: { start:'a', nodes:{
+      a:{ q:'Are you (or your customer) exchanging foreign currency against Ringgit or another currency?', yes:'b', no:{ type:'ok', t:'Likely not affected', d:'Notice 1 governs buying/selling foreign currency, forwards and gold dealings. If no currency exchange or hedging is involved, look at Notices 2–7 instead.' } },
+      b:{ q:'Is the transaction with a Licensed Onshore Bank (LOB) or licensed money changer?', yes:'c', no:{ type:'warn', t:'Affected — review counterparty', d:'FX dealings must generally be carried out with a LOB, an Appointed Overseas Office or a licensed money changer. Dealing through other channels may breach Notice 1. Run a Compliance Check with your specifics.' } },
+      c:{ q:'Is it a forward / hedging contract (settlement beyond spot)?', yes:{ type:'info', t:'Affected — forward rules apply', d:'Forwards require a Firm Commitment or Anticipatory basis and must be unwound if the commitment ceases. Non-Residents face extra restrictions (N1 Part B, Para 12). Institutional investors may need Dynamic Hedging registration.' }, no:{ type:'ok', t:'Affected, but generally permitted', d:'Spot dealings with a LOB or licensed money changer are broadly permitted for both Residents and Non-Residents (N1 Paras 1, 6, 14).' } },
+  }},
+  2: { start:'a', nodes:{
+      a:{ q:'Does the arrangement involve borrowing, lending or a guarantee across Resident / Non-Resident lines?', yes:'b', no:{ type:'ok', t:'Likely not affected', d:'Purely domestic Ringgit lending between Residents is outside Notice 2\'s cross-border scope (but may count as Domestic Ringgit Borrowing for Notice 3 limits).' } },
+      b:{ q:'Is the borrower a Resident individual / sole proprietor?', yes:{ type:'warn', t:'Affected — individual limits apply', d:'Ringgit borrowing from a Non-Resident is capped at RM1 million aggregate (unlimited from immediate family/employer). Foreign currency borrowing is capped at RM10 million equivalent from a LOB or Non-Resident (N2 Part A).' }, no:'c' },
+      c:{ q:'Is the borrower a Resident company borrowing in foreign currency from outside its Group?', yes:{ type:'warn', t:'Affected — RM100M group limit', d:'FCY borrowing from a Non-Resident outside the Group, an NRFI or an out-of-group SPV is capped at RM100 million equivalent on a group basis (N2 Part B, Para 10). Borrowing from a LOB, Group entity or direct shareholder is unlimited.' }, no:{ type:'info', t:'Affected — check the matching provision', d:'Non-Resident borrowing and guarantees have their own permissions (N2 Parts D–G). Open Notice 2 and find the row matching your borrower and lender, or ask the AI Advisor.' } },
+  }},
+  3: { start:'a', nodes:{
+      a:{ q:'Is a Resident investing in a foreign-currency asset (shares, property, deposits, funds abroad)?', yes:'b', no:{ type:'ok', t:'Likely not affected', d:'Notice 3 only governs Resident investment in Foreign Currency Assets. Non-Resident investment into Malaysia is generally a Notice 4 (payments) matter.' } },
+      b:{ q:'Does the investor have any Domestic Ringgit Borrowing (e.g. business loans; excluding one housing & one vehicle loan)?', yes:'c', no:{ type:'ok', t:'Affected, but unlimited', d:'A Resident without Domestic Ringgit Borrowing may invest any amount in FCY assets, onshore or offshore (N3 Paras 1 & 3).' } },
+      c:{ q:'Will the investment be funded by converting Ringgit (or Trade FCA / swapping Ringgit assets)?', yes:{ type:'warn', t:'Affected — annual conversion limits', d:'With DRB, conversion-funded investment is capped per calendar year: RM1 million equivalent for individuals, RM50 million equivalent for entities on a group basis (N3 Paras 2 & 4). Exceeding the cap needs FEP Authority approval — track it on your Dashboard.' }, no:{ type:'ok', t:'Affected, but generally permitted', d:'Investment funded from FCY earned abroad (except export proceeds) or approved FCY borrowing is allowed in any amount (N3 Paras 2(a) & 4(a)).' } },
+  }},
+  4: { start:'a', nodes:{
+      a:{ q:'Is a payment being made or received between a Resident and a Non-Resident (or in foreign currency between Residents)?', yes:'b', no:{ type:'ok', t:'Likely not affected', d:'Ringgit payments between Residents in Malaysia are not restricted by Notice 4.' } },
+      b:{ q:'Is the payment in foreign currency from a Resident to a Non-Resident?', yes:{ type:'ok', t:'Affected, but broadly permitted', d:'FCY payments from a Resident to a Non-Resident are allowed for ANY purpose except certain derivative transactions (N4 Para 5). Note: investment-type payments still count toward Notice 3 limits.' }, no:'c' },
+      c:{ q:'Is a Non-Resident receiving or paying Ringgit in Malaysia?', yes:{ type:'info', t:'Affected — purpose test applies', d:'Ringgit payments involving Non-Residents are allowed for listed purposes: income/expenses in Malaysia, trade settlement, Ringgit assets, family transfers (N4 Paras 2–3). Repatriation must be in foreign currency (Para 8).' }, no:{ type:'info', t:'Affected — check FCY-between-Residents rules', d:'FCY payments between Residents are only permitted for listed purposes — family, education/employment/migration abroad, LOB transactions, global supply chain operations (N4 Para 4).' } },
+  }},
+  5: { start:'a', nodes:{
+      a:{ q:'Is someone issuing, subscribing to or transferring securities or financial instruments (bonds, sukuk, shares, derivatives)?', yes:'b', no:{ type:'ok', t:'Likely not affected', d:'Notice 5 only covers issuance and dealing in securities and financial instruments.' } },
+      b:{ q:'Is the issuer a Resident issuing in Ringgit to Non-Residents, or anyone issuing FCY instruments in Malaysia?', yes:{ type:'info', t:'Affected — generally permitted with conditions', d:'Resident issuance of Ringgit securities to Non-Residents and FCY securities to anyone is permitted; debt securities must also comply with Notice 2 borrowing limits (N5 Part A). Exchange-rate-linked instruments trigger Notice 1.' }, no:{ type:'info', t:'Affected — check the issuer-specific rule', d:'MDB/QDFI Ringgit issuances, LOB instruments and Bursa products each have their own provision (N5 Parts A–B). Open Notice 5 or ask the AI Advisor.' } },
+  }},
+  6: { start:'a', nodes:{
+      a:{ q:'Is physical cash (notes) being carried, couriered or posted across the Malaysian border?', yes:'b', no:{ type:'ok', t:'Not affected', d:'Notice 6 only covers physical import/export of currency. Electronic transfers fall under Notice 4.' } },
+      b:{ q:'Is Ringgit being taken OUT of Malaysia?', yes:{ type:'warn', t:'Affected — strict RM1,000 cap', d:'A traveller may take out at most RM1,000 in Ringgit notes per trip — amounts above that are NOT permitted under any circumstances. Foreign currency above RM30,000 equivalent must be declared to Customs.' }, no:{ type:'info', t:'Affected — declaration thresholds', d:'Bringing Ringgit IN above RM10,000 or foreign currency above RM30,000 equivalent must be declared to the Royal Malaysian Customs Department. Failure to declare is a violation.' } },
+  }},
+  7: { start:'a', nodes:{
+      a:{ q:'Is a Malaysian (Resident) business exporting goods out of Malaysia?', yes:'b', no:{ type:'ok', t:'Likely not affected', d:'Notice 7 applies to Resident exporters of goods. Services exports and Non-Resident shipments are outside its scope.' } },
+      b:{ q:'Will payment be received within 6 months of shipment, in full value, into a Ringgit account or Trade FCA in Malaysia?', yes:'c', no:{ type:'warn', t:'Affected — timing/value rules engaged', d:'Proceeds beyond 6 months are only allowed in approved circumstances (up to 24 months — buyer difficulties, disputes, consignment, testing). Proceeds still outstanding after 24 months must be reported to the FEP Authority within 21 days after year-end (N7 Paras 1(c) & 5).' } },
+      c:{ q:'Did annual gross exports exceed RM250 million equivalent last year?', yes:{ type:'info', t:'Affected — reporting obligation', d:'Large exporters (>RM250M/year) must submit reports to the FEP Authority via bnm.my/fep as and when required (N7 Para 4). Day-to-day receipts look compliant.' }, no:{ type:'ok', t:'Affected, and compliant pattern', d:'Receiving full value within 6 months into a Ringgit account or Trade FCA with a LOB matches the standard Notice 7 obligations. Keep records of any deductions (Appendix A).' } },
+  }},
+};
+
+/* ━━━ STATE ━━━ */
+
+/* In-progress analyst-form + chat-input text — a page reload (F5, or the mobile
+   pull-to-refresh in initPullToRefresh()) must not discard anything a user typed but
+   hadn't submitted yet, so this mirrors the form fields into localStorage on every edit. */
+const DEFAULT_DRAFT = {
+  who:'', what:'', from:'', fromOther:'', to:'', toOther:'',
+  why:'', ccy:'', ccyOther:'', amt:'', ctx:'', chat:'',
+};
+
+/* Last tab/tool the user was viewing — a reload returns here by default (Smart Tools /
+   Analyst is the fallback for a brand-new visitor with nothing saved yet). An in-progress
+   draft (see DEFAULT_DRAFT above) still overrides this in restoreDraft(), since showing the
+   user their unsaved work takes priority over returning them to their last-viewed tab. */
+const DEFAULT_NAV = { tab:'tools', toolTab:'analyst' };
+
+/* ━━━ AI COMPLIANCE ANALYST — picker options ━━━ */
+const AF_WHO_OPTIONS = [
+  'Resident Individual',
+  'Joint Account — two or more Resident Individuals',
+  'Joint Account — Resident & Non-Resident Individual',
+  'Resident Entity (company)',
+  'Non-Resident Individual',
+  'Non-Resident Entity',
+  'Licensed Onshore Bank (LOB)',
+];
+const AF_WHAT_GROUPS = [
+  { group:'Other', items:['Other'] },
+  { group:'FX dealing', items:['Buy / sell foreign currency', 'Forward / hedging contract'] },
+  { group:'Borrowing & lending', items:['Borrowing', 'Lending', 'Financial guarantee'] },
+  { group:'Investment', items:['Investment in foreign currency asset', 'Issue securities / financial instrument'] },
+  { group:'Cross-border movement', items:['Payment or receipt', 'Carry cash across the border', 'Export of goods (proceeds)'] },
+];
+const FX_COUNTRIES = [
+  'Other', 'Malaysia', 'Australia', 'Brunei', 'Cambodia', 'Canada', 'China', 'Germany', 'Hong Kong',
+  'India', 'Indonesia', 'Japan', 'Laos', 'Myanmar', 'Netherlands', 'New Zealand', 'Philippines',
+  'Singapore', 'South Korea', 'Switzerland', 'Taiwan', 'Thailand', 'United Arab Emirates',
+  'United Kingdom', 'United States', 'Vietnam',
+];
+/* AI Compliance Analyst — currency select options; 'Other' reveals a free-text/ISO-code fallback */
+const AF_CCY_OPTIONS = ['Other', 'MYR', 'USD', 'EUR', 'GBP', 'SGD', 'JPY', 'CNY', 'AUD'];
+
+/* Static, curated reference rates to MYR — NOT live. The CSP connect-src in index.html
+   forbids any live FX-rate API call, so this table is manually maintained and must be
+   updated by hand if rates drift materially from these indicative values. */
+const FX_RATES_TO_MYR = { MYR:1, USD:4.70, EUR:5.10, GBP:5.95, SGD:3.48, JPY:0.031, CNY:0.65, AUD:3.10 };
+
+/* Standard ISO-4217 alpha-3 currency codes (active list) — used to validate the
+   currency "Other" free-text fallback. */
+const ISO_CURRENCY_CODES = [
+  'AED','AFN','ALL','AMD','ANG','AOA','ARS','AUD','AWG','AZN',
+  'BAM','BBD','BDT','BGN','BHD','BIF','BMD','BND','BOB','BRL','BSD','BTN','BWP','BYN','BZD',
+  'CAD','CDF','CHF','CLP','CNY','COP','CRC','CUP','CVE','CZK',
+  'DJF','DKK','DOP','DZD',
+  'EGP','ERN','ETB','EUR',
+  'FJD','FKP',
+  'GBP','GEL','GHS','GIP','GMD','GNF','GTQ','GYD',
+  'HKD','HNL','HTG','HUF',
+  'IDR','ILS','INR','IQD','IRR','ISK',
+  'JMD','JOD','JPY',
+  'KES','KGS','KHR','KMF','KPW','KRW','KWD','KYD','KZT',
+  'LAK','LBP','LKR','LRD','LSL','LYD',
+  'MAD','MDL','MGA','MKD','MMK','MNT','MOP','MRU','MUR','MVR','MWK','MXN','MYR','MZN',
+  'NAD','NGN','NIO','NOK','NPR','NZD',
+  'OMR',
+  'PAB','PEN','PGK','PHP','PKR','PLN','PYG',
+  'QAR',
+  'RON','RSD','RUB','RWF',
+  'SAR','SBD','SCR','SDG','SEK','SGD','SHP','SLE','SOS','SRD','SSP','STN','SYP','SZL',
+  'THB','TJS','TMT','TND','TOP','TRY','TTD','TWD','TZS',
+  'UAH','UGX','USD','UYU','UZS',
+  'VES','VND','VUV',
+  'WST',
+  'XAF','XCD','XOF','XPF',
+  'YER',
+  'ZAR','ZMW','ZWL',
+];
+/* Common lowercase currency names/nicknames -> ISO code, for the "Other" free-text fallback */
+const CURRENCY_NAME_ALIASES = {
+  'ringgit':'MYR', 'dollar':'USD', 'us dollar':'USD', 'pound':'GBP', 'sterling':'GBP',
+  'euro':'EUR', 'yen':'JPY', 'yuan':'CNY', 'renminbi':'CNY', 'sing dollar':'SGD',
+  'singapore dollar':'SGD', 'aussie dollar':'AUD',
+};
+
+/* ~195 UN-recognized country names (standard English short names) — used to validate
+   the From/To country "Other" free-text fallback. */
+const WORLD_COUNTRIES = [
+  'Afghanistan','Albania','Algeria','Andorra','Angola','Antigua and Barbuda','Argentina','Armenia',
+  'Australia','Austria','Azerbaijan','Bahamas','Bahrain','Bangladesh','Barbados','Belarus','Belgium',
+  'Belize','Benin','Bhutan','Bolivia','Bosnia and Herzegovina','Botswana','Brazil','Brunei','Bulgaria',
+  'Burkina Faso','Burundi','Cabo Verde','Cambodia','Cameroon','Canada','Central African Republic','Chad',
+  'Chile','China','Colombia','Comoros','Congo','Costa Rica',"Cote d'Ivoire",'Croatia','Cuba','Cyprus',
+  'Czechia','Democratic Republic of the Congo','Denmark','Djibouti','Dominica','Dominican Republic',
+  'Ecuador','Egypt','El Salvador','Equatorial Guinea','Eritrea','Estonia','Eswatini','Ethiopia','Fiji',
+  'Finland','France','Gabon','Gambia','Georgia','Germany','Ghana','Greece','Grenada','Guatemala','Guinea',
+  'Guinea-Bissau','Guyana','Haiti','Honduras','Hong Kong','Hungary','Iceland','India','Indonesia','Iran',
+  'Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kiribati','Kuwait',
+  'Kyrgyzstan','Laos','Latvia','Lebanon','Lesotho','Liberia','Libya','Liechtenstein','Lithuania',
+  'Luxembourg','Madagascar','Malawi','Malaysia','Maldives','Mali','Malta','Marshall Islands','Mauritania',
+  'Mauritius','Mexico','Micronesia','Moldova','Monaco','Mongolia','Montenegro','Morocco','Mozambique',
+  'Myanmar','Namibia','Nauru','Nepal','Netherlands','New Zealand','Nicaragua','Niger','Nigeria',
+  'North Korea','North Macedonia','Norway','Oman','Pakistan','Palau','Panama','Papua New Guinea',
+  'Paraguay','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda',
+  'Saint Kitts and Nevis','Saint Lucia','Saint Vincent and the Grenadines','Samoa','San Marino',
+  'Sao Tome and Principe','Saudi Arabia','Senegal','Serbia','Seychelles','Sierra Leone','Singapore',
+  'Slovakia','Slovenia','Solomon Islands','Somalia','South Africa','South Korea','South Sudan','Spain',
+  'Sri Lanka','Sudan','Suriname','Sweden','Switzerland','Syria','Taiwan','Tajikistan','Tanzania',
+  'Thailand','Timor-Leste','Togo','Tonga','Trinidad and Tobago','Tunisia','Turkey','Turkmenistan',
+  'Tuvalu','Uganda','Ukraine','United Arab Emirates','United Kingdom','United States','Uruguay',
+  'Uzbekistan','Vanuatu','Vatican City','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe',
+];
+/* Static, curated quick-fill scenarios — deliberately NOT derived from the fep_activity log,
+   which is unstructured free text users are told to keep PII out of. */
+const QUICKFILL_SCENARIOS = [
+  { label:'Resident sending funds abroad', who:'Resident Individual', what:'Payment or receipt', from:'Malaysia', to:'United Kingdom' },
+  { label:'Non-resident repatriating proceeds', who:'Non-Resident Individual', what:'Investment in foreign currency asset', from:'Malaysia', to:'Singapore' },
+  { label:'Inbound FDI / equity investment', who:'Non-Resident Entity', what:'Investment in foreign currency asset', from:'Singapore', to:'Malaysia' },
+  { label:'Resident foreign-currency borrowing', who:'Resident Entity (company)', what:'Borrowing', from:'Malaysia', to:'Other' },
+];
+
+/* timestamp of this page load — used only to scope "this session" dashboard stats; not persisted */
+const APP_LOAD_TS = Date.now();
+
+const NAV_RESTORE = { ...DEFAULT_NAV, ...JSON.parse(localStorage.getItem('fep_nav')||'{}') };
+const ST = {
+  tab: NAV_RESTORE.tab,
+  sessions: JSON.parse(localStorage.getItem('fep_sess')||'[]'),
+  activity: JSON.parse(localStorage.getItem('fep_activity')||'[]'),
+  draft: { ...DEFAULT_DRAFT, ...JSON.parse(localStorage.getItem('fep_draft')||'{}') },
+  activityFilter:'all', activitySearch:'',
+  msgs: [], loading:false, advisorFilter:'all',
+  toolTab: NAV_RESTORE.toolTab, modalNotice:null,
+};
+const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+const saveDraft = () => save('fep_draft', ST.draft);
+const saveNav = () => save('fep_nav', { tab: ST.tab, toolTab: ST.toolTab });
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtRM = n => 'RM ' + Number(n||0).toLocaleString('en-MY');
+
+function mkEl(tag, cls, html) {
+  const el = document.createElement(tag);
+  if (cls) el.className = cls;
+  if (html !== undefined) el.innerHTML = html;
+  return el;
+}
+
+/* Levenshtein edit distance between two strings (case-insensitive). Used for
+   lightweight, non-blocking "did you mean…" suggestions on free-text fallback inputs. */
+function levenshtein(a, b) {
+  a = String(a||'').toLowerCase(); b = String(b||'').toLowerCase();
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  let prev = Array.from({length:n+1}, (_,j) => j);
+  for (let i=1; i<=m; i++) {
+    const cur = [i];
+    for (let j=1; j<=n; j++) {
+      cur[j] = a[i-1] === b[j-1] ? prev[j-1] : 1 + Math.min(prev[j-1], prev[j], cur[j-1]);
+    }
+    prev = cur;
+  }
+  return prev[n];
+}
+/* Returns the candidate in `candidates` closest to `input` (case-insensitive) if within
+   maxDistance edits, else null. Exact case-insensitive matches return immediately. */
+function suggestClosest(input, candidates, maxDistance) {
+  const needle = String(input||'').trim().toLowerCase();
+  if (!needle) return null;
+  const exact = candidates.find(c => String(c).toLowerCase() === needle);
+  if (exact) return exact;
+  let best = null, bestDist = Infinity;
+  candidates.forEach(c => {
+    const d = levenshtein(needle, c);
+    if (d < bestDist) { bestDist = d; best = c; }
+  });
+  return bestDist <= maxDistance ? best : null;
+}
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg; t.classList.remove('hidden');
+  clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.add('hidden'), 2600);
+}
+
+/* ━━━ ACTIVITY / AUDIT LOG ━━━ */
+const MAX_ACTIVITY = 50;
+const ACTIVITY_ICONS = {
+  advisor:'ti-message-dots', analyst:'ti-checkup-list',
+  limit:'ti-gauge', declaration:'ti-clipboard-check', notice:'ti-book-2', check:'ti-help-hexagon',
+};
+const ACTIVITY_LABELS = {
+  advisor:'Advisor', analyst:'Analyst',
+  limit:'Limits', declaration:'Declarations', notice:'Notices', check:'Am I Affected?',
+};
+function logActivity(type, text) {
+  ST.activity.unshift({ id: Date.now()+'_'+Math.random().toString(36).slice(2), ts: Date.now(), type, text });
+  if (ST.activity.length > MAX_ACTIVITY) ST.activity = ST.activity.slice(0, MAX_ACTIVITY);
+  save('fep_activity', ST.activity);
+  if (ST.tab === 'dashboard') renderActivity();
+}
+function renderActivityFilters() {
+  const bar = $('activity-filters'); if (!bar) return;
+  const types = [...new Set(ST.activity.map(a => a.type))];
+  bar.innerHTML = '';
+  if (types.length < 2) { bar.classList.add('hidden'); return; }
+  bar.classList.remove('hidden');
+  const mkPill = (id, label) => {
+    const b = mkEl('button', 'npill'+(ST.activityFilter===id?' on':''), esc(label));
+    b.addEventListener('click', () => { ST.activityFilter = id; renderActivity(); });
+    return b;
+  };
+  bar.appendChild(mkPill('all','All'));
+  types.forEach(t => bar.appendChild(mkPill(t, ACTIVITY_LABELS[t] || t)));
+}
+function renderActivity() {
+  const ul = $('activity-list'); if (!ul) return;
+  renderActivityFilters();
+  ul.innerHTML = '';
+  let items = ST.activity;
+  if (ST.activityFilter !== 'all') items = items.filter(a => a.type === ST.activityFilter);
+  const q = ST.activitySearch.trim().toLowerCase();
+  if (q) items = items.filter(a => a.text.toLowerCase().includes(q));
+  if (!items.length) {
+    const msg = ST.activity.length ? 'No activity matches your search or filter.' : 'No activity recorded yet — actions across the app will appear here.';
+    ul.appendChild(mkEl('li','activity-empty', msg));
+    return;
+  }
+  items.forEach(a => {
+    const li = mkEl('li','activity-item');
+    li.innerHTML = `<i class="ti ${ACTIVITY_ICONS[a.type] || 'ti-circle'}"></i>
+      <div class="activity-body"><div class="activity-text">${esc(a.text)}</div><div class="activity-ts">${new Date(a.ts).toLocaleString('en-MY')}</div></div>`;
+    ul.appendChild(li);
+  });
+}
+function exportActivity() {
+  if (!ST.activity.length) return toast('No activity to export');
+  const header = 'Timestamp,Type,Description\n';
+  const rows = ST.activity.map(a => {
+    const ts = new Date(a.ts).toISOString();
+    const text = '"' + a.text.replace(/"/g, '""') + '"';
+    return `${ts},${a.type},${text}`;
+  }).join('\n');
+  const blob = new Blob([header + rows], { type:'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url; link.download = `fep-compass-activity-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(link); link.click(); link.remove();
+  URL.revokeObjectURL(url);
+  toast('Activity log exported');
+}
+
+/* wrap glossary terms in text with clickable chips */
+function linkTerms(html) {
+  const terms = Object.keys(GLOSSARY).sort((a,b)=>b.length-a.length);
+  const re = new RegExp('\\b(' + terms.map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|') + ')\\b', 'g');
+  return html.replace(re, m => `<button class="term" data-term="${esc(m)}">${esc(m)}</button>`);
+}
+
+/* ━━━ VERDICT CARD ━━━ */
+const VCFG = {
+  PERMITTED:         { cls:'permitted',         icon:'ti-circle-check',  label:'PERMITTED' },
+  NOT_PERMITTED:     { cls:'not-permitted',     icon:'ti-circle-x',      label:'NOT PERMITTED' },
+  CONDITIONAL:       { cls:'conditional',       icon:'ti-alert-circle',  label:'CONDITIONAL' },
+  REQUIRES_APPROVAL: { cls:'requires-approval', icon:'ti-lock',          label:'REQUIRES APPROVAL' },
+};
+function verdictCard(data, chunks, isPartial, inputRows) {
+  const vc = VCFG[data.verdict] || VCFG.CONDITIONAL;
+  const card = mkEl('div','vcard');
+  card._printChunks = chunks;
+  card._printInputRows = inputRows;
+  card.appendChild(mkEl('div','vcard-head',
+    `<span class="vbadge ${vc.cls}"><i class="ti ${vc.icon}"></i>${vc.label}</span><span class="vsummary">${esc(data.summary)}</span>`));
+  const body = mkEl('div','vbody', `<div class="vlabel">Explanation</div><p>${esc(data.explanation)}</p>`);
+  if (data.conditions?.length)
+    body.innerHTML += `<div class="vlabel mt-10">Conditions</div>` +
+      data.conditions.map(c=>`<div class="vcond"><i class="ti ti-point-filled"></i><span>${esc(c)}</span></div>`).join('');
+  if (data.warning && data.warning !== 'null')
+    body.innerHTML += `<div class="vwarn"><i class="ti ti-alert-triangle icon-sp-r"></i>${esc(data.warning)}</div>`;
+  if (data.nextStep && data.nextStep !== 'null')
+    body.innerHTML += `<div class="vnext"><i class="ti ti-arrow-guide icon-sp-r"></i><strong>Next step:</strong> ${esc(data.nextStep)}</div>`;
+  if (isPartial)
+    body.innerHTML += `<div class="vwarn mt-8">Response partially parsed — some fields may be incomplete.</div>`;
+  card.appendChild(body);
+  if (data.citation) {
+    const leaked = /section title|ref copied verbatim|[\[\]]/i.test(data.citation);
+    const grounded = !leaked && verifyCitation(data.citation).grounded;
+    let citeHtml = `<div class="vlabel">FEP Citation</div><div class="vcite-text">${esc(data.citation)}</div>`;
+    if (!grounded)
+      citeHtml += `<div class="vwarn mt-8"><i class="ti ti-alert-triangle icon-sp-r"></i>Unverified citation — this reference could not be matched to a provision in the knowledge base. Confirm against the official FEP Notice before relying on it.</div>`;
+    card.appendChild(mkEl('div','vcite',citeHtml));
+  }
+  if (chunks?.length) {
+    const srcs = mkEl('div','vsources'); const seen = new Set();
+    chunks.forEach(c => { const k = `${c.noticeName} ${c.ref}`; if (!seen.has(k)) { seen.add(k); srcs.appendChild(mkEl('span','vsrc-tag',esc(k))); } });
+    card.appendChild(srcs);
+  }
+  const foot = mkEl('div','vfoot');
+  const printBtn = mkEl('button','vprint-btn','<i class="ti ti-printer"></i> Save as PDF');
+  printBtn.addEventListener('click', () => printVerdict(card));
+  foot.appendChild(printBtn);
+  card.appendChild(foot);
+  return card;
+}
+/* render the WHO/WHAT/WHERE/WHY/AMOUNT/CONTEXT (or chat question) for the print area */
+function printInputBlock(rows) {
+  const w = mkEl('div','print-input');
+  w.appendChild(mkEl('div','sec-hdr','Compliance check input'));
+  rows.forEach(([label, value]) => w.appendChild(mkEl('div','print-input-row', `<strong>${esc(label)}:</strong> ${esc(value)}`)));
+  return w;
+}
+/* clone a verdict card into the dedicated print area and trigger the browser's print/Save-as-PDF dialog */
+function printVerdict(card) {
+  const area = $('print-area');
+  const clone = card.cloneNode(true);
+  clone.querySelectorAll('.vfoot').forEach(el => el.remove());
+  area.innerHTML = `<div class="print-head">
+    <h1>FEP Compass — Compliance Verdict</h1>
+    <p>Generated ${esc(new Date().toLocaleString('en-MY'))} · Educational guidance only — not legal advice. Verify complex cases with the FEP Authority.</p>
+  </div>`;
+  if (card._printInputRows?.length) area.appendChild(printInputBlock(card._printInputRows));
+  area.appendChild(clone);
+  if (card._printChunks?.length) area.appendChild(provisionList(card._printChunks, 'Provisions used for this check'));
+  document.body.classList.add('printing');
+  window.print();
+}
+window.addEventListener('afterprint', () => document.body.classList.remove('printing'));
+function provisionList(chunks, title='Most relevant provisions (reference lookup)') {
+  const w = mkEl('div','');
+  w.appendChild(mkEl('div','sec-hdr', title));
+  chunks.forEach(c => {
+    const card = mkEl('div','result-card',
+      `<span class="rtag">${c.noticeName}</span><span class="rref">${esc(c.ref)}</span>
+       <div class="rtitle">${esc(c.title)}</div><div class="rexcerpt">${esc(c.body)}</div>`);
+    w.appendChild(card);
+  });
+  return w;
+}
+/* ━━━ NAVIGATION ━━━ */
+function switchTab(tab) {
+  ST.tab = tab;
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-'+tab));
+  document.querySelectorAll('.side-link, .bb-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  if (tab === 'dashboard') renderDashboard();
+  saveNav();
+}
+document.querySelectorAll('.side-link, .bb-tab').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
+  switchTab(b.dataset.go);
+  if (b.dataset.tool) switchTool(b.dataset.tool);
+}));
+['brand-jump-sidebar', 'brand-jump-topbar'].forEach(id => $(id).addEventListener('click', () => switchTab('tools')));
+
+/* ━━━ DASHBOARD ━━━ */
+function renderDashNotices() {
+  const wrap = $('dash-notices'); wrap.innerHTML = '';
+  Object.values(NOTICES).forEach(n => {
+    const b = mkEl('button','mini-notice',`<div class="mn-tag">NOTICE ${n.id}</div><div class="mn-t">${esc(n.title)}</div>`);
+    b.addEventListener('click', () => openNotice(n.id));
+    wrap.appendChild(b);
+  });
+}
+function renderDashStats() {
+  const wrap = $('dash-stats'); if (!wrap) return;
+  wrap.innerHTML = '';
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const queriesSession = ST.activity.filter(a => a.type === 'advisor' && a.ts >= APP_LOAD_TS).length;
+  const checksMonth = ST.activity.filter(a => (a.type === 'analyst' || a.type === 'check') && a.ts >= monthStart).length;
+  const noticesBrowsed = new Set(ST.activity.filter(a => a.type === 'notice').map(a => a.text)).size;
+  const stats = [
+    { icon:'ti-message-dots', label:'Queries this session', v: queriesSession },
+    { icon:'ti-checkup-list', label:'Checks run this month', v: checksMonth },
+    { icon:'ti-books', label:'Notices browsed', v: noticesBrowsed },
+  ];
+  stats.forEach(s => {
+    wrap.appendChild(mkEl('div','dash-stat',
+      `<i class="ti ${s.icon}"></i><div class="ds-body"><div class="ds-v">${s.v}</div><div class="ds-l">${esc(s.label)}</div></div>`));
+  });
+}
+function renderDashboard() {
+  const h = new Date().getHours();
+  $('greeting').textContent = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+  renderDashStats(); renderActivity();
+}
+$('activity-clear').addEventListener('click', () => {
+  ST.activity = []; save('fep_activity', ST.activity); renderActivity(); toast('Activity log cleared');
+});
+$('activity-export').addEventListener('click', exportActivity);
+$('activity-search').addEventListener('input', e => {
+  ST.activitySearch = e.target.value; renderActivity();
+});
+
+/* ━━━ NOTICES HUB ━━━ */
+function renderNoticeCards() {
+  const wrap = $('notices-cards'); wrap.innerHTML = '';
+  Object.values(NOTICES).forEach(n => {
+    const card = mkEl('article','notice-card');
+    card.innerHTML = `
+      <div class="nc-top"><div class="nc-num">${n.id}</div><div class="nc-title">${esc(n.title)}</div></div>
+      <div class="nc-desc">${esc(n.desc)}</div>
+      <div class="nc-meta">${n.secs.length} provisions${faqTotal(n) ? ' · ' + faqTotal(n) + ' FAQs' : ''} · effective 1 Oct 2025</div>
+      <div class="nc-actions">
+        <button class="btn primary act-explore"><i class="ti ti-book-2"></i> Explore</button>
+        <button class="btn act-check"><i class="ti ti-help-hexagon"></i> Am I Affected?</button>
+      </div>`;
+    card.querySelector('.act-explore').addEventListener('click', () => openNotice(n.id));
+    card.querySelector('.act-check').addEventListener('click', () => openQuickCheck(n.id));
+    wrap.appendChild(card);
+  });
+}
+function renderGlossary() {
+  const g = $('glossary'); g.innerHTML = '';
+  Object.keys(GLOSSARY).forEach(t => g.appendChild(mkEl('button','term', esc(t))).setAttribute('data-term', t));
+}
+function renderNoticeSearch() {
+  const q = $('notices-q').value.trim();
+  $('notices-clear').classList.toggle('visible', !!q);
+  const out = $('notices-results'); out.innerHTML = '';
+  $('notices-cards').style.display = q ? 'none' : '';
+  if (!q) return;
+  const ql = q.toLowerCase();
+  let results = CHUNKS.filter(c => (c.title+' '+c.body+' '+c.noticeName+' '+c.ref).toLowerCase().includes(ql));
+  if (!results.length) results = retrieve(q, 'all', 8);
+  if (!results.length) { out.appendChild(mkEl('div','empty-center',`<i class="ti ti-mood-sad"></i><p>No provisions match “${esc(q)}”.</p>`)); return; }
+  out.appendChild(mkEl('div','sec-hdr',`${results.length} matching provision${results.length!==1?'s':''}`));
+  const hl = t => q ? esc(t).replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>') : esc(t);
+  results.slice(0,20).forEach(c => {
+    const card = mkEl('div','result-card',
+      `<span class="rtag">${c.noticeName}</span><span class="rref">${esc(c.ref)}</span>
+       <div class="rtitle">${hl(c.title)}</div><div class="rexcerpt">${hl(c.body)}</div>`);
+    card.addEventListener('click', () => openNotice(c.noticeId, c.ref));
+    out.appendChild(card);
+  });
+}
+$('notices-q').addEventListener('input', renderNoticeSearch);
+$('notices-clear').addEventListener('click', () => { $('notices-q').value=''; renderNoticeSearch(); });
+
+/* notice detail modal */
+/* render an accordion of {ref,title,body} entries (provisions or FAQs) into a container */
+function renderAccordion(list, container, focusRef, sub) {
+  list.forEach(s => {
+    const composed = sub ? faqCiteRef(sub, s.ref) : s.ref;
+    const prov = mkEl('div','prov');
+    const head = mkEl('button','prov-head',
+      `<span class="prov-ref">${esc(s.ref)}</span><span class="prov-title">${esc(s.title)}</span><i class="ti ti-chevron-down prov-chev"></i>`);
+    const bwrap = mkEl('div','prov-body');
+    bwrap.appendChild(mkEl('div','prov-body-inner', linkTerms(esc(s.body))));
+    head.addEventListener('click', () => {
+      const open = prov.classList.toggle('open');
+      bwrap.style.maxHeight = open ? bwrap.scrollHeight + 'px' : '0';
+    });
+    prov.appendChild(head); prov.appendChild(bwrap);
+    container.appendChild(prov);
+    if (focusRef && (s.ref === focusRef || composed === focusRef)) setTimeout(() => { head.click(); prov.scrollIntoView({behavior:'smooth', block:'center'}); }, 250);
+  });
+}
+function openNotice(id, focusRef) {
+  const n = NOTICES[id]; if (!n) return;
+  ST.modalNotice = id;
+  const faqGroups = n.faqs || [];
+  const faqCount = faqTotal(n);
+  const hasFaqs = faqCount > 0;
+  $('nm-tag').textContent = `NOTICE ${n.id} · ${n.secs.length} PROVISIONS${hasFaqs ? ' · ' + faqCount + ' FAQS' : ''}`;
+  $('nm-name').textContent = n.title;
+  const body = $('nm-body'); body.innerHTML = '';
+
+  if (hasFaqs) {
+    const tabs = mkEl('div','nm-tabs');
+    const provBtn = mkEl('button','npill on', `Provisions (${n.secs.length})`);
+    const faqBtn = mkEl('button','npill', `FAQs (${faqCount})`);
+    tabs.appendChild(provBtn); tabs.appendChild(faqBtn);
+    body.appendChild(tabs);
+
+    const provWrap = mkEl('div','nm-panel');
+    provWrap.appendChild(mkEl('div','sec-hdr','Tap any provision to expand · dotted terms have definitions'));
+    renderAccordion(n.secs, provWrap, focusRef);
+
+    const faqWrap = mkEl('div','nm-panel hidden');
+    faqWrap.appendChild(mkEl('div','sec-hdr','Frequently asked questions — tap to expand'));
+    faqGroups.forEach(g => {
+      faqWrap.appendChild(mkEl('div','sec-hdr sec-hdr-sub', esc(g.subcategory)));
+      renderAccordion(g.items, faqWrap, focusRef, g.subcategory);
+    });
+
+    body.appendChild(provWrap); body.appendChild(faqWrap);
+
+    const showTab = (tab) => {
+      provWrap.classList.toggle('hidden', tab !== 'prov');
+      faqWrap.classList.toggle('hidden', tab !== 'faq');
+      provBtn.classList.toggle('on', tab === 'prov');
+      faqBtn.classList.toggle('on', tab === 'faq');
+    };
+    provBtn.addEventListener('click', () => showTab('prov'));
+    faqBtn.addEventListener('click', () => showTab('faq'));
+    if (focusRef && faqGroups.some(g => g.items.some(f => f.ref === focusRef || faqCiteRef(g.subcategory, f.ref) === focusRef))) showTab('faq');
+  } else {
+    body.appendChild(mkEl('div','sec-hdr','Tap any provision to expand · dotted terms have definitions'));
+    renderAccordion(n.secs, body, focusRef);
+  }
+
+  openOverlay('notice-overlay');
+  logActivity('notice', `Viewed Notice ${n.short} — ${n.title}`);
+}
+$('nm-ask').addEventListener('click', () => {
+  closeOverlays();
+  ST.advisorFilter = String(ST.modalNotice);
+  renderAdvisorPills(); switchTab('tools'); switchTool('advisor');
+});
+$('nm-check').addEventListener('click', () => { closeOverlays(); openQuickCheck(ST.modalNotice); });
+
+/* quick-check wizard */
+function openQuickCheck(id) {
+  const n = NOTICES[id], qc = QUICKCHECK[id]; if (!n || !qc) return;
+  $('qc-name').textContent = `Notice ${id} — ${n.title}`;
+  let step = 1;
+  const render = nodeKey => {
+    const body = $('qc-body'); body.innerHTML = '';
+    const node = qc.nodes[nodeKey];
+    body.appendChild(mkEl('div','qc-step',`QUESTION ${step}`));
+    body.appendChild(mkEl('div','qc-q', esc(node.q)));
+    const opts = mkEl('div','qc-opts');
+    [['Yes','yes'],['No','no']].forEach(([lbl,key]) => {
+      const b = mkEl('button','btn'+(key==='yes'?' primary':''), lbl);
+      b.addEventListener('click', () => {
+        const next = node[key];
+        if (typeof next === 'string') { step++; render(next); }
+        else showResult(next);
+      });
+      opts.appendChild(b);
+    });
+    body.appendChild(opts);
+  };
+  const showResult = res => {
+    const body = $('qc-body'); body.innerHTML = '';
+    const icon = res.type==='ok' ? 'ti-circle-check' : res.type==='warn' ? 'ti-alert-triangle' : 'ti-info-circle';
+    body.appendChild(mkEl('div',`qc-result ${res.type}`,`<strong><i class="ti ${icon} icon-sp"></i> ${esc(res.t)}</strong>${esc(res.d)}`));
+    logActivity('check', `"Am I Affected?" (Notice ${n.short}) → ${res.t}`);
+    const row = mkEl('div','qc-restart qc-opts');
+    const again = mkEl('button','btn','<i class="ti ti-rotate"></i> Start over');
+    again.addEventListener('click', () => { step=1; render(qc.start); });
+    const ask = mkEl('button','btn primary','<i class="ti ti-list-search"></i> Search provisions');
+    ask.addEventListener('click', () => { closeOverlays(); ST.advisorFilter = String(id); renderAdvisorPills(); switchTab('tools'); switchTool('advisor'); });
+    row.appendChild(again); row.appendChild(ask);
+    body.appendChild(row);
+  };
+  render(qc.start);
+  openOverlay('qc-overlay');
+}
+
+/* ━━━ OVERLAYS & TERM POPOVER ━━━ */
+function openOverlay(id) { $(id).classList.add('open'); }
+function closeOverlays() { document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open')); }
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) closeOverlays(); }));
+document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeOverlays));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeOverlays(); hideTermPop(); } });
+
+function hideTermPop() { $('term-pop').classList.add('hidden'); }
+document.addEventListener('click', e => {
+  const t = e.target.closest('.term');
+  const pop = $('term-pop');
+  if (!t) { if (!e.target.closest('.term-pop')) hideTermPop(); return; }
+  const term = t.dataset.term;
+  const def = GLOSSARY[term] || GLOSSARY[Object.keys(GLOSSARY).find(k=>k.toLowerCase()===term.toLowerCase())];
+  if (!def) return;
+  $('tp-name').textContent = term;
+  $('tp-def').textContent = def;
+  pop.classList.remove('hidden');
+  const r = t.getBoundingClientRect(), pw = Math.min(320, window.innerWidth-24);
+  pop.style.maxWidth = pw+'px';
+  let x = Math.min(Math.max(12, r.left), window.innerWidth - pw - 12);
+  let y = r.bottom + 8;
+  if (y + pop.offsetHeight > window.innerHeight - 12) y = r.top - pop.offsetHeight - 8;
+  pop.style.left = x+'px'; pop.style.top = Math.max(12,y)+'px';
+});
+
+/* ━━━ SMART TOOLS — shared ━━━ */
+function switchTool(tool) {
+  ST.toolTab = tool;
+  document.querySelectorAll('.tool-tab').forEach(b => b.classList.toggle('active', b.dataset.tool === tool));
+  document.querySelectorAll('.tool-panel').forEach(p => p.classList.toggle('active', p.id === 'tool-'+tool));
+  saveNav();
+}
+document.querySelectorAll('.tool-tab').forEach(b => b.addEventListener('click', () => switchTool(b.dataset.tool)));
+
+/* ━━━ AI compliance analyst ━━━ */
+
+function selectWho(val) {
+  $('af-who').value = val;
+  updateAfSummary();
+  updateAfReqHint();
+}
+/* selectFrom/selectTo/selectWhat remain the canonical value-setters — applyQuickfill()
+   calls them directly, and the native <select>/"Other" text-input change listeners below
+   also route through them so every code path keeps .value in sync with the summary/hint. */
+function selectWhat(val) {
+  $('af-what').value = val;
+  updateAfSummary();
+  updateAfReqHint();
+}
+function selectFrom(val) {
+  $('af-from').value = val;
+  updateAfSummary();
+  updateAfReqHint();
+}
+function selectTo(val) {
+  $('af-to').value = val;
+  updateAfSummary();
+  updateAfReqHint();
+}
+
+/* Resolved custom "Other" currency text — kept out of $('af-ccy').value (which stays the
+   literal string 'Other' while that option is selected) so downstream code can tell "Other,
+   unresolved" apart from a fully-typed custom code. */
+let afCcyCustomValue = '';
+/* Resolved custom "Other" From/To country text — same rationale as afCcyCustomValue above:
+   assigning an arbitrary string to a <select>'s .value is a no-op per the HTML spec unless
+   that string matches an existing <option> value, so a user-typed custom country must be
+   tracked separately rather than written back into $('af-from'/'af-to').value. */
+let afFromCustomValue = '';
+let afToCustomValue = '';
+/* True once the user has attempted to submit the analyst form at least once while it was
+   incomplete — drives the inline per-field "required" error UI (see updateAfFieldErrors()
+   below) so errors only appear after a failed submit, not while the user is still filling
+   the form in for the first time. Reset back to false once every required field is filled,
+   and explicitly by clearAnalystForm(). */
+let afSubmitAttempted = false;
+/* Maps each afFieldsReady().fields key to the id of the DOM input that should receive focus
+   / the has-error styling for that field — af-err-<key> holds the matching inline message,
+   see updateAfFieldErrors()/setAfFieldError(). */
+const AF_FIELD_INPUT_IDS = { who: 'af-who', what: 'af-what', from: 'af-from', to: 'af-to', why: 'af-why', amount: 'af-amt' };
+/* Returns the effective currency code to use in the query/summary/submit: the select's
+   value unless it's the literal 'Other', in which case the resolved custom text (or the
+   literal 'Other' if nothing has been typed yet). */
+function effectiveCcy() {
+  const v = $('af-ccy').value;
+  return v === 'Other' ? (afCcyCustomValue || 'Other') : v;
+}
+/* Returns the effective From/To country to use in the query/summary/submit — mirrors
+   effectiveCcy() above. */
+function effectiveFrom() {
+  const v = $('af-from').value;
+  return v === 'Other' ? (afFromCustomValue || 'Other') : v;
+}
+function effectiveTo() {
+  const v = $('af-to').value;
+  return v === 'Other' ? (afToCustomValue || 'Other') : v;
+}
+
+function updateAfSummary() {
+  const who = $('af-who').value, what = $('af-what').value;
+  const ccy = effectiveCcy(), amtRaw = $('af-amt').value.replace(/,/g, '');
+  const parts = [];
+  if (who) parts.push(who);
+  if (what) parts.push(what);
+  if (amtRaw) {
+    const n = Number(amtRaw);
+    parts.push(`${ccy} ${Number.isFinite(n) ? n.toLocaleString() : amtRaw}`);
+  }
+  const summary = $('af-summary');
+  summary.textContent = parts.join(' · ');
+  summary.classList.toggle('hidden', parts.length === 0);
+}
+
+/* Indicative RM-equivalent display next to the Amount field — uses only the static
+   FX_RATES_TO_MYR table (no live rate lookups; see comment above that constant). */
+function updateAfFxEstimate() {
+  const el = $('af-fx-estimate'); if (!el) return;
+  const ccy = effectiveCcy();
+  const amtRaw = $('af-amt').value.replace(/,/g, '');
+  const rate = FX_RATES_TO_MYR[ccy];
+  const n = Number(amtRaw);
+  if (amtRaw && Number.isFinite(n) && n > 0 && rate) {
+    const rm = n * rate;
+    el.textContent = `≈ RM ${rm.toLocaleString('en-MY', { maximumFractionDigits:2 })} (indicative)`;
+    el.classList.remove('hidden');
+  } else {
+    el.textContent = '';
+    el.classList.add('hidden');
+  }
+}
+
+/* ── init-time <select> renderers for Who / What / From / To / Currency ── */
+/* Every analyst-form <select> starts on this disabled placeholder — none of them
+   pre-select a real option (e.g. the first list entry), so the field stays genuinely
+   empty until the user actively picks something. */
+function addPlaceholderOption(sel, text) {
+  const opt = document.createElement('option');
+  opt.value = ''; opt.textContent = text; opt.disabled = true; opt.selected = true;
+  sel.appendChild(opt);
+}
+function renderWhoSelect() {
+  const sel = $('af-who'); if (!sel) return;
+  sel.innerHTML = '';
+  addPlaceholderOption(sel, 'Select party…');
+  AF_WHO_OPTIONS.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item; opt.textContent = item;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', function () { selectWho(this.value); updateAfReqHint(); });
+}
+function renderWhatSelect() {
+  const sel = $('af-what'); if (!sel) return;
+  sel.innerHTML = '';
+  addPlaceholderOption(sel, 'Select type…');
+  AF_WHAT_GROUPS.forEach(({ group, items }) => {
+    const og = document.createElement('optgroup');
+    og.label = group;
+    items.forEach(item => {
+      const opt = document.createElement('option');
+      opt.value = item; opt.textContent = item;
+      og.appendChild(opt);
+    });
+    sel.appendChild(og);
+  });
+  sel.addEventListener('change', function () { selectWhat(this.value); updateAfReqHint(); });
+}
+function renderCcySelect() {
+  const sel = $('af-ccy'); if (!sel) return;
+  sel.innerHTML = '';
+  addPlaceholderOption(sel, 'Currency…');
+  AF_CCY_OPTIONS.forEach(code => {
+    const opt = document.createElement('option');
+    opt.value = code; opt.textContent = code;
+    sel.appendChild(opt);
+  });
+}
+/* Shared renderer for the From/To country <select>s. */
+function renderCountrySelect(selectId) {
+  const sel = $(selectId); if (!sel) return;
+  sel.innerHTML = '';
+  addPlaceholderOption(sel, 'Select country…');
+  FX_COUNTRIES.forEach(country => {
+    const opt = document.createElement('option');
+    opt.value = country; opt.textContent = country;
+    sel.appendChild(opt);
+  });
+}
+
+/* Wires a From/To country <select> + its "Other" free-text fallback row. `setCustom` persists
+   the user-typed custom country text (see afFromCustomValue/afToCustomValue above) since
+   assigning it back into the <select>'s .value would silently no-op. */
+function wireCountryField(selectId, otherInputId, otherHintId, selectFn, setCustom) {
+  const sel = $(selectId), otherRow = sel ? sel.parentElement.querySelector('.other-input-row') : null;
+  const otherInput = $(otherInputId), hint = $(otherHintId);
+  if (!sel || !otherInput || !hint) return;
+  sel.addEventListener('change', function () {
+    if (this.value === 'Other') {
+      otherRow?.classList.remove('hidden');
+      otherInput.focus();
+      setCustom('');
+      updateAfReqHint();
+    } else {
+      otherRow?.classList.add('hidden');
+      hint.textContent = '';
+      setCustom('');
+      selectFn(this.value);
+    }
+  });
+  otherInput.addEventListener('input', function () {
+    const val = this.value.trim().slice(0, 60);
+    setCustom(val);
+    updateAfSummary();
+    updateAfReqHint();
+    if (!val) { hint.textContent = ''; return; }
+    const exact = WORLD_COUNTRIES.find(c => c.toLowerCase() === val.toLowerCase());
+    if (exact) { hint.textContent = ''; hint.classList.remove('warn'); return; }
+    const suggestion = suggestClosest(val, WORLD_COUNTRIES, 2);
+    if (suggestion) {
+      hint.innerHTML = '';
+      hint.classList.add('warn');
+      hint.append('Did you mean ');
+      const link = mkEl('button', 'form-hint-link', esc(suggestion));
+      link.type = 'button';
+      link.addEventListener('click', () => {
+        otherInput.value = suggestion;
+        setCustom(suggestion);
+        updateAfSummary();
+        updateAfReqHint();
+        hint.textContent = ''; hint.classList.remove('warn');
+      });
+      hint.appendChild(link);
+      hint.append('?');
+    } else {
+      hint.textContent = 'Unrecognized country name — please check the spelling';
+      hint.classList.add('warn');
+    }
+  });
+}
+
+/* Wires the Currency <select> + its "Other" free-text fallback row (ISO code / common name). */
+function wireCcyField() {
+  const sel = $('af-ccy'), otherRow = sel ? sel.parentElement.parentElement.querySelector('.other-input-row') : null;
+  const otherInput = $('af-ccy-other'), hint = $('af-ccy-other-hint');
+  if (!sel || !otherInput || !hint) return;
+  sel.addEventListener('change', function () {
+    if (this.value === 'Other') {
+      otherRow?.classList.remove('hidden');
+      otherInput.focus();
+      afCcyCustomValue = '';
+      updateAfReqHint();
+    } else {
+      otherRow?.classList.add('hidden');
+      hint.textContent = '';
+      afCcyCustomValue = '';
+      updateAfSummary();
+      updateAfFxEstimate();
+      updateAfReqHint();
+    }
+  });
+  otherInput.addEventListener('input', function () {
+    const typed = this.value.trim();
+    const upper = typed.toUpperCase();
+    let resolved = '';
+    if (ISO_CURRENCY_CODES.includes(upper)) {
+      resolved = upper;
+      hint.textContent = ''; hint.classList.remove('warn');
+    } else if (CURRENCY_NAME_ALIASES[typed.toLowerCase()]) {
+      resolved = CURRENCY_NAME_ALIASES[typed.toLowerCase()];
+      hint.textContent = ''; hint.classList.remove('warn');
+    } else {
+      resolved = typed;
+      if (!typed) { hint.textContent = ''; hint.classList.remove('warn'); }
+      else {
+        const suggestion = suggestClosest(upper, ISO_CURRENCY_CODES, 1);
+        if (suggestion) {
+          hint.innerHTML = '';
+          hint.classList.add('warn');
+          hint.append('Did you mean ');
+          const link = mkEl('button', 'form-hint-link', esc(suggestion));
+          link.type = 'button';
+          link.addEventListener('click', () => {
+            otherInput.value = suggestion;
+            afCcyCustomValue = suggestion;
+            hint.textContent = ''; hint.classList.remove('warn');
+            updateAfSummary(); updateAfFxEstimate(); updateAfReqHint();
+          });
+          hint.appendChild(link);
+          hint.append('?');
+        } else {
+          hint.textContent = 'Unrecognized currency — please check the code/name';
+          hint.classList.add('warn');
+        }
+      }
+    }
+    afCcyCustomValue = resolved;
+    updateAfSummary();
+    updateAfFxEstimate();
+    updateAfReqHint();
+  });
+}
+
+/* Every field on the analyst form is required before the health-check can run — a field
+   left on its "Other" option with no typed text yet does not count as filled, mirroring
+   the effectiveCcy/effectiveFrom/effectiveTo fallback-to-literal-'Other' behavior. */
+function afFieldsReady() {
+  const who = $('af-who').value;
+  const what = $('af-what').value;
+  const fromSel = $('af-from').value;
+  const fromOk = !!fromSel && (fromSel !== 'Other' || !!afFromCustomValue.trim());
+  const toSel = $('af-to').value;
+  const toOk = !!toSel && (toSel !== 'Other' || !!afToCustomValue.trim());
+  const why = $('af-why').value.trim();
+  const ccySel = $('af-ccy').value;
+  const ccyOk = !!ccySel && (ccySel !== 'Other' || !!afCcyCustomValue.trim());
+  const amtRaw = $('af-amt').value.replace(/,/g, '');
+  const amtN = Number(amtRaw);
+  const amtOk = amtRaw !== '' && Number.isFinite(amtN) && amtN >= 0;
+
+  const missing = [];
+  if (!who) missing.push('who is transacting');
+  if (!what) missing.push('the transaction type');
+  if (!fromOk) missing.push('the originating country (From)');
+  if (!toOk) missing.push('the destination country (To)');
+  if (!why) missing.push('why (purpose)');
+  if (!ccyOk) missing.push('the currency');
+  if (!amtOk) missing.push('the amount');
+  return {
+    ready: missing.length === 0,
+    missing,
+    fields: { who: !!who, what: !!what, from: fromOk, to: toOk, why: !!why, amount: ccyOk && amtOk },
+  };
+}
+
+/* Hides a field's red "required" asterisk once it's been filled in, so the * is only ever
+   shown for fields the user still needs to complete — see afFieldsReady() for the per-field
+   filled/unfilled state this reflects. */
+function updateAfReqMarks(fields) {
+  Object.entries(fields).forEach(([key, filled]) => {
+    const mark = $(`af-req-${key}`);
+    if (mark) mark.classList.toggle('hidden', filled);
+  });
+}
+
+function updateAfReqHint() {
+  const { ready, missing, fields } = afFieldsReady();
+  const hint = $('af-req-hint');
+  updateAfReqMarks(fields);
+  updateAfFieldErrors(fields);
+  if (ready) {
+    hint.textContent = 'Ready to check compliance';
+    hint.classList.add('ok');
+  } else if (afSubmitAttempted) {
+    // The banner + per-field "This field is required." messages already cover this —
+    // avoid showing the same list a third time mid-form.
+    hint.textContent = '';
+    hint.classList.remove('ok');
+  } else {
+    hint.classList.remove('ok');
+    hint.textContent = 'Still need: ' + missing.join(', ');
+  }
+}
+
+/* Toggles the has-error styling + inline "This field is required." message on a single
+   analyst-form field, keyed the same way as afFieldsReady().fields — see AF_FIELD_INPUT_IDS. */
+function setAfFieldError(key, hasError) {
+  const input = $(AF_FIELD_INPUT_IDS[key]);
+  const wrap = input ? input.closest('.field') : null;
+  if (wrap) wrap.classList.toggle('has-error', hasError);
+  const msg = $('af-err-' + key);
+  if (msg) msg.classList.toggle('hidden', !hasError);
+}
+
+/* Drives the inline per-field "required" error UI (banner + per-field has-error/message)
+   from the current afFieldsReady() fields snapshot. Only shows anything once the user has
+   attempted a submit while the form was incomplete (afSubmitAttempted) — runs unconditionally
+   (not gated by an early return) so stale error state is correctly cleared as the user fixes
+   fields one by one. */
+function updateAfFieldErrors(fields) {
+  const missingKeys = Object.keys(fields).filter(k => !fields[k]);
+  const showErrors = afSubmitAttempted && missingKeys.length > 0;
+  const banner = $('af-error-banner');
+  if (banner) banner.classList.toggle('hidden', !showErrors);
+  Object.keys(AF_FIELD_INPUT_IDS).forEach(key => {
+    const isError = showErrors && missingKeys.includes(key);
+    setAfFieldError(key, isError);
+  });
+  if (missingKeys.length === 0) afSubmitAttempted = false;
+}
+
+function renderQuickfillChips() {
+  const row = $('qf-row'); row.innerHTML = '';
+  QUICKFILL_SCENARIOS.forEach(scenario => {
+    const chip = mkEl('button', 'npill', esc(scenario.label));
+    chip.type = 'button';
+    chip.addEventListener('click', () => applyQuickfill(scenario));
+    row.appendChild(chip);
+  });
+}
+/* Reflects a value into a From/To <select> plus its "Other" free-text row (if present), then
+   calls the matching canonical setter — keeps the visible select/other-row in sync with
+   quick-fill scenarios exactly as the old chip-sheet flow did. A literal 'Other' scenario
+   value (see QUICKFILL_SCENARIOS) reveals the other-row with the text input left empty,
+   matching old chip-sheet behavior — it does not fabricate a country name. Since `value` is
+   always a known option (a real country or the literal 'Other') for every quick-fill
+   scenario, any previously-typed custom text is stale and is cleared via `setCustom('')` —
+   the visible "Other" text <input> and its hint are cleared too, so no stale typed text
+   lingers alongside the reset internal tracker. */
+function applyFieldValue(selectId, value, selectFn, setCustom, otherInputId, otherHintId) {
+  const sel = $(selectId);
+  const otherRow = sel ? sel.parentElement.querySelector('.other-input-row') : null;
+  if (sel) {
+    const known = [...sel.options].some(o => o.value === value);
+    sel.value = known ? value : 'Other';
+    if (otherRow) otherRow.classList.toggle('hidden', known && value !== 'Other');
+  }
+  const otherInput = otherInputId ? $(otherInputId) : null;
+  const hint = otherHintId ? $(otherHintId) : null;
+  if (otherInput) otherInput.value = '';
+  if (hint) { hint.textContent = ''; hint.classList.remove('warn'); }
+  setCustom('');
+  selectFn(value);
+}
+function applyQuickfill(scenario) {
+  selectWho(scenario.who);
+  selectWhat(scenario.what);
+  applyFieldValue('af-from', scenario.from, selectFrom, v => { afFromCustomValue = v; }, 'af-from-other', 'af-from-other-hint');
+  applyFieldValue('af-to', scenario.to, selectTo, v => { afToCustomValue = v; }, 'af-to-other', 'af-to-other-hint');
+  updateAfSummary();
+}
+
+wireCcyField();
+
+/* Mirrors every analyst-form field into ST.draft/localStorage on each edit — see
+   DEFAULT_DRAFT above and restoreDraft() near INIT for the read side. */
+function persistAnalystDraft() {
+  Object.assign(ST.draft, {
+    who: $('af-who').value, what: $('af-what').value,
+    from: $('af-from').value, fromOther: $('af-from-other').value,
+    to: $('af-to').value, toOther: $('af-to-other').value,
+    why: $('af-why').value,
+    ccy: $('af-ccy').value, ccyOther: $('af-ccy-other').value,
+    amt: $('af-amt').value,
+    ctx: $('af-ctx').value,
+  });
+  saveDraft();
+}
+$('analyst-form').addEventListener('input', persistAnalystDraft);
+$('analyst-form').addEventListener('change', persistAnalystDraft);
+
+/* Live thousands-separator formatting for the amount field, e.g. 800000 -> 800,000.00 */
+$('af-amt').addEventListener('input', e => {
+  const el = e.target;
+  const cursorFromEnd = el.value.length - el.selectionStart;
+  const clean = el.value.replace(/[^\d.]/g, '');
+  const firstDot = clean.indexOf('.');
+  const intPart = firstDot === -1 ? clean : clean.slice(0, firstDot);
+  const decPart = firstDot === -1 ? '' : '.' + clean.slice(firstDot + 1).replace(/\./g, '').slice(0, 2);
+  const formattedInt = intPart ? Number(intPart).toLocaleString('en-US') : '';
+  el.value = formattedInt + decPart;
+  const pos = Math.max(0, el.value.length - cursorFromEnd);
+  el.setSelectionRange(pos, pos);
+  updateAfSummary();
+  updateAfFxEstimate();
+  updateAfReqHint();
+});
+
+$('af-why').addEventListener('input', updateAfReqHint);
+
+$('analyst-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const { ready, fields } = afFieldsReady();
+  if (!ready) {
+    afSubmitAttempted = true;
+    updateAfReqHint();
+    const firstInvalidKey = Object.keys(fields).find(k => !fields[k]);
+    if (firstInvalidKey) $(AF_FIELD_INPUT_IDS[firstInvalidKey])?.focus();
+    $('af-error-banner')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return;
+  }
+  const who = $('af-who').value, what = $('af-what').value;
+  const from = effectiveFrom().trim().slice(0, 60), to = effectiveTo().trim().slice(0, 60);
+  const where = from && to ? `${from} → ${to}` : (from || to || '');
+  const why = $('af-why').value.trim().slice(0, 160);
+  const ccy = effectiveCcy(), ctx = $('af-ctx').value.trim().slice(0, 1000);
+
+  let amt = $('af-amt').value.replace(/,/g, '');
+  amt = Math.min(Number(amt), 1e15);
+
+  const parts = [`WHO: ${who}`];
+  parts.push(`WHAT: ${what}`);
+  if (where) parts.push(`WHERE: ${where}`);
+  if (why) parts.push(`WHY: ${why}`);
+  if (amt) parts.push(`AMOUNT: ${ccy} ${Number(amt).toLocaleString()}`);
+  if (ctx) parts.push(`CONTEXT: ${ctx}`);
+  const query = parts.join('\n');
+
+  const inputRows = [['Who is transacting', who]];
+  inputRows.push(['Transaction type', what]);
+  if (where) inputRows.push(['Where', where]);
+  if (why) inputRows.push(['Why', why]);
+  if (amt) inputRows.push(['Amount', `${ccy} ${Number(amt).toLocaleString()}`]);
+  if (ctx) inputRows.push(['Additional context', ctx]);
+
+  // hand the structured inputs to the deterministic rules engine (rules.js)
+  RULE_RUN.input = { who, what, from, to, ccy, amt };
+  RULE_RUN.inputRows = inputRows;
+  RULE_RUN.query = `${who} ${what} ${why} ${ctx}`;
+  RULE_RUN.answers = {};
+  RULE_RUN.trail = [];
+  RULE_RUN.logged = false;
+  renderRulesCheck();
+  updateAfReqHint();
+  $('analyst-out').scrollIntoView({ behavior:'smooth', block:'nearest' });
+});
+
+/* ━━━ RULES-ENGINE CHECK FLOW ━━━
+   evaluateRules() (rules.js) either returns a final verdict, asks one
+   follow-up yes/no question at a time (QUICKCHECK-style), or declines —
+   in which case the most relevant provisions are shown for manual review.
+   Fully deterministic: same inputs + answers always give the same verdict. */
+const RULE_RUN = { input:null, inputRows:null, query:'', answers:{}, trail:[], logged:false };
+
+function ruleTrailBlock() {
+  const wrap = mkEl('div','card rule-trail');
+  RULE_RUN.trail.forEach(t => {
+    wrap.appendChild(mkEl('div','vcond', `<i class="ti ti-point-filled"></i><span>${esc(t.text)} — <strong>${t.answer ? 'Yes' : 'No'}</strong></span>`));
+  });
+  const redo = mkEl('button','ghost-btn','<i class="ti ti-rotate"></i> Change answers');
+  redo.addEventListener('click', () => {
+    RULE_RUN.answers = {}; RULE_RUN.trail = []; RULE_RUN.logged = false;
+    renderRulesCheck();
+  });
+  wrap.appendChild(redo);
+  return wrap;
+}
+
+function renderRulesCheck() {
+  const out = $('analyst-out'); out.innerHTML = '';
+  out.appendChild(mkEl('div','sec-hdr','Compliance health-check (rules-based — no AI)'));
+  const chunks = retrieve(RULE_RUN.query, 'all', 6);
+  if (RULE_RUN.trail.length) out.appendChild(ruleTrailBlock());
+  const res = evaluateRules({ ...RULE_RUN.input, answers: RULE_RUN.answers });
+
+  if (!res.covered) {
+    out.appendChild(mkEl('div','vwarn', esc(res.note || 'No deterministic rule covers this combination — showing the most relevant provisions for manual review. Verify with the FEP Authority for a definitive answer.')));
+    out.appendChild(provisionList(chunks));
+    if (!RULE_RUN.logged) {
+      RULE_RUN.logged = true;
+      logActivity('analyst', `Compliance check: ${RULE_RUN.input.who} — ${RULE_RUN.input.what} → no deterministic rule, showed reference provisions`);
+    }
+    return;
+  }
+  if (res.ask) {
+    const qc = mkEl('div','card');
+    qc.appendChild(mkEl('div','qc-step', `FOLLOW-UP QUESTION ${RULE_RUN.trail.length + 1}`));
+    qc.appendChild(mkEl('div','qc-q', esc(res.ask.text)));
+    if (res.ask.hint) qc.appendChild(mkEl('p','hint', esc(res.ask.hint)));
+    const opts = mkEl('div','qc-opts');
+    [['Yes', true], ['No', false]].forEach(([lbl, val]) => {
+      const b = mkEl('button','btn'+(val?' primary':''), lbl);
+      b.addEventListener('click', () => {
+        RULE_RUN.answers[res.ask.id] = val;
+        RULE_RUN.trail.push({ id: res.ask.id, text: res.ask.text, answer: val });
+        renderRulesCheck();
+      });
+      opts.appendChild(b);
+    });
+    qc.appendChild(opts);
+    out.appendChild(qc);
+    return;
+  }
+  out.appendChild(verdictCard(res.verdict, chunks, false, RULE_RUN.inputRows));
+  out.appendChild(provisionList(chunks, 'Related provisions (local BM25 lookup)'));
+  if (!RULE_RUN.logged) {
+    RULE_RUN.logged = true;
+    logActivity('analyst', `Compliance check: ${RULE_RUN.input.who} — ${RULE_RUN.input.what} → ${VCFG[res.verdict.verdict]?.label || res.verdict.verdict}`);
+  }
+}
+
+/* Resets every analyst-form field (and its saved draft) back to empty — leaves the chat
+   draft (a separate, unrelated field on ST.draft) untouched. */
+function clearAnalystForm() {
+  ['af-who', 'af-what', 'af-from', 'af-to', 'af-ccy'].forEach(id => { $(id).value = ''; });
+  ['af-why', 'af-amt', 'af-ctx', 'af-from-other', 'af-to-other', 'af-ccy-other'].forEach(id => { $(id).value = ''; });
+  ['af-from-other-hint', 'af-to-other-hint', 'af-ccy-other-hint'].forEach(id => {
+    const hint = $(id); hint.textContent = ''; hint.classList.remove('warn');
+  });
+  document.querySelectorAll('#analyst-form .other-input-row').forEach(row => row.classList.add('hidden'));
+  afFromCustomValue = ''; afToCustomValue = ''; afCcyCustomValue = '';
+  updateAfSummary();
+  updateAfFxEstimate();
+  afSubmitAttempted = false;
+  updateAfReqHint();
+  $('analyst-out').innerHTML = '';
+  Object.assign(ST.draft, DEFAULT_DRAFT, { chat: ST.draft.chat });
+  saveDraft();
+  toast('Form cleared');
+}
+$('analyst-clear').addEventListener('click', clearAnalystForm);
+
+/* ━━━ ADVISOR CHAT ━━━ */
+function renderAdvisorPills() {
+  const bar = $('advisor-pills'); bar.innerHTML = '';
+  [{id:'all',label:'All Notices'}, ...Object.values(NOTICES).map(n=>({id:String(n.id),label:n.short+' · '+n.title.split(',')[0].split(' and ')[0]}))].forEach(p => {
+    const b = mkEl('button','npill'+(ST.advisorFilter===p.id?' on':''), esc(p.label));
+    b.addEventListener('click', () => { ST.advisorFilter = p.id; renderAdvisorPills(); });
+    bar.appendChild(b);
+  });
+  $('advisor-scope').textContent = 'Scope: ' + (ST.advisorFilter==='all' ? 'All Notices' : 'Notice '+ST.advisorFilter);
+}
+const SAMPLES = [
+  'Can a resident individual with a housing loan invest RM1.5 million in Singapore stocks?',
+  'My customer wants to carry RM5,000 cash to Bangkok — allowed?',
+  'A Malaysian company is borrowing USD 30 million from its parent in Japan. Any limits?',
+  'Exporter received only 80% of proceeds after freight deductions — compliant with Notice 7?',
+];
+function renderAdvisorEmpty() {
+  const m = $('msgs'); m.innerHTML = '';
+  const empty = mkEl('div','empty-center',
+    `<i class="ti ti-list-search"></i><h3>Search the FEP Notices</h3>
+     <p>Describe the transaction in your own words — the app runs a local keyword (BM25) search over every provision and FAQ in Notices 1–7 and shows the most relevant ones, with exact references. For a structured verdict, use the <strong>Compliance Analyst</strong> instead.</p>`);
+  const s = mkEl('div','samples');
+  SAMPLES.forEach(q => {
+    const b = mkEl('button','sample', esc(q));
+    b.addEventListener('click', () => { $('chat-inp').value = q; $('send-btn').disabled = false; sendChat(); });
+    s.appendChild(b);
+  });
+  empty.appendChild(s);
+  m.appendChild(empty);
+}
+function pushUserMsg(text) { $('msgs').appendChild(mkEl('div','msg-user', esc(text))); }
+
+/* ━━━ TOPIC-RELEVANCE GATE (chat input only) ━━━
+   Rejects off-topic queries client-side, before any AI call. Built entirely from
+   already-loaded kb.js globals (GLOSSARY, NOTICES) plus a small generic FX/banking
+   allowlist — does not modify kb.js or its exports.
+   Two-bucket allowlist: single-word terms go in a `tokens` Set (exact-match against
+   query words length >=4); multi-word/hyphenated terms (e.g. "write-off", "money
+   changer") are normalized and kept whole in a `phrases` array, matched as a
+   substring of the normalized query — this avoids a short common word inside a
+   hyphenated term (e.g. "write" from "write-off") spuriously matching unrelated
+   queries like "write a haiku".
+   The retrieve() fallback is gated to queries with >=2 distinct content words, and
+   requires >=2 of those words to literally appear in the same retrieved chunk's
+   title/body/kw — a single coincidentally shared common word is no longer enough. */
+const STOPWORDS = new Set([
+  'what','where','when','which','who','whom','whose','why','how',
+  'like','about','today','tonight','right','story','write','short',
+  'long','good','great','nice','capital','please','could','would',
+  'should','really','very','just','that','this','these','those',
+  'your','tell','give','recommend','favorite','favourite','translate',
+  'weather','time','morning','afternoon','evening','night',
+]);
+let _topicTokens = null;
+let _topicPhrases = null;
+function buildTopicSets() {
+  if (_topicTokens) return;
+  const tokens = new Set();
+  const phrases = [];
+  const addPhrase = phrase => {
+    const norm = String(phrase).toLowerCase().trim().replace(/[-/]+/g, ' ').replace(/\s+/g, ' ');
+    if (/\s/.test(norm)) {
+      if (norm.length >= 3) phrases.push(norm);
+    } else if (norm.length >= 3) {
+      tokens.add(norm);
+    }
+  };
+  Object.keys(GLOSSARY).forEach(addPhrase);
+  Object.values(NOTICES).forEach(n => (n.kw || []).forEach(addPhrase));
+  [
+    'remit','remittance','transfer','payment','loan','invest','currency','ringgit',
+    'forex','fx','border','export','import','customs','bank','account','resident',
+    'nonresident','ecf','drb','hedge','ecb','borrow','lend','guarantee','proceeds',
+    'declare','declaration','repatriate','onshore','offshore','sukuk','bond','dealer',
+    'money changer','authority','compliance','transaction','overseas','abroad',
+  ].forEach(addPhrase);
+  _topicTokens = tokens;
+  _topicPhrases = phrases;
+}
+function isOnTopicQuery(query) {
+  buildTopicSets();
+  const raw = String(query || '').toLowerCase().trim();
+  const normalized = raw.replace(/[-/]+/g, ' ').replace(/\s+/g, ' ');
+  const qWords = normalized.split(/[^a-z0-9]+/).filter(Boolean);
+  const qTokens = qWords.filter(w => w.length >= 4 && !STOPWORDS.has(w));
+
+  if (qTokens.some(t => _topicTokens.has(t))) return true;
+  if (_topicPhrases.some(p => normalized.includes(p))) return true;
+
+  if (qTokens.length < 2) return false;
+  try {
+    const chunks = retrieve(query, 'all', 3);
+    if (!chunks || !chunks.length) return false;
+    const qSet = new Set(qTokens);
+    return chunks.some(c => {
+      const text = `${c.title || ''} ${c.body || ''} ${(c.kw || []).join(' ')}`.toLowerCase();
+      let hits = 0;
+      qSet.forEach(t => { if (text.includes(t)) hits++; });
+      return hits >= 2;
+    });
+  } catch { return false; }
+}
+
+/* Renders one reference-search result block (local BM25 over kb.js — no AI,
+   no network). Shared by live queries and history restore, so a restored
+   session re-runs the same deterministic retrieval. */
+function referenceResultBlock(q) {
+  const wrap = mkEl('div','msg-ai');
+  const chunks = retrieve(q, ST.advisorFilter, 6);
+  if (chunks.length) {
+    wrap.appendChild(provisionList(chunks, 'Most relevant provisions (local BM25 search)'));
+    wrap.appendChild(mkEl('div','vwarn','Reference lookup only — read the provisions and apply them yourself, or run a structured Compliance Check for a rules-based verdict.'));
+  } else {
+    wrap.appendChild(mkEl('div','vwarn','No provisions matched that query — try different keywords, or browse the Notices directly.'));
+  }
+  return { wrap, count: chunks.length };
+}
+
+function sendChat() {
+  const inp = $('chat-inp');
+  const q = inp.value.trim().slice(0, 600);
+  if (!q) return;
+  if (!isOnTopicQuery(q)) { toast('Please ask about a forex transaction, remittance, or FEP compliance topic.'); return; }
+  if (!ST.msgs.length) $('msgs').innerHTML = '';
+  inp.value = ''; $('send-btn').disabled = true;
+  pushUserMsg(q);
+  ST.msgs.push({ role:'user', content:q });
+  const m = $('msgs');
+  const { wrap, count } = referenceResultBlock(q);
+  m.appendChild(wrap);
+  logActivity('advisor', `Reference search: "${q.slice(0,70)}${q.length>70?'…':''}" → ${count} provision${count!==1?'s':''}`);
+  // persist session (queries only — results are re-derived on restore)
+  const sess = ST.sessions.find(s => s.id === ST.sessId);
+  if (sess) { sess.msgs = ST.msgs; sess.q = ST.msgs[0].content; }
+  else ST.sessions.unshift({ id: ST.sessId, q, ts: Date.now(), msgs: ST.msgs });
+  ST.sessions = ST.sessions.slice(0, 30);
+  save('fep_sess', ST.sessions);
+  m.scrollTop = m.scrollHeight;
+}
+ST.sessId = Date.now().toString();
+$('chat-inp').addEventListener('input', e => {
+  $('send-btn').disabled = !e.target.value.trim();
+  ST.draft.chat = e.target.value;
+  saveDraft();
+});
+$('chat-inp').addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
+$('send-btn').addEventListener('click', sendChat);
+$('new-chat-btn').addEventListener('click', () => { ST.msgs = []; ST.sessId = Date.now().toString(); renderAdvisorEmpty(); });
+$('history-btn').addEventListener('click', () => {
+  const body = $('hist-body'); body.innerHTML = '';
+  if (!ST.sessions.length) body.appendChild(mkEl('div','empty-center','<i class="ti ti-history"></i><p>No saved conversations yet.</p>'));
+  ST.sessions.forEach(s => {
+    const card = mkEl('div','sess-card',`<div class="sess-q">${esc(s.q)}</div><div class="sess-ts">${new Date(s.ts).toLocaleString('en-MY')}</div>`);
+    card.addEventListener('click', () => {
+      closeOverlays();
+      // keep user queries only (legacy sessions may carry old assistant turns);
+      // results are re-derived by the same deterministic local retrieval
+      ST.msgs = s.msgs.filter(msg => msg.role === 'user'); ST.sessId = s.id;
+      const m = $('msgs'); m.innerHTML = '';
+      ST.msgs.forEach(msg => {
+        pushUserMsg(msg.content);
+        m.appendChild(referenceResultBlock(msg.content).wrap);
+      });
+      switchTab('tools'); switchTool('advisor');
+    });
+    body.appendChild(card);
+  });
+  if (ST.sessions.length) {
+    const clr = mkEl('button','clr-btn','<i class="ti ti-trash"></i> Clear all history');
+    clr.addEventListener('click', () => { ST.sessions = []; save('fep_sess', []); closeOverlays(); toast('History cleared'); });
+    body.appendChild(clr);
+  }
+  openOverlay('hist-overlay');
+});
+
+/* ━━━ SETTINGS ━━━ */
+function renderSettings() {
+  const el = $('settings-content'); el.innerHTML = '';
+
+  const sec = mkEl('div','card');
+  sec.innerHTML = `<div class="card-head"><h2><i class="ti ti-shield-lock"></i> No AI — by design</h2></div>
+    <p class="hint mb-12">This edition of FEP Compass uses <strong>no AI and no external services</strong>. Verdicts come from a
+    deterministic rules engine authored from the FEP Notice text (<code>rules.js</code>), lookups use a local BM25 search over the
+    knowledge base, and every citation is checked against the real provisions before it is shown. Nothing you type ever leaves this
+    device — there are no API keys, no cloud calls and no telemetry. The same inputs and answers always produce the same verdict.</p>
+    <p class="hint">Where no deterministic rule covers a combination, the app says so and shows the relevant provisions for manual
+    review instead of guessing.</p>`;
+  el.appendChild(sec);
+
+  const data = mkEl('div','card'); data.style.marginTop = '16px';
+  data.innerHTML = `<div class="card-head"><h2><i class="ti ti-database"></i> Data &amp; About</h2></div>
+    <p class="hint mb-12">FEP Compass (No-AI edition) · Notices N1–N7 effective 1 Oct 2025 · Educational guidance only, not legal advice.
+    Official source: <a href="${FEP_OFFICIAL_URL}" target="_blank" rel="noopener">bnm.gov.my/fep/policies/notices</a></p>
+    <div class="btn-row mt-0">
+      <a class="btn" href="legal.html" target="_blank" rel="noopener"><i class="ti ti-file-text"></i> Legal &amp; Policies</a>
+      <button class="btn" id="replay-guide"><i class="ti ti-replay"></i> Replay setup guide</button>
+      <button class="btn" id="clear-data"><i class="ti ti-trash"></i> Clear all local data</button>
+    </div>`;
+  el.appendChild(data);
+
+  data.querySelector('#replay-guide').addEventListener('click', () => {
+    localStorage.removeItem(FIRST_RUN_GUIDE_KEY);
+    renderFirstRunStep('welcome');
+  });
+  const clearBtn = data.querySelector('#clear-data');
+  clearBtn.addEventListener('click', () => {
+    if (!clearBtn.dataset.armed) {
+      clearBtn.dataset.armed = '1';
+      clearBtn.innerHTML = '<i class="ti ti-alert-triangle"></i> Tap again to erase everything';
+      setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.innerHTML = '<i class="ti ti-trash"></i> Clear all local data'; }, 3500);
+      return;
+    }
+    ['fep_sess','fep_limits','fep_decls','fep_activity','fep_draft','fep_nav','fep_onboarded','fep_setup_guide_seen','fep_cfg','fep_ai_ack'].forEach(k => localStorage.removeItem(k));
+    location.reload();
+  });
+}
+
+/* ━━━ ONBOARDING (first-run walkthrough) ━━━ */
+const ONBOARDING_KEY = 'fep_onboarded';
+function initOnboarding() {
+  if (localStorage.getItem(ONBOARDING_KEY)) return;
+  const card = $('onboarding-card');
+  card.classList.remove('hidden');
+  card.querySelectorAll('.onboarding-step').forEach(b => b.addEventListener('click', () => {
+    const step = b.dataset.step;
+    if (step === 'explore') openNotice(1);
+    else if (step === 'check') openQuickCheck(1);
+    else if (step === 'analyst') { switchTab('tools'); switchTool('analyst'); }
+    dismissOnboarding();
+  }));
+  $('onboarding-dismiss').addEventListener('click', dismissOnboarding);
+}
+function dismissOnboarding() {
+  localStorage.setItem(ONBOARDING_KEY, '1');
+  $('onboarding-card').classList.add('hidden');
+}
+
+/* ━━━ FIRST-RUN SETUP GUIDE (separate from the onboarding nudge card above) ━━━
+   One-time modal: welcome → PII/legal consent gate → done. Only the "seen"
+   flag is persisted; the current step is transient. Mirrors the overlay
+   open/cleanup shape used elsewhere. */
+const FIRST_RUN_GUIDE_KEY = 'fep_setup_guide_seen';
+function initFirstRunGuide() {
+  if (!localStorage.getItem(FIRST_RUN_GUIDE_KEY)) renderFirstRunStep('welcome');
+}
+function renderFirstRunStep(step) {
+  const ov = $('firstrun-overlay');
+  ov.querySelectorAll('.fr-step').forEach(el => el.classList.toggle('hidden', el.dataset.frStep !== step));
+
+  const next = $('fr-next'), agree = $('fr-agree'), consentChk = $('fr-consent-check');
+  next.classList.add('hidden'); agree.classList.add('hidden');
+
+  let nextStep = null;
+  if (step === 'welcome') {
+    next.classList.remove('hidden'); next.innerHTML = 'Get started';
+    nextStep = 'consent';
+  } else if (step === 'consent') {
+    agree.classList.remove('hidden');
+    agree.disabled = !consentChk.checked;
+  } else if (step === 'done') {
+    next.classList.remove('hidden'); next.innerHTML = 'Finish';
+  }
+
+  const onNext = () => { cleanup(); renderFirstRunStep(nextStep); };
+  const onAgree = () => { cleanup(); renderFirstRunStep('done'); };
+  const onFinish = () => {
+    localStorage.setItem(FIRST_RUN_GUIDE_KEY, '1');
+    cleanup();
+    ov.classList.remove('open');
+  };
+  const onConsentChange = () => { agree.disabled = !consentChk.checked; };
+  const onBackdrop = e => { if (e.target === ov) { cleanup(); ov.classList.remove('open'); } };
+  const onKey = e => { if (e.key === 'Escape') { cleanup(); ov.classList.remove('open'); } };
+
+  function cleanup() {
+    next.removeEventListener('click', step === 'done' ? onFinish : onNext);
+    agree.removeEventListener('click', onAgree);
+    consentChk.removeEventListener('change', onConsentChange);
+    ov.removeEventListener('click', onBackdrop);
+    document.removeEventListener('keydown', onKey);
+  }
+
+  if (step === 'done') next.addEventListener('click', onFinish);
+  else next.addEventListener('click', onNext);
+  agree.addEventListener('click', onAgree);
+  consentChk.addEventListener('change', onConsentChange);
+  ov.addEventListener('click', onBackdrop);
+  document.addEventListener('keydown', onKey);
+
+  ov.classList.add('open');
+}
+
+/* ━━━ PWA — offline service worker (https / localhost only) ━━━ */
+if ('serviceWorker' in navigator &&
+    (location.protocol === 'https:' || ['localhost','127.0.0.1'].includes(location.hostname))) {
+  navigator.serviceWorker.register('sw.js').catch(() => {/* file:// or unsupported — app still works online */});
+}
+
+/* ━━━ APP LOADER — hides once the initial render below has finished, with a short minimum
+   display time (against APP_LOAD_TS, set at the very top of this file) so the spin is
+   actually visible even when init runs in a few milliseconds ━━━ */
+function hideAppLoader() {
+  const loader = $('app-loader');
+  if (!loader) return;
+  const wait = Math.max(0, 400 - (Date.now() - APP_LOAD_TS));
+  setTimeout(() => {
+    loader.classList.add('loaded');
+    loader.addEventListener('transitionend', () => loader.remove(), { once:true });
+  }, wait);
+}
+
+/* ━━━ PULL-TO-REFRESH (mobile) — the app shell (.view) has overscroll-behavior:contain,
+   so the browser's native pull-to-refresh never reaches the document; this reproduces it
+   with a real location.reload(), which restoreDraft() below makes safe to do mid-form. ━━━ */
+function initPullToRefresh() {
+  const PULL_MAX = 90, PULL_TRIGGER = 55;
+  const wrap = $('ptr-indicator'), compass = $('ptr-compass');
+  const needle = compass ? compass.querySelector('.ptr-needle') : null;
+  if (!wrap || !compass || !needle) return;
+  let startY = 0, dragging = false, ready = false;
+
+  function scrollerAtTop() {
+    const view = document.querySelector('.view.active');
+    if (!view) return false;
+    const msgs = view.querySelector('.msgs');
+    const scroller = (msgs && msgs.offsetParent !== null) ? msgs : view;
+    return scroller.scrollTop <= 0;
+  }
+  function reset() {
+    wrap.classList.remove('visible', 'ready', 'spin');
+    wrap.style.transform = ''; needle.style.transform = '';
+  }
+
+  document.addEventListener('touchstart', e => {
+    dragging = window.matchMedia('(max-width: 860px)').matches &&
+      e.touches.length === 1 && !document.querySelector('.overlay.open') && scrollerAtTop();
+    if (dragging) { startY = e.touches[0].clientY; ready = false; }
+  }, { passive:true });
+
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    if (!scrollerAtTop()) { dragging = false; reset(); return; }
+    const dy = e.touches[0].clientY - startY;
+    if (dy <= 0) { reset(); return; }
+    const pull = Math.min(dy * 0.5, PULL_MAX);
+    ready = pull >= PULL_TRIGGER;
+    wrap.classList.add('visible');
+    wrap.classList.toggle('ready', ready);
+    wrap.style.transform = `translate(-50%, ${pull - 60}px)`;
+    needle.style.transform = `rotate(${dy}deg)`;
+  }, { passive:true });
+
+  document.addEventListener('touchend', () => {
+    if (!dragging) return;
+    dragging = false;
+    if (ready) {
+      wrap.classList.add('spin');
+      needle.style.transform = '';
+      setTimeout(() => location.reload(), 300);
+    } else {
+      reset();
+    }
+  });
+}
+
+/* ━━━ DRAFT RESTORE — repopulates the analyst form + chat input from ST.draft; must run
+   after the <select>s below are populated so their values can actually be set ━━━ */
+function restoreOtherField(selectId, otherInputId, value, otherValue, setCustom) {
+  if (!value) return;
+  const sel = $(selectId);
+  sel.value = value;
+  if (value === 'Other') {
+    sel.parentElement.querySelector('.other-input-row')?.classList.remove('hidden');
+    if (otherValue) { $(otherInputId).value = otherValue; setCustom(otherValue); }
+  }
+}
+function restoreCcyField(value, otherValue) {
+  if (!value) return;
+  const sel = $('af-ccy');
+  sel.value = value;
+  if (value === 'Other') {
+    sel.parentElement.parentElement.querySelector('.other-input-row')?.classList.remove('hidden');
+    if (otherValue) { $('af-ccy-other').value = otherValue; afCcyCustomValue = otherValue; }
+  }
+}
+function hasAnalystDraft(d) {
+  return !!(d.who || d.what || d.from || d.to || d.why || d.ccy || d.amt || d.ctx);
+}
+function restoreDraft() {
+  const d = ST.draft;
+  if (d.who) $('af-who').value = d.who;
+  if (d.what) $('af-what').value = d.what;
+  if (d.why) $('af-why').value = d.why;
+  if (d.amt) $('af-amt').value = d.amt;
+  if (d.ctx) $('af-ctx').value = d.ctx;
+  restoreOtherField('af-from', 'af-from-other', d.from, d.fromOther, v => { afFromCustomValue = v; });
+  restoreOtherField('af-to', 'af-to-other', d.to, d.toOther, v => { afToCustomValue = v; });
+  restoreCcyField(d.ccy, d.ccyOther);
+  updateAfSummary();
+  updateAfFxEstimate();
+  updateAfReqHint();
+
+  if (d.chat) { $('chat-inp').value = d.chat; $('send-btn').disabled = !d.chat.trim(); }
+
+  // jump back to wherever the in-progress draft actually lives, so restoring it is visible
+  if (hasAnalystDraft(d)) { switchTab('tools'); switchTool('analyst'); }
+  else if (d.chat && d.chat.trim()) { switchTab('tools'); switchTool('advisor'); }
+}
+
+/* ━━━ INIT ━━━ */
+renderDashboard();
+renderDashNotices();
+renderNoticeCards();
+renderGlossary();
+renderAdvisorPills();
+renderAdvisorEmpty();
+renderSettings();
+buildBM25();
+renderQuickfillChips();
+renderWhoSelect();
+renderWhatSelect();
+renderCcySelect();
+renderCountrySelect('af-from');
+renderCountrySelect('af-to');
+wireCountryField('af-from', 'af-from-other', 'af-from-other-hint', selectFrom, v => { afFromCustomValue = v; });
+wireCountryField('af-to', 'af-to-other', 'af-to-other-hint', selectTo, v => { afToCustomValue = v; });
+// sync the DOM to whichever tab/tool was last visited (the baked-in HTML default is just the
+// fallback for a brand-new visitor) — restoreDraft() below may still override this if there's
+// an in-progress draft, since showing unsaved work takes priority over the last-viewed tab
+switchTab(ST.tab);
+switchTool(ST.toolTab);
+restoreDraft();
+initOnboarding();
+initFirstRunGuide();
+initPullToRefresh();
+hideAppLoader();
