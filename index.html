@@ -184,6 +184,12 @@
               </div>
             </article>
 
+            <!-- Daily FEP Challenge -->
+            <article class="card span-2">
+              <div class="card-head"><h2><i class="ti ti-trophy"></i> Daily FEP Challenge</h2></div>
+              <div id="dash-challenge" class="dash-challenge"></div>
+            </article>
+
             <!-- Notices at a glance -->
             <article class="card span-2">
               <div class="card-head">
@@ -404,6 +410,20 @@
   </div>
 </div>
 
+<!-- ════════ DAILY FEP CHALLENGE ════════ -->
+<div class="overlay" id="game-overlay">
+  <div class="modal modal-sm" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <div class="modal-tag">DAILY FEP CHALLENGE</div>
+        <div class="modal-name" id="game-name"></div>
+      </div>
+      <button class="modal-close" data-close="game-overlay"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="game-body"></div>
+  </div>
+</div>
+
 <!-- ════════ HISTORY SHEET ════════ -->
 <div class="overlay" id="hist-overlay">
   <div class="modal modal-sm" role="dialog" aria-modal="true">
@@ -512,6 +532,7 @@
 <div id="print-area"></div>
 
 <script src="kb.js" defer></script>
+<script src="challenge.js" defer></script>
 <script src="app.js" defer></script>
 </body>
 </html>

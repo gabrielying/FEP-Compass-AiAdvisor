@@ -58,6 +58,14 @@ const DEFAULT_DRAFT = {
    user their unsaved work takes priority over returning them to their last-viewed tab. */
 const DEFAULT_NAV = { tab:'tools', toolTab:'analyst' };
 
+/* Daily FEP Challenge — local play record. `history` entries
+   ({ date, challengeNo, qid, correct, ms }) are capped at MAX_GAME_HISTORY and
+   deliberately shaped as the payload a future shared (Supabase) leaderboard
+   submission would POST, so phase 2 needs no migration. Streak counts
+   consecutive calendar days answered CORRECTLY. */
+const DEFAULT_GAME = { history: [], streak: 0, bestMs: null };
+const MAX_GAME_HISTORY = 90;
+
 /* ━━━ AI COMPLIANCE ANALYST — picker options ━━━ */
 const AF_WHO_OPTIONS = [
   'Resident Individual',
@@ -172,6 +180,7 @@ const ST = {
   sessions: JSON.parse(localStorage.getItem('fep_sess')||'[]'),
   activity: JSON.parse(localStorage.getItem('fep_activity')||'[]'),
   draft: { ...DEFAULT_DRAFT, ...JSON.parse(localStorage.getItem('fep_draft')||'{}') },
+  game: { ...DEFAULT_GAME, ...JSON.parse(localStorage.getItem('fep_game')||'{}') },
   activityFilter:'all', activitySearch:'',
   msgs: [], loading:false, advisorFilter:'all',
   toolTab: NAV_RESTORE.toolTab, modalNotice:null,
@@ -231,10 +240,12 @@ const MAX_ACTIVITY = 50;
 const ACTIVITY_ICONS = {
   advisor:'ti-message-dots', analyst:'ti-checkup-list',
   limit:'ti-gauge', declaration:'ti-clipboard-check', notice:'ti-book-2', check:'ti-help-hexagon',
+  game:'ti-trophy',
 };
 const ACTIVITY_LABELS = {
   advisor:'Advisor', analyst:'Analyst',
   limit:'Limits', declaration:'Declarations', notice:'Notices', check:'Am I Affected?',
+  game:'Daily Challenge',
 };
 function logActivity(type, text) {
   ST.activity.unshift({ id: Date.now()+'_'+Math.random().toString(36).slice(2), ts: Date.now(), type, text });
@@ -578,7 +589,149 @@ function renderDashStats() {
 function renderDashboard() {
   const h = new Date().getHours();
   $('greeting').textContent = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-  renderDashStats(); renderActivity();
+  renderDashStats(); renderDashChallenge(); renderActivity();
+}
+
+/* ━━━ DAILY FEP CHALLENGE ━━━ */
+const GAME_LETTERS = ['A', 'B', 'C', 'D'];
+const fmtGameMs = ms => { const s = Math.round(ms/1000); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); };
+const todayGameEntry = () => ST.game.history.find(h => h.date === challengeDateKey());
+
+function recordGameResult(entry, pick, ms) {
+  const date = challengeDateKey();
+  const correct = pick === entry.answer;
+  ST.game.history.unshift({ date, challengeNo: challengeNumber(date), qid: entry.id, pick, correct, ms });
+  if (ST.game.history.length > MAX_GAME_HISTORY) ST.game.history = ST.game.history.slice(0, MAX_GAME_HISTORY);
+  if (!correct) ST.game.streak = 0;
+  else {
+    const yesterday = ST.game.history.find(h => h.date === challengeDateKey(new Date(Date.now() - 864e5)));
+    ST.game.streak = yesterday && yesterday.correct ? ST.game.streak + 1 : 1;
+    if (ST.game.bestMs == null || ms < ST.game.bestMs) ST.game.bestMs = ms;
+  }
+  save('fep_game', ST.game); // phase 2: also submit this history entry to a shared leaderboard
+  logActivity('game', `Daily Challenge #${challengeNumber(date)} — ${correct ? 'correct' : 'incorrect'} in ${fmtGameMs(ms)}`);
+  return correct;
+}
+
+function shareChallengeResult() {
+  const today = todayGameEntry(); if (!today) return;
+  const streak = ST.game.streak > 1 ? ` · 🔥 ${ST.game.streak}-day streak` : '';
+  const text = `🧭 FEP Daily Challenge #${today.challengeNo} — ${today.correct ? '✅ Correct' : '❌ Missed'} in ${fmtGameMs(today.ms)}${streak}`;
+  const done = () => toast('Result copied — paste it anywhere');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) { toast('Copy failed — ' + text); }
+  ta.remove();
+}
+
+function renderDashChallenge() {
+  const wrap = $('dash-challenge'); if (!wrap) return;
+  wrap.innerHTML = '';
+  const today = todayGameEntry();
+  const played = ST.game.history.length;
+  const correct = ST.game.history.filter(h => h.correct).length;
+  const pills = mkEl('div','game-pills');
+  [['ti-flame','Streak', ST.game.streak + (ST.game.streak === 1 ? ' day' : ' days')],
+   ['ti-stopwatch','Best time', ST.game.bestMs != null ? fmtGameMs(ST.game.bestMs) : '—'],
+   ['ti-target','Accuracy', played ? Math.round(correct / played * 100) + '% of ' + played : '—'],
+  ].forEach(([icon, l, v]) => pills.appendChild(mkEl('span','npill',`<i class="ti ${icon}"></i> ${esc(l)}: ${esc(v)}`)));
+  wrap.appendChild(pills);
+  if (today) {
+    wrap.appendChild(mkEl('div', 'qc-result ' + (today.correct ? 'ok' : 'warn'),
+      `<strong><i class="ti ${today.correct ? 'ti-circle-check' : 'ti-alert-triangle'} icon-sp"></i> Challenge #${today.challengeNo} — ${today.correct ? 'Correct' : 'Missed'} in ${fmtGameMs(today.ms)}</strong>Next challenge tomorrow. Every question is grounded in the real FEP Notices — tap Review to re-read the provision.`));
+    const row = mkEl('div','game-row');
+    const share = mkEl('button','btn primary','<i class="ti ti-copy"></i> Share result');
+    share.addEventListener('click', shareChallengeResult);
+    const review = mkEl('button','btn','<i class="ti ti-book-2"></i> Review answer');
+    review.addEventListener('click', openDailyChallenge);
+    row.appendChild(share); row.appendChild(review);
+    wrap.appendChild(row);
+  } else {
+    wrap.appendChild(mkEl('p','card-hint',
+      `One real FEP scenario a day, drawn from Notices 2, 3, 4 &amp; 7 — pick the right treatment against the clock and keep your streak alive.`));
+    const row = mkEl('div','game-row');
+    const play = mkEl('button','btn primary lg','<i class="ti ti-player-play"></i> Play Challenge #' + challengeNumber());
+    play.addEventListener('click', openDailyChallenge);
+    row.appendChild(play);
+    wrap.appendChild(row);
+  }
+}
+
+function openDailyChallenge() {
+  const entry = dailyQuestion();
+  $('game-name').textContent = `Challenge #${challengeNumber()} — ${new Date().toLocaleDateString('en-MY')}`;
+  const body = $('game-body');
+  let t0 = 0, timerEl = null, timerId = null;
+  const stopTimer = () => { if (timerId) { clearInterval(timerId); timerId = null; } };
+  openDailyChallenge._cleanup = stopTimer;
+
+  const renderIntro = () => {
+    body.innerHTML = '';
+    body.appendChild(mkEl('div','qc-step','ONE QUESTION · NOTICES 2 / 3 / 4 / 7'));
+    body.appendChild(mkEl('div','qc-q','Ready? One real FEP scenario, four options at most, one right answer. The timer starts when you hit Start.'));
+    body.appendChild(mkEl('p','card-hint','Educational guidance only, not legal advice — verify complex cases with the FEP Authority.'));
+    const row = mkEl('div','qc-opts');
+    const start = mkEl('button','btn primary','<i class="ti ti-player-play"></i> Start');
+    start.addEventListener('click', renderQuestion);
+    row.appendChild(start);
+    body.appendChild(row);
+  };
+
+  const renderQuestion = () => {
+    body.innerHTML = '';
+    t0 = Date.now();
+    const head = mkEl('div','game-qhead');
+    head.appendChild(mkEl('div','qc-step',`NOTICE ${entry.notice} · ${entry.type === 'verdict' ? 'PICK THE FEP TREATMENT' : 'QUIZ'}`));
+    timerEl = mkEl('div','game-timer','0:00');
+    head.appendChild(timerEl);
+    body.appendChild(head);
+    timerId = setInterval(() => { timerEl.textContent = fmtGameMs(Date.now() - t0); }, 250);
+    body.appendChild(mkEl('div','qc-q', esc(entry.q)));
+    const opts = mkEl('div','game-opts');
+    entry.opts.forEach((opt, i) => {
+      const b = mkEl('button','btn game-opt',`<span class="game-letter">${GAME_LETTERS[i]}</span> ${esc(opt)}`);
+      b.addEventListener('click', () => {
+        stopTimer();
+        const ms = Date.now() - t0;
+        recordGameResult(entry, i, ms);
+        renderDashChallenge();
+        renderResult();
+      });
+      opts.appendChild(b);
+    });
+    body.appendChild(opts);
+  };
+
+  const renderResult = () => {
+    body.innerHTML = '';
+    stopTimer();
+    const today = todayGameEntry(); if (!today) return renderIntro();
+    const ok = today.correct;
+    const pickText = today.pick != null && entry.opts[today.pick] != null
+      ? `You picked ${GAME_LETTERS[today.pick]} — ${esc(entry.opts[today.pick])}.<br>` : '';
+    body.appendChild(mkEl('div', 'qc-result ' + (ok ? 'ok' : 'warn'),
+      `<strong><i class="ti ${ok ? 'ti-circle-check' : 'ti-alert-triangle'} icon-sp"></i> ${ok ? 'Correct!' : 'Not quite'} — ${fmtGameMs(today.ms)}${ST.game.streak > 1 ? ` · 🔥 ${ST.game.streak}-day streak` : ''}</strong>
+      ${pickText}Answer: <b>${GAME_LETTERS[entry.answer]} — ${esc(entry.opts[entry.answer])}</b>`));
+    body.appendChild(mkEl('div','game-cite',
+      `<i class="ti ti-book-2"></i> <b>Notice ${entry.notice} — ${esc(entry.ref)}</b><br>${esc(entry.rationale)}`));
+    body.appendChild(mkEl('p','card-hint','Educational guidance only, not legal advice — verify complex cases with the FEP Authority.'));
+    const row = mkEl('div','qc-restart qc-opts');
+    const share = mkEl('button','btn primary','<i class="ti ti-copy"></i> Share result');
+    share.addEventListener('click', shareChallengeResult);
+    const read = mkEl('button','btn','<i class="ti ti-book-2"></i> Open Notice ' + entry.notice);
+    read.addEventListener('click', () => { closeOverlays(); openNotice(entry.notice); });
+    row.appendChild(share); row.appendChild(read);
+    body.appendChild(row);
+  };
+
+  if (todayGameEntry()) renderResult(); else renderIntro();
+  openOverlay('game-overlay');
 }
 $('activity-clear').addEventListener('click', () => {
   ST.activity = []; save('fep_activity', ST.activity); renderActivity(); toast('Activity log cleared');
@@ -747,7 +900,10 @@ function openQuickCheck(id) {
 
 /* ━━━ OVERLAYS & TERM POPOVER ━━━ */
 function openOverlay(id) { $(id).classList.add('open'); }
-function closeOverlays() { document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open')); }
+function closeOverlays() {
+  document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open'));
+  if (openDailyChallenge._cleanup) openDailyChallenge._cleanup(); // stop a mid-question game timer
+}
 document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) closeOverlays(); }));
 document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeOverlays));
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeOverlays(); hideTermPop(); } });
@@ -1582,7 +1738,7 @@ function renderSettings() {
       setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.innerHTML = '<i class="ti ti-trash"></i> Clear all local data'; }, 3500);
       return;
     }
-    ['fep_cfg','fep_sess','fep_limits','fep_decls','fep_activity','fep_draft','fep_nav','fep_onboarded','fep_ai_ack','fep_setup_guide_seen'].forEach(k => localStorage.removeItem(k));
+    ['fep_cfg','fep_sess','fep_limits','fep_decls','fep_activity','fep_draft','fep_nav','fep_game','fep_onboarded','fep_ai_ack','fep_setup_guide_seen'].forEach(k => localStorage.removeItem(k));
     location.reload();
   });
 }

@@ -442,6 +442,19 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 .qc-step { font-family: var(--mono); font-size: var(--fs-2xs); color: var(--ink3); margin-bottom: 4px; }
 .qc-restart { margin-top: 14px; }
 
+/* ── Daily FEP Challenge (dashboard card + game overlay) ── */
+.dash-challenge { display: flex; flex-direction: column; gap: 12px; }
+.game-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.game-pills .npill { cursor: default; }
+.game-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.game-qhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.game-timer { font-family: var(--mono); font-size: var(--fs-lg); font-weight: 700; color: var(--teal); }
+.game-opts { display: flex; flex-direction: column; gap: 10px; }
+.game-opt { justify-content: flex-start; text-align: left; padding: 12px 14px; font-size: var(--fs-sm); line-height: 1.45; }
+.game-letter { flex: none; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 700; font-size: var(--fs-2xs); background: var(--teal); color: #fff; margin-right: 4px; }
+.game-cite { margin-top: 12px; border-radius: var(--radius); padding: 14px; font-size: var(--fs-sm); line-height: 1.6; background: var(--surf2); border: 1px solid var(--bdr); color: var(--ink2); }
+.game-cite b { color: var(--ink); }
+
 /* ════════ SMART TOOLS ════════ */
 .tool-tabs {
   display: flex; gap: 6px; background: var(--surf); border: 1px solid var(--bdr);
