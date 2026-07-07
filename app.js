@@ -661,7 +661,9 @@ function retryPendingSubmits() {
 
 async function fetchLeaderboard() {
   if (LB_CACHE.rows && Date.now() - LB_CACHE.ts < LB_TTL_MS) return LB_CACHE.rows;
-  const res = await fetch(`${ST.cfg.sbUrl.replace(/\/$/, '')}/rest/v1/challenge_leaderboard?select=*`, {
+  // rpc call — challenge_leaderboard is a security-definer FUNCTION (not a view),
+  // per Supabase's linter guidance; STABLE, so PostgREST accepts a plain GET
+  const res = await fetch(`${ST.cfg.sbUrl.replace(/\/$/, '')}/rest/v1/rpc/challenge_leaderboard`, {
     headers: { apikey: ST.cfg.sbKey, Authorization: 'Bearer ' + ST.cfg.sbKey },
   });
   if (!res.ok) throw new Error('HTTP ' + res.status);

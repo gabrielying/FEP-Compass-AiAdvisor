@@ -23,9 +23,21 @@ drop policy if exists "anon can submit a daily score" on public.challenge_scores
 create policy "anon can submit a daily score"
   on public.challenge_scores for insert to anon with check (true);
 
--- Aggregated team standings (security definer view: bypasses RLS on the raw
--- table by design, exposing only per-team aggregates).
-create or replace view public.challenge_leaderboard as
+-- Aggregated team standings. A SECURITY DEFINER *function* (not a view) is
+-- the linter-approved way to expose per-team aggregates from a table whose
+-- raw rows anon cannot read: definer runs as the owner (bypassing the
+-- no-select RLS on challenge_scores) but returns only the grouped columns,
+-- and the empty search_path pin prevents object-shadowing attacks.
+-- STABLE lets PostgREST serve it via GET /rest/v1/rpc/challenge_leaderboard.
+drop view if exists public.challenge_leaderboard;
+
+create or replace function public.challenge_leaderboard()
+returns table (team text, plays int, points int, avg_ms int)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
   select
     team,
     count(*)::int                                   as plays,
@@ -33,5 +45,7 @@ create or replace view public.challenge_leaderboard as
     round(avg(ms) filter (where correct))::int      as avg_ms
   from public.challenge_scores
   group by team;
+$$;
 
-grant select on public.challenge_leaderboard to anon;
+revoke all on function public.challenge_leaderboard() from public;
+grant execute on function public.challenge_leaderboard() to anon;
