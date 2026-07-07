@@ -652,7 +652,13 @@ async function submitScore(h) {
       LB_CACHE.ts = 0;
       if (ST.tab === 'dashboard') renderLeaderboard();
     } else {
-      submitScore._lastErr = 'HTTP ' + res.status;
+      // include PostgREST's own error message so the on-screen note pinpoints the cause
+      let msg = 'HTTP ' + res.status;
+      try {
+        const j = await res.json();
+        if (j && (j.message || j.code)) msg += ` — ${[j.code, j.message].filter(Boolean).join(': ')}`;
+      } catch (_) { /* non-JSON body */ }
+      submitScore._lastErr = msg;
       if (ST.tab === 'dashboard') renderLeaderboard(); // surface the pending-sync note
     }
   } catch (e) { submitScore._lastErr = 'network unreachable'; /* stays pending */ }
