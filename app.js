@@ -45,7 +45,7 @@ const QUICKCHECK = {
 const DEFAULT_CFG = {
   provider:'gemini', apiKey:'', model:'gemini-2.5-flash', ollamaUrl:'http://localhost:11434', ollamaModel:'qwen2.5:7b',
   // shared Daily Challenge leaderboard (Supabase REST) — sbKey is the public anon/publishable key
-  sbUrl:'https://utdtfbrjtkfbztcxhdpm.supabase.co', sbKey:'',
+  sbUrl:'https://toglryukfdjybzgtdjzn.supabase.co', sbKey:'sb_publishable_Rx8jmd5sJ3SMHBIU0M9T8A_Lv4vhp4P',
 };
 
 /* In-progress analyst-form + chat-input text — a page reload (F5, or the mobile
