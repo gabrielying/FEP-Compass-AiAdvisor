@@ -42,11 +42,13 @@ const QUICKCHECK = {
 };
 
 /* ━━━ STATE ━━━ */
-const DEFAULT_CFG = {
-  provider:'gemini', apiKey:'', model:'gemini-2.5-flash', ollamaUrl:'http://localhost:11434', ollamaModel:'qwen2.5:7b',
-  // shared Daily Challenge leaderboard (Supabase REST) — sbKey is the public anon/publishable key
-  sbUrl:'https://toglryukfdjybzgtdjzn.supabase.co', sbKey:'sb_publishable_Rx8jmd5sJ3SMHBIU0M9T8A_Lv4vhp4P',
-};
+const DEFAULT_CFG = { provider:'gemini', apiKey:'', model:'gemini-2.5-flash', ollamaUrl:'http://localhost:11434', ollamaModel:'qwen2.5:7b' };
+
+/* Shared Daily Challenge leaderboard (Supabase REST) — fixed, zero-config.
+   LB_KEY is the project's public publishable key (safe to ship in the client);
+   writes are protected server-side by RLS in supabase/leaderboard.sql. */
+const LB_URL = 'https://toglryukfdjybzgtdjzn.supabase.co';
+const LB_KEY = 'sb_publishable_Rx8jmd5sJ3SMHBIU0M9T8A_Lv4vhp4P';
 
 /* In-progress analyst-form + chat-input text — a page reload (F5, or the mobile
    pull-to-refresh in initPullToRefresh()) must not discard anything a user typed but
@@ -623,7 +625,7 @@ function recordGameResult(entry, pick, ms) {
 }
 
 /* ── shared institution leaderboard (Supabase REST; degrades gracefully) ── */
-const lbConfigured = () => !!(ST.cfg.sbUrl && ST.cfg.sbKey);
+const LB_HEADERS = { apikey: LB_KEY, Authorization: 'Bearer ' + LB_KEY };
 let LB_CACHE = { ts: 0, rows: null };
 const LB_TTL_MS = 5 * 60 * 1000;
 
@@ -637,14 +639,11 @@ function gameClientId() {
 }
 
 async function submitScore(h) {
-  if (!lbConfigured() || !h.team || h.submitted) return;
+  if (!h.team || h.submitted) return;
   try {
-    const res = await fetch(`${ST.cfg.sbUrl.replace(/\/$/, '')}/rest/v1/challenge_scores?on_conflict=client_id,played_on`, {
+    const res = await fetch(`${LB_URL}/rest/v1/challenge_scores?on_conflict=client_id,played_on`, {
       method: 'POST',
-      headers: {
-        apikey: ST.cfg.sbKey, Authorization: 'Bearer ' + ST.cfg.sbKey,
-        'Content-Type': 'application/json', Prefer: 'resolution=ignore-duplicates',
-      },
+      headers: { ...LB_HEADERS, 'Content-Type': 'application/json', Prefer: 'resolution=ignore-duplicates' },
       body: JSON.stringify({ played_on: h.date, team: h.team, correct: h.correct, ms: h.ms, client_id: gameClientId() }),
     });
     if (res.ok || res.status === 409) {
@@ -659,7 +658,6 @@ async function submitScore(h) {
   } catch (e) { submitScore._lastErr = 'network unreachable'; /* stays pending */ }
 }
 function retryPendingSubmits() {
-  if (!lbConfigured()) return;
   ST.game.history.filter(h => !h.submitted && h.team).slice(0, 5).forEach(submitScore);
 }
 
@@ -668,10 +666,8 @@ async function fetchLeaderboard() {
   // rpc call — challenge_leaderboard is a security-definer FUNCTION (not a view),
   // per Supabase's linter guidance; STABLE, so PostgREST accepts a plain GET.
   // A 404 means the DB still has the older view schema — fall back to reading it.
-  const base = ST.cfg.sbUrl.replace(/\/$/, '');
-  const headers = { apikey: ST.cfg.sbKey, Authorization: 'Bearer ' + ST.cfg.sbKey };
-  let res = await fetch(`${base}/rest/v1/rpc/challenge_leaderboard`, { headers });
-  if (res.status === 404) res = await fetch(`${base}/rest/v1/challenge_leaderboard?select=*`, { headers });
+  let res = await fetch(`${LB_URL}/rest/v1/rpc/challenge_leaderboard`, { headers: LB_HEADERS });
+  if (res.status === 404) res = await fetch(`${LB_URL}/rest/v1/challenge_leaderboard?select=*`, { headers: LB_HEADERS });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const rows = await res.json();
   LB_CACHE = { ts: Date.now(), rows };
@@ -681,15 +677,6 @@ async function fetchLeaderboard() {
 const LB_MEDALS = ['🥇', '🥈', '🥉'];
 function renderLeaderboard() {
   const wrap = $('dash-leaderboard'); if (!wrap) return;
-  if (!lbConfigured()) {
-    wrap.innerHTML = '';
-    wrap.appendChild(mkEl('div','lb-empty',
-      'The shared leaderboard isn\'t connected yet — add the leaderboard API key under <b>More → Daily Challenge</b>. Your plays are kept locally and will be counted for your team once connected.'));
-    const go = mkEl('button','ghost-btn','Open Daily Challenge <i class="ti ti-arrow-right"></i>');
-    go.addEventListener('click', () => { switchTab('settings'); openSettingsScreen('games','fwd'); });
-    wrap.appendChild(go);
-    return;
-  }
   const syncNote = () => {
     const pending = ST.game.history.filter(h => !h.submitted && h.team).length;
     if (!pending) return;
@@ -721,7 +708,8 @@ function renderLeaderboard() {
     syncNote();
   }).catch(() => {
     wrap.innerHTML = '';
-    wrap.appendChild(mkEl('div','lb-empty','Team standings are unreachable right now — check your connection (or the leaderboard settings) and revisit the dashboard to retry.'));
+    wrap.appendChild(mkEl('div','lb-empty','Team standings are unreachable right now — check your connection and revisit the dashboard to retry.'));
+    syncNote();
   });
 }
 
@@ -1896,27 +1884,8 @@ function renderGamesScreen(wrap) {
      <div id="dash-challenge" class="dash-challenge"></div>`);
   wrap.appendChild(card);
   renderDashChallenge();
-
-  /* shared institution leaderboard connection (Supabase project + public key) */
-  const c = ST.cfg;
-  const lb = mkEl('div','card'); lb.style.marginTop = '16px';
-  lb.innerHTML = `<div class="card-head"><h2><i class="ti ti-chart-bar"></i> Shared Leaderboard</h2></div>
-    <p class="hint mb-12">Team scores are pooled anonymously per institution and shown on the Dashboard. Only the institution name, whether the answer was correct, and the time taken are shared — never who played. Without a key, the game still works and results stay on this device.</p>
-    <div class="set-field"><label class="set-lbl">Leaderboard URL (Supabase project)</label>
-      <input class="set-inp" id="f-sburl" value="${esc(c.sbUrl)}" placeholder="https://xxxx.supabase.co"></div>
-    <div class="set-field"><label class="set-lbl">Leaderboard API key (anon / publishable — safe to share)</label>
-      <input class="set-inp" id="f-sbkey" type="password" value="${esc(c.sbKey)}" placeholder="sb_publishable_… or eyJ…"></div>
-    <div class="btn-row"><button class="btn primary" id="set-lb-save"><i class="ti ti-device-floppy"></i> Save leaderboard settings</button></div>`;
-  wrap.appendChild(lb);
-  lb.querySelector('#set-lb-save').addEventListener('click', () => {
-    c.sbUrl = lb.querySelector('#f-sburl').value.trim().replace(/\/$/, '');
-    c.sbKey = lb.querySelector('#f-sbkey').value.trim();
-    if (c.sbUrl && !/^https:\/\//.test(c.sbUrl)) return toast('Leaderboard URL must start with https://');
-    save('fep_cfg', c);
-    LB_CACHE.ts = 0; LB_CACHE.rows = null;
-    retryPendingSubmits();
-    toast('Leaderboard settings saved');
-  });
+  wrap.appendChild(mkEl('p','hint',
+    'Team scores are pooled anonymously per institution and shown on the Dashboard leaderboard. Only the institution name, whether the answer was correct, and the time taken are shared — never who played.'));
 }
 
 function renderDataPrivacyScreen(wrap) {
