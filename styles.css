@@ -454,6 +454,16 @@ mark { background: var(--amber-bg); color: var(--amber); border-radius: 3px; pad
 .game-letter { flex: none; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 700; font-size: var(--fs-2xs); background: var(--teal); color: #fff; margin-right: 4px; }
 .game-cite { margin-top: 12px; border-radius: var(--radius); padding: 14px; font-size: var(--fs-sm); line-height: 1.6; background: var(--surf2); border: 1px solid var(--bdr); color: var(--ink2); }
 .game-cite b { color: var(--ink); }
+.team-pick { display: flex; flex-direction: column; gap: 10px; }
+.team-select { flex: 1; min-width: 0; }
+.dash-leaderboard { display: flex; flex-direction: column; gap: 10px; }
+.lb-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.lb-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius-sm); background: var(--surf2); border: 1px solid var(--bdr); font-size: var(--fs-sm); }
+.lb-row.mine { border-color: var(--teal); background: var(--teal-bg, var(--surf2)); }
+.lb-rank { flex: none; width: 28px; text-align: center; font-weight: 700; font-family: var(--mono); }
+.lb-team { flex: 1; font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-meta { flex: none; color: var(--ink3); font-size: var(--fs-xs); font-family: var(--mono); }
+.lb-empty { font-size: var(--fs-sm); color: var(--ink3); line-height: 1.6; }
 
 /* ════════ SMART TOOLS ════════ */
 .tool-tabs {

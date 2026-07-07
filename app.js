@@ -42,7 +42,11 @@ const QUICKCHECK = {
 };
 
 /* ━━━ STATE ━━━ */
-const DEFAULT_CFG = { provider:'gemini', apiKey:'', model:'gemini-2.5-flash', ollamaUrl:'http://localhost:11434', ollamaModel:'qwen2.5:7b' };
+const DEFAULT_CFG = {
+  provider:'gemini', apiKey:'', model:'gemini-2.5-flash', ollamaUrl:'http://localhost:11434', ollamaModel:'qwen2.5:7b',
+  // shared Daily Challenge leaderboard (Supabase REST) — sbKey is the public anon/publishable key
+  sbUrl:'https://utdtfbrjtkfbztcxhdpm.supabase.co', sbKey:'',
+};
 
 /* In-progress analyst-form + chat-input text — a page reload (F5, or the mobile
    pull-to-refresh in initPullToRefresh()) must not discard anything a user typed but
@@ -63,7 +67,7 @@ const DEFAULT_NAV = { tab:'tools', toolTab:'analyst' };
    deliberately shaped as the payload a future shared (Supabase) leaderboard
    submission would POST, so phase 2 needs no migration. Streak counts
    consecutive calendar days answered CORRECTLY. */
-const DEFAULT_GAME = { history: [], streak: 0, bestMs: null };
+const DEFAULT_GAME = { history: [], streak: 0, bestMs: null, team: '', clientId: '' };
 const MAX_GAME_HISTORY = 90;
 
 /* ━━━ AI COMPLIANCE ANALYST — picker options ━━━ */
@@ -591,7 +595,8 @@ function renderDashStats() {
 function renderDashboard() {
   const h = new Date().getHours();
   $('greeting').textContent = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-  renderDashStats(); renderActivity();
+  renderDashStats(); renderLeaderboard(); renderActivity();
+  retryPendingSubmits();
 }
 
 /* ━━━ DAILY FEP CHALLENGE ━━━ */
@@ -602,23 +607,131 @@ const todayGameEntry = () => ST.game.history.find(h => h.date === challengeDateK
 function recordGameResult(entry, pick, ms) {
   const date = challengeDateKey();
   const correct = pick === entry.answer;
-  ST.game.history.unshift({ date, challengeNo: challengeNumber(date), qid: entry.id, pick, correct, ms });
+  const h = { date, challengeNo: challengeNumber(date), qid: entry.id, pick, correct, ms, team: ST.game.team, submitted: false };
+  ST.game.history.unshift(h);
   if (ST.game.history.length > MAX_GAME_HISTORY) ST.game.history = ST.game.history.slice(0, MAX_GAME_HISTORY);
   if (!correct) ST.game.streak = 0;
   else {
-    const yesterday = ST.game.history.find(h => h.date === challengeDateKey(new Date(Date.now() - 864e5)));
+    const yesterday = ST.game.history.find(x => x.date === challengeDateKey(new Date(Date.now() - 864e5)));
     ST.game.streak = yesterday && yesterday.correct ? ST.game.streak + 1 : 1;
     if (ST.game.bestMs == null || ms < ST.game.bestMs) ST.game.bestMs = ms;
   }
-  save('fep_game', ST.game); // phase 2: also submit this history entry to a shared leaderboard
-  logActivity('game', `Daily Challenge #${challengeNumber(date)} — ${correct ? 'correct' : 'incorrect'} in ${fmtGameMs(ms)}`);
+  save('fep_game', ST.game);
+  submitScore(h); // fire-and-forget; retried on later dashboard visits if it fails
+  logActivity('game', `Daily Challenge — ${correct ? 'correct' : 'incorrect'} in ${fmtGameMs(ms)}${ST.game.team ? ` (Team ${ST.game.team})` : ''}`);
   return correct;
+}
+
+/* ── shared institution leaderboard (Supabase REST; degrades gracefully) ── */
+const lbConfigured = () => !!(ST.cfg.sbUrl && ST.cfg.sbKey);
+let LB_CACHE = { ts: 0, rows: null };
+const LB_TTL_MS = 5 * 60 * 1000;
+
+function gameClientId() {
+  if (!ST.game.clientId) {
+    ST.game.clientId = (typeof crypto !== 'undefined' && crypto.randomUUID)
+      ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2);
+    save('fep_game', ST.game);
+  }
+  return ST.game.clientId;
+}
+
+async function submitScore(h) {
+  if (!lbConfigured() || !h.team || h.submitted) return;
+  try {
+    const res = await fetch(`${ST.cfg.sbUrl.replace(/\/$/, '')}/rest/v1/challenge_scores?on_conflict=client_id,played_on`, {
+      method: 'POST',
+      headers: {
+        apikey: ST.cfg.sbKey, Authorization: 'Bearer ' + ST.cfg.sbKey,
+        'Content-Type': 'application/json', Prefer: 'resolution=ignore-duplicates',
+      },
+      body: JSON.stringify({ played_on: h.date, team: h.team, correct: h.correct, ms: h.ms, client_id: gameClientId() }),
+    });
+    if (res.ok || res.status === 409) {
+      h.submitted = true; save('fep_game', ST.game);
+      LB_CACHE.ts = 0;
+      if (ST.tab === 'dashboard') renderLeaderboard();
+    }
+  } catch (e) { /* offline / project asleep — stays pending */ }
+}
+function retryPendingSubmits() {
+  if (!lbConfigured()) return;
+  ST.game.history.filter(h => !h.submitted && h.team).slice(0, 5).forEach(submitScore);
+}
+
+async function fetchLeaderboard() {
+  if (LB_CACHE.rows && Date.now() - LB_CACHE.ts < LB_TTL_MS) return LB_CACHE.rows;
+  const res = await fetch(`${ST.cfg.sbUrl.replace(/\/$/, '')}/rest/v1/challenge_leaderboard?select=*`, {
+    headers: { apikey: ST.cfg.sbKey, Authorization: 'Bearer ' + ST.cfg.sbKey },
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const rows = await res.json();
+  LB_CACHE = { ts: Date.now(), rows };
+  return rows;
+}
+
+const LB_MEDALS = ['🥇', '🥈', '🥉'];
+function renderLeaderboard() {
+  const wrap = $('dash-leaderboard'); if (!wrap) return;
+  if (!lbConfigured()) {
+    wrap.innerHTML = '';
+    wrap.appendChild(mkEl('div','lb-empty',
+      'The shared leaderboard isn\'t connected yet — add the leaderboard API key under <b>More → Daily Challenge</b>. Your plays are kept locally and will be counted for your team once connected.'));
+    const go = mkEl('button','ghost-btn','Open Daily Challenge <i class="ti ti-arrow-right"></i>');
+    go.addEventListener('click', () => { switchTab('settings'); openSettingsScreen('games','fwd'); });
+    wrap.appendChild(go);
+    return;
+  }
+  wrap.innerHTML = '<div class="lb-empty">Loading team standings…</div>';
+  fetchLeaderboard().then(rows => {
+    wrap.innerHTML = '';
+    if (!rows.length) {
+      wrap.appendChild(mkEl('div','lb-empty','No team scores yet — play today\'s challenge and put your institution on the board!'));
+      return;
+    }
+    const sorted = [...rows].sort((a, b) => (b.points - a.points) || ((a.avg_ms ?? Infinity) - (b.avg_ms ?? Infinity)));
+    const list = mkEl('ol','lb-list');
+    sorted.slice(0, 10).forEach((r, i) => {
+      const acc = r.plays ? Math.round(r.points / r.plays * 100) : 0;
+      const li = mkEl('li','lb-row' + (r.team === ST.game.team ? ' mine' : ''),
+        `<span class="lb-rank">${LB_MEDALS[i] || (i + 1)}</span>
+         <span class="lb-team">${esc(r.team)}</span>
+         <span class="lb-meta">${r.points} pts · ${acc}% of ${r.plays}${r.avg_ms != null ? ' · ø ' + fmtGameMs(r.avg_ms) : ''}</span>`);
+      list.appendChild(li);
+    });
+    wrap.appendChild(list);
+    wrap.appendChild(mkEl('div','card-hint','Points = correct answers across all officers of an institution · ø = average time on correct answers · anonymous, updates every few minutes.'));
+  }).catch(() => {
+    wrap.innerHTML = '';
+    wrap.appendChild(mkEl('div','lb-empty','Team standings are unreachable right now — check your connection (or the leaderboard settings) and revisit the dashboard to retry.'));
+  });
+}
+
+/* institution (team) picker — used on the dashboard card and the game intro */
+function teamPickerEl(onJoined) {
+  const box = mkEl('div','team-pick');
+  box.appendChild(mkEl('p','card-hint','Pick your institution to join its team — every correct answer scores a point for your bank on the leaderboard.'));
+  const row = mkEl('div','game-row');
+  const sel = mkEl('select','set-inp team-select');
+  sel.innerHTML = '<option value="">Select your institution…</option>' +
+    LFI_TEAMS.map(t => `<option value="${esc(t)}"${t === ST.game.team ? ' selected' : ''}>${esc(t)}</option>`).join('');
+  const join = mkEl('button','btn primary','<i class="ti ti-users-group"></i> Join team');
+  join.addEventListener('click', () => {
+    if (!sel.value) return toast('Select your institution first');
+    ST.game.team = sel.value; save('fep_game', ST.game);
+    toast(`Joined Team ${sel.value}`);
+    if (onJoined) onJoined();
+  });
+  row.appendChild(sel); row.appendChild(join);
+  box.appendChild(row);
+  return box;
 }
 
 function shareChallengeResult() {
   const today = todayGameEntry(); if (!today) return;
   const streak = ST.game.streak > 1 ? ` · 🔥 ${ST.game.streak}-day streak` : '';
-  const text = `🧭 FEP Daily Challenge #${today.challengeNo} — ${today.correct ? '✅ Correct' : '❌ Missed'} in ${fmtGameMs(today.ms)}${streak}`;
+  const team = ST.game.team ? ` · Team ${ST.game.team}` : '';
+  const text = `🧭 FEP Daily Challenge — ${today.correct ? '✅ Correct' : '❌ Missed'} in ${fmtGameMs(today.ms)}${streak}${team}`;
   const done = () => toast('Result copied — paste it anywhere');
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
@@ -638,15 +751,20 @@ function renderDashChallenge() {
   const today = todayGameEntry();
   const played = ST.game.history.length;
   const correct = ST.game.history.filter(h => h.correct).length;
+  if (!ST.game.team) { wrap.appendChild(teamPickerEl(renderDashChallenge)); return; }
   const pills = mkEl('div','game-pills');
-  [['ti-flame','Streak', ST.game.streak + (ST.game.streak === 1 ? ' day' : ' days')],
+  [['ti-building-bank','Team', ST.game.team],
+   ['ti-flame','Streak', ST.game.streak + (ST.game.streak === 1 ? ' day' : ' days')],
    ['ti-stopwatch','Best time', ST.game.bestMs != null ? fmtGameMs(ST.game.bestMs) : '—'],
    ['ti-target','Accuracy', played ? Math.round(correct / played * 100) + '% of ' + played : '—'],
   ].forEach(([icon, l, v]) => pills.appendChild(mkEl('span','npill',`<i class="ti ${icon}"></i> ${esc(l)}: ${esc(v)}`)));
+  const change = mkEl('button','ghost-btn','Change team');
+  change.addEventListener('click', () => { ST.game.team = ''; save('fep_game', ST.game); renderDashChallenge(); });
+  pills.appendChild(change);
   wrap.appendChild(pills);
   if (today) {
     wrap.appendChild(mkEl('div', 'qc-result ' + (today.correct ? 'ok' : 'warn'),
-      `<strong><i class="ti ${today.correct ? 'ti-circle-check' : 'ti-alert-triangle'} icon-sp"></i> Challenge #${today.challengeNo} — ${today.correct ? 'Correct' : 'Missed'} in ${fmtGameMs(today.ms)}</strong>Next challenge tomorrow. Every question is grounded in the real FEP Notices — tap Review to re-read the provision.`));
+      `<strong><i class="ti ${today.correct ? 'ti-circle-check' : 'ti-alert-triangle'} icon-sp"></i> Today's challenge — ${today.correct ? 'Correct' : 'Missed'} in ${fmtGameMs(today.ms)}</strong>Next challenge tomorrow. Every question is grounded in the real FEP Notices — tap Review to re-read the provision.`));
     const row = mkEl('div','game-row');
     const share = mkEl('button','btn primary','<i class="ti ti-copy"></i> Share result');
     share.addEventListener('click', shareChallengeResult);
@@ -656,9 +774,9 @@ function renderDashChallenge() {
     wrap.appendChild(row);
   } else {
     wrap.appendChild(mkEl('p','card-hint',
-      `One real FEP scenario a day, drawn from Notices 2, 3, 4 &amp; 7 — pick the right treatment against the clock and keep your streak alive.`));
+      `One real FEP scenario a day, drawn from Notices 2, 3, 4 &amp; 7 — pick the right treatment against the clock. Every correct answer scores a point for Team ${esc(ST.game.team)}.`));
     const row = mkEl('div','game-row');
-    const play = mkEl('button','btn primary lg','<i class="ti ti-player-play"></i> Play Challenge #' + challengeNumber());
+    const play = mkEl('button','btn primary lg','<i class="ti ti-player-play"></i> Play today\'s challenge');
     play.addEventListener('click', openDailyChallenge);
     row.appendChild(play);
     wrap.appendChild(row);
@@ -667,7 +785,7 @@ function renderDashChallenge() {
 
 function openDailyChallenge() {
   const entry = dailyQuestion();
-  $('game-name').textContent = `Challenge #${challengeNumber()} — ${new Date().toLocaleDateString('en-MY')}`;
+  $('game-name').textContent = new Date().toLocaleDateString('en-MY') + (ST.game.team ? ` · Team ${ST.game.team}` : '');
   const body = $('game-body');
   let t0 = 0, timerEl = null, timerId = null;
   const stopTimer = () => { if (timerId) { clearInterval(timerId); timerId = null; } };
@@ -676,6 +794,11 @@ function openDailyChallenge() {
   const renderIntro = () => {
     body.innerHTML = '';
     body.appendChild(mkEl('div','qc-step','ONE QUESTION · NOTICES 2 / 3 / 4 / 7'));
+    if (!ST.game.team) {
+      body.appendChild(mkEl('div','qc-q','First, join your institution\'s team — your result counts toward its leaderboard score.'));
+      body.appendChild(teamPickerEl(renderIntro));
+      return;
+    }
     body.appendChild(mkEl('div','qc-q','Ready? One real FEP scenario, four options at most, one right answer. The timer starts when you hit Start.'));
     body.appendChild(mkEl('p','card-hint','Educational guidance only, not legal advice — verify complex cases with the FEP Authority.'));
     const row = mkEl('div','qc-opts');
@@ -735,6 +858,9 @@ function openDailyChallenge() {
   if (todayGameEntry()) renderResult(); else renderIntro();
   openOverlay('game-overlay');
 }
+// dashboard Quick Action → jump straight into today's challenge
+const qaChallenge = $('qa-challenge');
+if (qaChallenge) qaChallenge.addEventListener('click', () => { switchTab('settings'); openSettingsScreen('games','fwd'); });
 $('activity-clear').addEventListener('click', () => {
   ST.activity = []; save('fep_activity', ST.activity); renderActivity(); toast('Activity log cleared');
 });
@@ -1752,6 +1878,27 @@ function renderGamesScreen(wrap) {
      <div id="dash-challenge" class="dash-challenge"></div>`);
   wrap.appendChild(card);
   renderDashChallenge();
+
+  /* shared institution leaderboard connection (Supabase project + public key) */
+  const c = ST.cfg;
+  const lb = mkEl('div','card'); lb.style.marginTop = '16px';
+  lb.innerHTML = `<div class="card-head"><h2><i class="ti ti-chart-bar"></i> Shared Leaderboard</h2></div>
+    <p class="hint mb-12">Team scores are pooled anonymously per institution and shown on the Dashboard. Only the institution name, whether the answer was correct, and the time taken are shared — never who played. Without a key, the game still works and results stay on this device.</p>
+    <div class="set-field"><label class="set-lbl">Leaderboard URL (Supabase project)</label>
+      <input class="set-inp" id="f-sburl" value="${esc(c.sbUrl)}" placeholder="https://xxxx.supabase.co"></div>
+    <div class="set-field"><label class="set-lbl">Leaderboard API key (anon / publishable — safe to share)</label>
+      <input class="set-inp" id="f-sbkey" type="password" value="${esc(c.sbKey)}" placeholder="sb_publishable_… or eyJ…"></div>
+    <div class="btn-row"><button class="btn primary" id="set-lb-save"><i class="ti ti-device-floppy"></i> Save leaderboard settings</button></div>`;
+  wrap.appendChild(lb);
+  lb.querySelector('#set-lb-save').addEventListener('click', () => {
+    c.sbUrl = lb.querySelector('#f-sburl').value.trim().replace(/\/$/, '');
+    c.sbKey = lb.querySelector('#f-sbkey').value.trim();
+    if (c.sbUrl && !/^https:\/\//.test(c.sbUrl)) return toast('Leaderboard URL must start with https://');
+    save('fep_cfg', c);
+    LB_CACHE.ts = 0; LB_CACHE.rows = null;
+    retryPendingSubmits();
+    toast('Leaderboard settings saved');
+  });
 }
 
 function renderDataPrivacyScreen(wrap) {

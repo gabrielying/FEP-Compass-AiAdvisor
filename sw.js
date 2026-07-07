@@ -3,7 +3,7 @@
    CDN assets (fonts, icons): cached on first use for offline reuse. */
 'use strict';
 
-const CACHE = 'fep-compass-v65';
+const CACHE = 'fep-compass-v66';
 const SHELL = ['./', './index.html', './styles.css', './kb.js', './challenge.js', './app.js', './legal.html', './manifest.webmanifest', './icon.svg',
   // the ?v3.9.0 query must match the url() in tabler-icons.min.css — caches.match() is exact-URL
   './vendor/tabler/tabler-icons.min.css', './vendor/tabler/fonts/tabler-icons.woff2?v3.9.0'];
@@ -23,9 +23,9 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
-  // never intercept AI provider calls
+  // never intercept AI provider or leaderboard calls
   const url = new URL(req.url);
-  if (url.hostname.includes('generativelanguage.googleapis.com') || url.port === '11434') return;
+  if (url.hostname.includes('generativelanguage.googleapis.com') || url.port === '11434' || url.hostname.endsWith('.supabase.co')) return;
 
   e.respondWith(
     caches.match(req).then(hit => {
