@@ -45,7 +45,7 @@ const QUICKCHECK = {
 const DEFAULT_CFG = {
   provider:'gemini', apiKey:'', model:'gemini-2.5-flash', ollamaUrl:'http://localhost:11434', ollamaModel:'qwen2.5:7b',
   // shared Daily Challenge leaderboard (Supabase REST) — sbKey is the public anon/publishable key
-  sbUrl:'https://utdtfbrjtkfbztcxhdpm.supabase.co', sbKey:'',
+  sbUrl:'https://toglryukfdjybzgtdjzn.supabase.co', sbKey:'sb_publishable_Rx8jmd5sJ3SMHBIU0M9T8A_Lv4vhp4P',
 };
 
 /* In-progress analyst-form + chat-input text — a page reload (F5, or the mobile
@@ -661,7 +661,9 @@ function retryPendingSubmits() {
 
 async function fetchLeaderboard() {
   if (LB_CACHE.rows && Date.now() - LB_CACHE.ts < LB_TTL_MS) return LB_CACHE.rows;
-  const res = await fetch(`${ST.cfg.sbUrl.replace(/\/$/, '')}/rest/v1/challenge_leaderboard?select=*`, {
+  // rpc call — challenge_leaderboard is a security-definer FUNCTION (not a view),
+  // per Supabase's linter guidance; STABLE, so PostgREST accepts a plain GET
+  const res = await fetch(`${ST.cfg.sbUrl.replace(/\/$/, '')}/rest/v1/rpc/challenge_leaderboard`, {
     headers: { apikey: ST.cfg.sbKey, Authorization: 'Bearer ' + ST.cfg.sbKey },
   });
   if (!res.ok) throw new Error('HTTP ' + res.status);
