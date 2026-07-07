@@ -648,11 +648,15 @@ async function submitScore(h) {
       body: JSON.stringify({ played_on: h.date, team: h.team, correct: h.correct, ms: h.ms, client_id: gameClientId() }),
     });
     if (res.ok || res.status === 409) {
+      submitScore._lastErr = null;
       h.submitted = true; save('fep_game', ST.game);
       LB_CACHE.ts = 0;
       if (ST.tab === 'dashboard') renderLeaderboard();
+    } else {
+      submitScore._lastErr = 'HTTP ' + res.status;
+      if (ST.tab === 'dashboard') renderLeaderboard(); // surface the pending-sync note
     }
-  } catch (e) { /* offline / project asleep — stays pending */ }
+  } catch (e) { submitScore._lastErr = 'network unreachable'; /* stays pending */ }
 }
 function retryPendingSubmits() {
   if (!lbConfigured()) return;
@@ -662,10 +666,12 @@ function retryPendingSubmits() {
 async function fetchLeaderboard() {
   if (LB_CACHE.rows && Date.now() - LB_CACHE.ts < LB_TTL_MS) return LB_CACHE.rows;
   // rpc call — challenge_leaderboard is a security-definer FUNCTION (not a view),
-  // per Supabase's linter guidance; STABLE, so PostgREST accepts a plain GET
-  const res = await fetch(`${ST.cfg.sbUrl.replace(/\/$/, '')}/rest/v1/rpc/challenge_leaderboard`, {
-    headers: { apikey: ST.cfg.sbKey, Authorization: 'Bearer ' + ST.cfg.sbKey },
-  });
+  // per Supabase's linter guidance; STABLE, so PostgREST accepts a plain GET.
+  // A 404 means the DB still has the older view schema — fall back to reading it.
+  const base = ST.cfg.sbUrl.replace(/\/$/, '');
+  const headers = { apikey: ST.cfg.sbKey, Authorization: 'Bearer ' + ST.cfg.sbKey };
+  let res = await fetch(`${base}/rest/v1/rpc/challenge_leaderboard`, { headers });
+  if (res.status === 404) res = await fetch(`${base}/rest/v1/challenge_leaderboard?select=*`, { headers });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const rows = await res.json();
   LB_CACHE = { ts: Date.now(), rows };
@@ -684,11 +690,20 @@ function renderLeaderboard() {
     wrap.appendChild(go);
     return;
   }
+  const syncNote = () => {
+    const pending = ST.game.history.filter(h => !h.submitted && h.team).length;
+    if (!pending) return;
+    wrap.appendChild(mkEl('div','lb-empty',
+      `⏳ ${pending} of your result${pending > 1 ? 's have' : ' has'}n't reached the shared board yet${
+        submitScore._lastErr ? ` (last attempt failed: ${esc(submitScore._lastErr)})` : ''
+      } — it retries automatically each time you open the Dashboard.`));
+  };
   wrap.innerHTML = '<div class="lb-empty">Loading team standings…</div>';
   fetchLeaderboard().then(rows => {
     wrap.innerHTML = '';
     if (!rows.length) {
       wrap.appendChild(mkEl('div','lb-empty','No team scores yet — play today\'s challenge and put your institution on the board!'));
+      syncNote();
       return;
     }
     const sorted = [...rows].sort((a, b) => (b.points - a.points) || ((a.avg_ms ?? Infinity) - (b.avg_ms ?? Infinity)));
@@ -703,6 +718,7 @@ function renderLeaderboard() {
     });
     wrap.appendChild(list);
     wrap.appendChild(mkEl('div','card-hint','Points = correct answers across all officers of an institution · ø = average time on correct answers · anonymous, updates every few minutes.'));
+    syncNote();
   }).catch(() => {
     wrap.innerHTML = '';
     wrap.appendChild(mkEl('div','lb-empty','Team standings are unreachable right now — check your connection (or the leaderboard settings) and revisit the dashboard to retry.'));
