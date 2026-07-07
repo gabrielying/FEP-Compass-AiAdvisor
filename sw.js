@@ -3,8 +3,8 @@
    CDN assets (fonts, icons): cached on first use for offline reuse. */
 'use strict';
 
-const CACHE = 'fep-compass-v61';
-const SHELL = ['./', './index.html', './styles.css', './kb.js', './app.js', './legal.html', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'fep-compass-v63';
+const SHELL = ['./', './index.html', './styles.css', './kb.js', './challenge.js', './app.js', './legal.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
