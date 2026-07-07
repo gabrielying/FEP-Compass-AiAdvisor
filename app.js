@@ -184,6 +184,7 @@ const ST = {
   activityFilter:'all', activitySearch:'',
   msgs: [], loading:false, advisorFilter:'all',
   toolTab: NAV_RESTORE.toolTab, modalNotice:null,
+  settingsScreen:'hub', // More tab hub-and-spoke: 'hub' | 'ai' | 'games' | 'data' | 'about' (transient)
 };
 const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
 const saveDraft = () => save('fep_draft', ST.draft);
@@ -550,6 +551,7 @@ function switchTab(tab) {
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-'+tab));
   document.querySelectorAll('.side-link, .bb-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   if (tab === 'dashboard') renderDashboard();
+  if (tab === 'settings') openSettingsScreen('hub'); // always land on the More hub
   saveNav();
 }
 document.querySelectorAll('.side-link, .bb-tab').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
@@ -589,7 +591,7 @@ function renderDashStats() {
 function renderDashboard() {
   const h = new Date().getHours();
   $('greeting').textContent = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-  renderDashStats(); renderDashChallenge(); renderActivity();
+  renderDashStats(); renderActivity();
 }
 
 /* ━━━ DAILY FEP CHALLENGE ━━━ */
@@ -1568,7 +1570,7 @@ async function sendChat() {
   const q = inp.value.trim().slice(0, 600);
   if (!q || ST.loading) return;
   if (!isOnTopicQuery(q)) { toast('Please ask about a forex transaction, remittance, or FEP compliance topic.'); return; }
-  if (!aiConfigured()) { toast('Configure an AI provider in Settings first'); switchTab('settings'); return; }
+  if (!aiConfigured()) { toast('Configure an AI provider in Settings first'); switchTab('settings'); openSettingsScreen('ai','fwd'); return; }
   if (!(await ensureAiAck())) return;
   if (!aiCooldownOk()) return;
   if (!ST.msgs.length) $('msgs').innerHTML = '';
@@ -1651,8 +1653,116 @@ const GEMINI_MODELS = [
   { id:'gemini-2.5-pro', note:'strongest reasoning' },
   { id:'gemini-2.0-flash', note:'legacy fallback' },
 ];
-function renderSettings() {
+/* ━━━ SETTINGS / MORE (hub-and-spoke) ━━━
+   The More tab is a hub of navigation-only cards; each card pushes a
+   sub-screen (AI Provider / Daily Challenge / Data & Privacy / About) with a
+   back arrow returning to the hub. Legal & Policies stays the standalone
+   legal.html page. Which screen is open is transient (not persisted) —
+   switching to the tab always lands on the hub. */
+const SETTINGS_HUB_CARDS = [
+  { id:'ai',    icon:'ti-cpu',         title:'AI Provider' },
+  { id:'games', icon:'ti-puzzle',      title:'Daily Challenge' },
+  { id:'data',  icon:'ti-shield-lock', title:'Data & Privacy' },
+  { id:'legal', icon:'ti-file-text',   title:'Legal & Policies', href:'legal.html' },
+  { id:'about', icon:'ti-info-circle', title:'About' },
+];
+const SETTINGS_SCREEN_TITLES = { ai:'AI Provider', games:'Daily Challenge', data:'Data & Privacy', about:'About' };
+
+function openSettingsScreen(screen, dir) {
+  ST.settingsScreen = screen;
+  renderSettings(dir);
+}
+
+function renderSettings(dir) {
   const el = $('settings-content'); el.innerHTML = '';
+  const screen = ST.settingsScreen || 'hub';
+  const wrap = mkEl('div', 'set-screen' + (dir ? ' slide-' + dir : ''));
+  el.appendChild(wrap);
+  if (screen === 'hub') return renderSettingsHub(wrap);
+
+  const head = mkEl('header','subscreen-head');
+  const back = mkEl('button','set-back','<i class="ti ti-chevron-left"></i>');
+  back.setAttribute('aria-label','Back to More');
+  back.addEventListener('click', () => openSettingsScreen('hub','back'));
+  head.appendChild(back);
+  head.appendChild(mkEl('h1', null, esc(SETTINGS_SCREEN_TITLES[screen] || 'More')));
+  wrap.appendChild(head);
+
+  if (screen === 'ai') renderAiProviderScreen(wrap);
+  else if (screen === 'games') renderGamesScreen(wrap);
+  else if (screen === 'data') renderDataPrivacyScreen(wrap);
+  else if (screen === 'about') renderAboutScreen(wrap);
+}
+
+function renderSettingsHub(wrap) {
+  const head = mkEl('header','page-head',
+    `<h1>More</h1>
+     <p class="page-sub">Educational guidance only — not legal advice. Verify complex cases with the FEP Authority.</p>`);
+  wrap.appendChild(head);
+  const nav = mkEl('nav','set-nav');
+  nav.setAttribute('aria-label','Settings sections');
+  SETTINGS_HUB_CARDS.forEach(cd => {
+    const inner = `<span class="set-nav-icon"><i class="ti ${cd.icon}"></i></span>
+      <span class="set-nav-title">${esc(cd.title)}</span>
+      <i class="ti ti-chevron-right set-nav-chev"></i>`;
+    let card;
+    if (cd.href) {
+      card = mkEl('a','set-nav-card', inner);
+      card.href = cd.href; card.target = '_blank'; card.rel = 'noopener';
+    } else {
+      card = mkEl('button','set-nav-card', inner);
+      card.addEventListener('click', () => openSettingsScreen(cd.id,'fwd'));
+    }
+    nav.appendChild(card);
+  });
+  wrap.appendChild(nav);
+}
+
+function renderGamesScreen(wrap) {
+  const card = mkEl('article','card',
+    `<div class="card-head"><h2><i class="ti ti-trophy"></i> Daily FEP Challenge</h2></div>
+     <div id="dash-challenge" class="dash-challenge"></div>`);
+  wrap.appendChild(card);
+  renderDashChallenge();
+}
+
+function renderDataPrivacyScreen(wrap) {
+  const card = mkEl('div','card');
+  card.innerHTML = `<div class="card-head"><h2><i class="ti ti-shield-lock"></i> Data &amp; Privacy</h2></div>
+    <p class="hint mb-12">Everything FEP Compass stores — provider settings, chat history, the activity log and challenge record — lives only in this browser's localStorage. Nothing leaves this device unless a cloud AI provider (Gemini) is configured, in which case your queries are sent to Google. Do not enter customer-identifying or other confidential data.</p>
+    <div class="btn-row mt-0">
+      <button class="btn" id="clear-data"><i class="ti ti-trash"></i> Clear all local data</button>
+    </div>`;
+  wrap.appendChild(card);
+  const clearBtn = card.querySelector('#clear-data');
+  clearBtn.addEventListener('click', () => {
+    if (!clearBtn.dataset.armed) {
+      clearBtn.dataset.armed = '1';
+      clearBtn.innerHTML = '<i class="ti ti-alert-triangle"></i> Tap again to erase everything';
+      setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.innerHTML = '<i class="ti ti-trash"></i> Clear all local data'; }, 3500);
+      return;
+    }
+    ['fep_cfg','fep_sess','fep_limits','fep_decls','fep_activity','fep_draft','fep_nav','fep_game','fep_onboarded','fep_ai_ack','fep_setup_guide_seen'].forEach(k => localStorage.removeItem(k));
+    location.reload();
+  });
+}
+
+function renderAboutScreen(wrap) {
+  const card = mkEl('div','card');
+  card.innerHTML = `<div class="card-head"><h2><i class="ti ti-info-circle"></i> About FEP Compass</h2></div>
+    <p class="hint mb-12">FEP Compass v2.0 · Notices N1–N7 effective 1 Oct 2025 · Educational guidance only, not legal advice.
+    Official source: <a href="${FEP_OFFICIAL_URL}" target="_blank" rel="noopener">bnm.gov.my/fep/policies/notices</a></p>
+    <div class="btn-row mt-0">
+      <button class="btn" id="replay-guide"><i class="ti ti-replay"></i> Replay setup guide</button>
+    </div>`;
+  wrap.appendChild(card);
+  card.querySelector('#replay-guide').addEventListener('click', () => {
+    localStorage.removeItem(FIRST_RUN_GUIDE_KEY);
+    renderFirstRunStep('welcome');
+  });
+}
+
+function renderAiProviderScreen(el) {
   const c = ST.cfg;
 
   const sec = mkEl('div','card');
@@ -1671,18 +1781,8 @@ function renderSettings() {
     <strong>Gemini:</strong> create a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com/app/apikey</a>, paste it above and Save.<br>
     <strong>Ollama:</strong> install from <a href="https://ollama.com" target="_blank" rel="noopener">ollama.com</a>, run <code>ollama pull qwen2.5:7b</code>, then select Ollama. Keys are stored only in this browser (localStorage) — never sent anywhere except directly to Google's API. Anyone with access to this device/browser profile (or a malicious browser extension) could read it, so avoid saving a key on shared or untrusted computers.
   </div>`;
+  el.appendChild(mkEl('p','page-sub mb-12','Connect an AI provider for the Advisor and Compliance Analyst. Reference search works without any setup.'));
   el.appendChild(sec);
-
-  const data = mkEl('div','card'); data.style.marginTop = '16px';
-  data.innerHTML = `<div class="card-head"><h2><i class="ti ti-database"></i> Data &amp; About</h2></div>
-    <p class="hint mb-12">FEP Compass v2.0 · Notices N1–N7 effective 1 Oct 2025 · Educational guidance only, not legal advice.
-    Official source: <a href="${FEP_OFFICIAL_URL}" target="_blank" rel="noopener">bnm.gov.my/fep/policies/notices</a></p>
-    <div class="btn-row mt-0">
-      <a class="btn" href="legal.html" target="_blank" rel="noopener"><i class="ti ti-file-text"></i> Legal &amp; Policies</a>
-      <button class="btn" id="replay-guide"><i class="ti ti-replay"></i> Replay setup guide</button>
-      <button class="btn" id="clear-data"><i class="ti ti-trash"></i> Clear all local data</button>
-    </div>`;
-  el.appendChild(data);
 
   const fields = sec.querySelector('#prov-fields');
   const renderFields = () => {
@@ -1726,21 +1826,6 @@ function renderSettings() {
       st.textContent = raw ? '✓ Connected' : 'Empty response';
     } catch (err) { st.className = 'status-err'; st.textContent = err.message; }
   });
-  data.querySelector('#replay-guide').addEventListener('click', () => {
-    localStorage.removeItem(FIRST_RUN_GUIDE_KEY);
-    renderFirstRunStep('welcome');
-  });
-  const clearBtn = data.querySelector('#clear-data');
-  clearBtn.addEventListener('click', () => {
-    if (!clearBtn.dataset.armed) {
-      clearBtn.dataset.armed = '1';
-      clearBtn.innerHTML = '<i class="ti ti-alert-triangle"></i> Tap again to erase everything';
-      setTimeout(() => { delete clearBtn.dataset.armed; clearBtn.innerHTML = '<i class="ti ti-trash"></i> Clear all local data'; }, 3500);
-      return;
-    }
-    ['fep_cfg','fep_sess','fep_limits','fep_decls','fep_activity','fep_draft','fep_nav','fep_game','fep_onboarded','fep_ai_ack','fep_setup_guide_seen'].forEach(k => localStorage.removeItem(k));
-    location.reload();
-  });
 }
 
 /* ━━━ ONBOARDING (first-run walkthrough) ━━━ */
@@ -1753,7 +1838,7 @@ function initOnboarding() {
     const step = b.dataset.step;
     if (step === 'explore') openNotice(1);
     else if (step === 'check') openQuickCheck(1);
-    else if (step === 'settings') switchTab('settings');
+    else if (step === 'settings') { switchTab('settings'); openSettingsScreen('ai','fwd'); }
     dismissOnboarding();
   }));
   $('onboarding-dismiss').addEventListener('click', dismissOnboarding);
