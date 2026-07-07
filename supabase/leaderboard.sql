@@ -19,6 +19,12 @@ create table if not exists public.challenge_scores (
 
 alter table public.challenge_scores enable row level security;
 
+-- both the table-level privilege AND the RLS policy are required for the
+-- anonymous insert to succeed (a missing grant surfaces as HTTP 401 from
+-- PostgREST); the explicit grant makes this file self-contained even if the
+-- project's default privileges have been altered
+grant insert on table public.challenge_scores to anon;
+
 drop policy if exists "anon can submit a daily score" on public.challenge_scores;
 create policy "anon can submit a daily score"
   on public.challenge_scores for insert to anon with check (true);
