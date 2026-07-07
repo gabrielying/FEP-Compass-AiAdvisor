@@ -33,6 +33,15 @@
 /* Day 1 of the game — challenge numbers count up from this date. */
 const CHALLENGE_EPOCH = '2026-07-01';
 
+/* Malaysian local financial institutions selectable as leaderboard teams. */
+const LFI_TEAMS = [
+  'Maybank', 'CIMB Bank', 'Public Bank', 'RHB Bank', 'Hong Leong Bank',
+  'AmBank', 'Alliance Bank', 'Affin Bank', 'Bank Islam', 'Bank Muamalat',
+  'Bank Rakyat', 'BSN', 'MBSB Bank', 'Agrobank', 'Kuwait Finance House',
+  'Al Rajhi Bank', 'HSBC Malaysia', 'OCBC Malaysia', 'UOB Malaysia',
+  'Standard Chartered Malaysia', 'Other institution',
+];
+
 const CHALLENGE_BANK = [
   {
     id: 'mcq-n3-01', notice: 3, type: 'mcq',
@@ -1067,7 +1076,7 @@ function dailyQuestion(dateKey) {
 /* ━━━ NODE / COMMONJS EXPORT (no-op in the browser) ━━━ */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    CHALLENGE_EPOCH, CHALLENGE_BANK,
+    CHALLENGE_EPOCH, CHALLENGE_BANK, LFI_TEAMS,
     challengeDateKey, challengeNumber, dailyQuestion,
     hashDateKey, mulberry32,
   };

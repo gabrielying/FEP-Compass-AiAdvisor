@@ -24,7 +24,8 @@
   SOURCE: Official Malaysia FEP Notice PDFs — https://www.bnm.gov.my/fep/policies/notices (see Settings)
   DISCLAIMER: Educational guidance only. Verify complex cases with the FEP Authority.
 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://generativelanguage.googleapis.com http://localhost:11434 http://127.0.0.1:11434 blob:; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://generativelanguage.googleapis.com http://localhost:11434 http://127.0.0.1:11434 https://*.supabase.co blob:; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -183,8 +184,17 @@
                 <button class="qa" data-go="tools" data-tool="advisor"><i class="ti ti-message-dots"></i>Ask the Advisor</button>
                 <button class="qa" data-go="tools" data-tool="analyst"><i class="ti ti-checkup-list"></i>Compliance Check</button>
                 <button class="qa" data-go="notices"><i class="ti ti-books"></i>Browse Notices</button>
+                <button class="qa" id="qa-challenge"><i class="ti ti-trophy"></i>Daily Challenge</button>
               </div>
             </article>
+
+            <!-- Institution leaderboard (the challenge itself lives in More → Daily Challenge) -->
+            <article class="card span-2">
+              <div class="card-head"><h2><i class="ti ti-chart-bar"></i> Institution Leaderboard</h2></div>
+              <p class="card-hint">Which local financial institution knows its FEP best — team standings from the Daily FEP Challenge.</p>
+              <div id="dash-leaderboard" class="dash-leaderboard"></div>
+            </article>
+
 
             <!-- Notices at a glance -->
             <article class="card span-2">
