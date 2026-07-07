@@ -34,7 +34,8 @@ onboarding text).
 
 | File | Purpose |
 |---|---|
-| `index.html` | HTML shell; CSP meta tag (explicit allowlist); SRI-pinned CDN `<script>`/`<link>` tags; PWA manifest link. |
+| `index.html` | HTML shell; CSP meta tag (explicit allowlist); PWA manifest link. |
+| `vendor/tabler/` | Self-hosted Tabler icons webfont v3.9.0 (`tabler-icons.min.css` + `fonts/tabler-icons.woff2`) — vendored so icons render offline and on networks where CDNs are unreachable. Both files are in `sw.js`'s `SHELL`. |
 | `legal.html` | Standalone static legal/policy page (Terms, Privacy/PDPA, AI disclosure, data retention, disclaimers, etc.) — self-contained, no `app.js`/`kb.js` script tags, self-only CSP. Linked from the sidebar footer, mobile topbar, and Settings → Data & About. |
 | `app.js` | App logic: global `ST` state, 5-tab UI (notices/dashboard/tools/advisor/settings), `QUICKCHECK` decision trees, `callGemini()` (~line 162), `callOllama()` (~line 188), `AI_COOLDOWN_MS`/`aiCooldownOk()` (~line 210), `repairJSON()`/`parseResp()` (~line 221/244), `VALID_VERDICTS` (~line 243), `MAX_ACTIVITY` (~line 87), runtime citation grounding (`verdictCard()` calls `verifyCitation()`), DOM helpers (`mkEl`, `esc`, `toast`). |
 | `kb.js` | Knowledge base + retrieval: `NOTICES` (N1–N7), `GLOSSARY` (57 terms), `CHUNKS`, `N3_ANCHOR_REFS` (~line 476), `retrieve()` (~line 477), `buildSystemPrompt()` (~line 504), and citation-grounding helpers (`extractRefTokens`/`extractNoticeNumbers`/`refTokensByNotice`/`verifyCitation`) shared with the test harness. Dual-loaded as a browser `<script>` global **and** a CommonJS module via the `module.exports` guard near the bottom — the latter is `require()`d by `test/run-stress-test.js`. |
@@ -109,12 +110,13 @@ check, so the app and `test/run-stress-test.js` judge a citation identically.
   must run unmodified via `<script>` tag in evergreen browsers — no JSX, no
   bare-specifier ES modules, no TS-only syntax.
 - **Security posture is deliberate**: the CSP meta tag in `index.html` is an
-  explicit allowlist (`script-src 'self' https://cdn.jsdelivr.net`, no
-  `unsafe-inline`); every CDN `<script>`/`<link>` tag carries a SHA-384 SRI
-  `integrity` hash. Any new CDN dependency needs its own SRI hash and a
-  specific CSP allowance — don't loosen the policy broadly. API keys live
-  only in `localStorage` and are sent only directly to the provider's own
-  endpoint.
+  explicit allowlist (`script-src 'self'`, no `unsafe-inline`); the Tabler
+  icon webfont is self-hosted under `vendor/tabler/`, leaving the Google
+  Fonts stylesheet/fonts as the only external assets. Prefer vendoring new
+  assets into `vendor/` over adding a CDN dependency; if a CDN tag is truly
+  needed it requires a SHA-384 SRI `integrity` hash and a specific CSP
+  allowance — don't loosen the policy broadly. API keys live only in
+  `localStorage` and are sent only directly to the provider's own endpoint.
 
 ## Testing
 

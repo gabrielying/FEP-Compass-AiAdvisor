@@ -3,8 +3,10 @@
    CDN assets (fonts, icons): cached on first use for offline reuse. */
 'use strict';
 
-const CACHE = 'fep-compass-v64';
-const SHELL = ['./', './index.html', './styles.css', './kb.js', './challenge.js', './app.js', './legal.html', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'fep-compass-v65';
+const SHELL = ['./', './index.html', './styles.css', './kb.js', './challenge.js', './app.js', './legal.html', './manifest.webmanifest', './icon.svg',
+  // the ?v3.9.0 query must match the url() in tabler-icons.min.css — caches.match() is exact-URL
+  './vendor/tabler/tabler-icons.min.css', './vendor/tabler/fonts/tabler-icons.woff2?v3.9.0'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

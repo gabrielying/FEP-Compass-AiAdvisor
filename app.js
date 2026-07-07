@@ -1668,10 +1668,34 @@ const SETTINGS_HUB_CARDS = [
 ];
 const SETTINGS_SCREEN_TITLES = { ai:'AI Provider', games:'Daily Challenge', data:'Data & Privacy', about:'About' };
 
-function openSettingsScreen(screen, dir) {
+/* Sub-screens participate in browser history via a #more/<screen> hash entry,
+   so the hardware back button / edge-swipe on mobile returns to the More hub
+   instead of leaving the app. `fromHistory` marks renders triggered by
+   popstate itself, which must not push/replace again. */
+const MORE_HASH = '#more/';
+function openSettingsScreen(screen, dir, fromHistory) {
   ST.settingsScreen = screen;
   renderSettings(dir);
+  if (fromHistory) return;
+  if (screen === 'hub') {
+    // drop any stale sub-screen hash without adding a history entry
+    if (location.hash.startsWith(MORE_HASH)) history.replaceState(null, '', location.pathname + location.search);
+  } else {
+    history.pushState({ moreScreen: screen }, '', MORE_HASH + screen);
+  }
 }
+window.addEventListener('popstate', () => {
+  if (ST.tab !== 'settings') return; // stale #more entry popped while on another tab — ignore
+  const m = location.hash.startsWith(MORE_HASH) ? location.hash.slice(MORE_HASH.length) : null;
+  if (m && SETTINGS_SCREEN_TITLES[m]) openSettingsScreen(m, 'fwd', true);
+  else if (ST.settingsScreen !== 'hub') openSettingsScreen('hub', 'back', true);
+});
+
+/* Brand compass needle rotated to point west — the shared "go back" mark on every sub-screen */
+const COMPASS_BACK_SVG = `<svg class="set-back-compass" viewBox="0 0 512 512" aria-hidden="true">
+  <circle cx="256" cy="256" r="170" fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width="36"/>
+  <path d="M344 168 L286 286 L168 344 L226 226 Z" transform="rotate(-135 256 256)"/>
+</svg>`;
 
 function renderSettings(dir) {
   const el = $('settings-content'); el.innerHTML = '';
@@ -1681,9 +1705,13 @@ function renderSettings(dir) {
   if (screen === 'hub') return renderSettingsHub(wrap);
 
   const head = mkEl('header','subscreen-head');
-  const back = mkEl('button','set-back','<i class="ti ti-chevron-left"></i>');
+  const back = mkEl('button','set-back', COMPASS_BACK_SVG + '<span>Back to app</span>');
   back.setAttribute('aria-label','Back to More');
-  back.addEventListener('click', () => openSettingsScreen('hub','back'));
+  back.addEventListener('click', () => {
+    // unwind the pushed #more entry so in-app back and hardware back stay in sync
+    if (location.hash.startsWith(MORE_HASH)) history.back();
+    else openSettingsScreen('hub','back');
+  });
   head.appendChild(back);
   head.appendChild(mkEl('h1', null, esc(SETTINGS_SCREEN_TITLES[screen] || 'More')));
   wrap.appendChild(head);
@@ -1753,7 +1781,7 @@ function renderAboutScreen(wrap) {
     <p class="hint mb-12">FEP Compass v2.0 · Notices N1–N7 effective 1 Oct 2025 · Educational guidance only, not legal advice.
     Official source: <a href="${FEP_OFFICIAL_URL}" target="_blank" rel="noopener">bnm.gov.my/fep/policies/notices</a></p>
     <div class="btn-row mt-0">
-      <button class="btn" id="replay-guide"><i class="ti ti-replay"></i> Replay setup guide</button>
+      <button class="btn" id="replay-guide"><i class="ti ti-refresh"></i> Replay setup guide</button>
     </div>`;
   wrap.appendChild(card);
   card.querySelector('#replay-guide').addEventListener('click', () => {
@@ -2058,6 +2086,9 @@ renderNoticeCards();
 renderGlossary();
 renderAdvisorPills();
 renderAdvisorEmpty();
+// a #more/<screen> hash only ever refers to an in-session history entry — after a
+// reload it's stale (the More tab always lands on the hub), so drop it up front
+if (location.hash.startsWith(MORE_HASH)) history.replaceState(null, '', location.pathname + location.search);
 renderSettings();
 buildBM25();
 renderQuickfillChips();
