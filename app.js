@@ -508,6 +508,7 @@ function printInputBlock(rows) {
   return w;
 }
 /* clone a verdict card into the dedicated print area and trigger the browser's print/Save-as-PDF dialog */
+let verdictPrintArmed = false;
 function printVerdict(card) {
   const area = $('print-area');
   const clone = card.cloneNode(true);
@@ -520,9 +521,22 @@ function printVerdict(card) {
   area.appendChild(clone);
   if (card._printChunks?.length) area.appendChild(provisionList(card._printChunks, 'Provisions used for this check'));
   document.body.classList.add('printing');
+  verdictPrintArmed = true;
   window.print();
 }
-window.addEventListener('afterprint', () => document.body.classList.remove('printing'));
+/* Chrome on Android fires beforeprint/afterprint immediately when
+   window.print() is called and only rasterizes the page later, when the user
+   confirms the system print sheet (which fires beforeprint again) — removing
+   the 'printing' class on afterprint or on the next beforeprint strips the
+   verdict layout from the saved PDF. The class only has effect inside
+   @media print, so leave it applied until the user is back interacting with
+   the page (at which point any pending verdict print is over), then let a
+   print we did not initiate render the normal page. */
+window.addEventListener('beforeprint', () => {
+  if (!verdictPrintArmed) document.body.classList.remove('printing');
+});
+['pointerdown','keydown'].forEach(ev =>
+  window.addEventListener(ev, () => { verdictPrintArmed = false; }));
 function rawCard(raw) {
   const w = mkEl('div','');
   w.appendChild(mkEl('div','msg-raw-label','<i class="ti ti-alert-circle"></i>Raw AI response — could not parse a structured verdict'));
@@ -1764,12 +1778,13 @@ $('history-btn').addEventListener('click', () => {
       closeOverlays();
       ST.msgs = s.msgs.slice(); ST.sessId = s.id;
       const m = $('msgs'); m.innerHTML = '';
+      let lastQ = null;
       ST.msgs.forEach(msg => {
-        if (msg.role === 'user') pushUserMsg(msg.content);
+        if (msg.role === 'user') { lastQ = msg.content; pushUserMsg(msg.content); }
         else {
           const wrap = mkEl('div','msg-ai');
           const p = parseResp(msg.content);
-          if (p.ok) wrap.appendChild(verdictCard(p.data, null, p.partial)); else wrap.appendChild(rawCard(msg.content));
+          if (p.ok) wrap.appendChild(verdictCard(p.data, null, p.partial, lastQ ? [['Question', lastQ]] : null)); else wrap.appendChild(rawCard(msg.content));
           m.appendChild(wrap);
         }
       });
