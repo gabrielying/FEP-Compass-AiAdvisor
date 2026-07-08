@@ -643,7 +643,9 @@ async function submitScore(h) {
   try {
     const res = await fetch(`${LB_URL}/rest/v1/challenge_scores?on_conflict=client_id,played_on`, {
       method: 'POST',
-      headers: { ...LB_HEADERS, 'Content-Type': 'application/json', Prefer: 'resolution=ignore-duplicates' },
+      // return=minimal: never ask PostgREST to read back the inserted row —
+      // the table deliberately has no SELECT policy, so any RETURNING would fail
+      headers: { ...LB_HEADERS, 'Content-Type': 'application/json', Prefer: 'return=minimal, resolution=ignore-duplicates' },
       body: JSON.stringify({ played_on: h.date, team: h.team, correct: h.correct, ms: h.ms, client_id: gameClientId() }),
     });
     if (res.ok || res.status === 409) {

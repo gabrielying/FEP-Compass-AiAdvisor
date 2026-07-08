@@ -21,13 +21,17 @@ alter table public.challenge_scores enable row level security;
 
 -- both the table-level privilege AND the RLS policy are required for the
 -- anonymous insert to succeed (a missing grant surfaces as HTTP 401 from
--- PostgREST); the explicit grant makes this file self-contained even if the
--- project's default privileges have been altered
-grant insert on table public.challenge_scores to anon;
+-- PostgREST); the explicit grants make this file self-contained even if the
+-- project's default privileges have been altered. The policy carries no TO
+-- clause (= applies to every role) so it keeps working regardless of which
+-- role the API gateway maps the publishable key to.
+grant usage on schema public to anon, authenticated;
+grant insert on table public.challenge_scores to anon, authenticated;
 
 drop policy if exists "anon can submit a daily score" on public.challenge_scores;
-create policy "anon can submit a daily score"
-  on public.challenge_scores for insert to anon with check (true);
+drop policy if exists "api clients can submit a daily score" on public.challenge_scores;
+create policy "api clients can submit a daily score"
+  on public.challenge_scores for insert with check (true);
 
 -- Aggregated team standings. A SECURITY DEFINER *function* (not a view) is
 -- the linter-approved way to expose per-team aggregates from a table whose
