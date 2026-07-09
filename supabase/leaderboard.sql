@@ -5,6 +5,17 @@
 -- Privacy: rows are anonymous (institution, correct flag, time, random client
 -- id). The raw table has NO select policy — clients only read the aggregated
 -- view below.
+--
+-- IMPORTANT — same-project coupling: this file MUST be run on the Supabase
+-- project whose URL and publishable key are hardcoded as LB_URL / LB_KEY in
+-- app.js. Running it on any other project leaves the live project without the
+-- table/grants/policy, and every score insert fails with HTTP 401 / Postgres
+-- code 42501 (row-level security violation).
+--
+-- Note: the Supabase SQL Editor runs the whole file in one transaction — if
+-- ANY statement errors, everything rolls back silently. After running,
+-- re-check that the objects actually exist (see the verification footer at
+-- the bottom of this file).
 
 create table if not exists public.challenge_scores (
   id bigint generated always as identity primary key,
@@ -59,3 +70,25 @@ $$;
 
 revoke all on function public.challenge_leaderboard() from public;
 grant execute on function public.challenge_leaderboard() to anon;
+
+-- ━━━ Verification (run manually after applying — all commented, file still
+-- ━━━ runs as-is) ━━━
+--
+-- 1) The insert policy must exist (expect one row,
+--    policyname = 'api clients can submit a daily score', cmd = 'INSERT'):
+--
+--    select * from pg_policies where tablename = 'challenge_scores';
+--
+-- 2) An anonymous insert through PostgREST must succeed with HTTP 201.
+--    Replace <PROJECT_URL> / <PUBLISHABLE_KEY> with the exact LB_URL / LB_KEY
+--    values from app.js:
+--
+--    curl -i -X POST '<PROJECT_URL>/rest/v1/challenge_scores?on_conflict=client_id,played_on' \
+--      -H 'apikey: <PUBLISHABLE_KEY>' \
+--      -H 'Authorization: Bearer <PUBLISHABLE_KEY>' \
+--      -H 'Content-Type: application/json' \
+--      -H 'Prefer: return=minimal, resolution=ignore-duplicates' \
+--      -d '{"played_on":"2026-01-01","team":"verify-test","correct":true,"ms":1000,"client_id":"verify-test-0001"}'
+--
+--    Expected: HTTP/2 201. An HTTP 401 with Postgres code 42501 means this
+--    file was not applied to the project behind <PROJECT_URL>.

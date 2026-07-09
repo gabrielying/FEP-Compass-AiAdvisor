@@ -46,7 +46,16 @@ const DEFAULT_CFG = { provider:'gemini', apiKey:'', model:'gemini-2.5-flash', ol
 
 /* Shared Daily Challenge leaderboard (Supabase REST) — fixed, zero-config.
    LB_KEY is the project's public publishable key (safe to ship in the client);
-   writes are protected server-side by RLS in supabase/leaderboard.sql. */
+   writes are protected server-side by RLS in supabase/leaderboard.sql.
+
+   IMPORTANT — same-project coupling: LB_URL/LB_KEY and the Supabase project
+   where supabase/leaderboard.sql is run MUST be the same project. If the SQL
+   is run on a different project (or never run), inserts fail with HTTP 401 /
+   Postgres code 42501 (row-level security violation). Forks/self-hosts must
+   replace BOTH constants below with their own project's URL + publishable
+   key, then run supabase/leaderboard.sql in that project's SQL Editor.
+   No index.html change is needed: the CSP already allows
+   https://*.supabase.co in connect-src. */
 const LB_URL = 'https://toglryukfdjybzgtdjzn.supabase.co';
 const LB_KEY = 'sb_publishable_Rx8jmd5sJ3SMHBIU0M9T8A_Lv4vhp4P';
 
@@ -658,7 +667,15 @@ async function submitScore(h) {
       let msg = 'HTTP ' + res.status;
       try {
         const j = await res.json();
-        if (j && (j.message || j.code)) msg += ` — ${[j.code, j.message].filter(Boolean).join(': ')}`;
+        // 42501 = Postgres insufficient_privilege / RLS violation: the project at
+        // LB_URL never had supabase/leaderboard.sql applied (or LB_URL/LB_KEY point
+        // at a different project than the one the SQL was run on) — say so plainly
+        // instead of surfacing raw PostgREST text.
+        if (j && (j.code === '42501' || /row-level security/i.test(j.message || ''))) {
+          msg = `Leaderboard database is rejecting score submissions (row-level security). The Supabase project at ${LB_URL} has not had supabase/leaderboard.sql applied — the site owner must run that file in the project's SQL Editor, and make sure LB_URL/LB_KEY in app.js point at that same project.`;
+        } else if (j && (j.message || j.code)) {
+          msg += ` — ${[j.code, j.message].filter(Boolean).join(': ')}`;
+        }
       } catch (_) { /* non-JSON body */ }
       submitScore._lastErr = msg;
       if (ST.tab === 'dashboard') renderLeaderboard(); // surface the pending-sync note

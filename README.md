@@ -50,6 +50,14 @@ A modern, minimalist, education-first web app for **banking officers** (and comp
 - **Notices at a Glance** — 7 mini-tiles, each opening the notice detail sheet.
 - **Recent Activity** — local audit trail (last 50 events) of advisor queries, compliance checks, notice lookups and limit/declaration changes, with timestamps. Searchable, filterable by type (once 2+ types are logged), **exportable as CSV**, and a "Clear" action. Stored only in `localStorage` on this device.
 
+#### Shared leaderboard (Supabase) setup
+The Daily FEP Challenge leaderboard is the app's only backend call. To set it up:
+1. Create a Supabase project, then run `supabase/leaderboard.sql` in that project's **SQL Editor**.
+2. Put **that same project's** URL and publishable key into `LB_URL` / `LB_KEY` in `app.js` — the SQL and the constants must point at the same project, or score inserts fail with HTTP 401 / code 42501 (row-level security).
+3. Nothing else to configure — the CSP in `index.html` already allows `https://*.supabase.co`.
+
+If the constants are unset or the project is unreachable, the app degrades gracefully: the leaderboard shows an "unreachable" notice and a pending-sync note, and everything else works normally.
+
 ### 3 · Smart Tools (the engine)
 - **AI Compliance Analyst** — structured intake designed for precise RAG retrieval:
   `WHO` (party type) · `WHAT` (transaction type) · `WHERE` (countries) · `WHY` (purpose, 160 chars) · `AMOUNT` (+ currency) · optional context (1000 chars).
